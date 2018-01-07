@@ -1,0 +1,93 @@
+#menu_container {
+    background-color: rgb(200, 200, 200);
+}
+
+QWidget {
+    background-color: rgb(200, 200, 200);
+}
+
+QPushButton {
+    background-color: white;
+    border-style: solid;
+    border-width: 5px;
+    border-color: white;
+    border-radius: 5px;
+    margin: 2px 0px 2px 5px;
+}
+
+QPushButton:checked {
+    background-color: rgb(0, 255, 0);
+    border-color: rgb(0, 255, 0);
+}
+
+QPushButton:pressed {
+    background-color: darkgrey;
+    border-color: darkgrey;
+}
+
+QComboBox {
+    background-color: white;
+    border: 10px;
+    border-color: black;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+QComboBox::drop-down
+{
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    border-left-width: 1px;
+    border-left-color: darkgray;
+    border-left-style: solid; /* just a single line */
+    border-top-right-radius: 3px; /* same radius as the QComboBox */
+    border-bottom-right-radius: 3px;
+}
+
+ComboBox:on { /* shift the text when the popup opens */
+    padding-top: 3px;
+    padding-left: 4px;
+}
+QComboBox QAbstractItemView::item {
+    padding: 5px;
+}
+
+QComboBox QAbstractItemView {
+    border: 2px solid black;
+    background: white;
+}
+
+QProgressBar {
+  border: 1px solid black;
+  text-align:center;
+  color: black;
+  background-color: transparent;
+}
+QProgressBar::chunk {
+  background-color: rgba(0, 0, 0, 150);
+}
+
+QLabel {
+  background: transparent;
+}
+
+#container {
+  background: #333333;
+  border: 1px solid black;
+}
+
+#container_label {
+  font-size: 15px;
+  font-weight:bold;
+  color: #DDDDDD;
+  font-style:italic;
+}
+
+#container_spell_box {
+  border: 1px solid black;
+  background: rgba(0, 0, 0, 100);
+}
+
+#spell_item {
+  background: black;
+}
