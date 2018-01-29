@@ -28,10 +28,10 @@ class ThreadedLogReader(threading.Thread):
     def _update_log_file(self):
         log_filter = os.path.join(
             self._eq_directory,
-            "Logs/",
             "eqlog*.*"
         )
-        tlog_file = max(glob(log_filter), key=os.path.getmtime)
+        files = glob(log_filter)
+        tlog_file = max(files, key=os.path.getmtime)
         if tlog_file != self._log_file:
             with open(tlog_file, 'rb') as tlog:
                 tlog.seek(0, os.SEEK_END)

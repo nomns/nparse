@@ -8,6 +8,18 @@
     font-size: 14px;
 }
 
+#ParserButton {
+    color: white;
+    font-weight: bold;
+    background: black;
+    padding: 2px;
+    spacing: 10px;
+}
+
+#ParserButton:Hover {
+    background: #111133;
+}
+
 #MapCanvas {
     background-color: rgb(0, 0, 0);
 }

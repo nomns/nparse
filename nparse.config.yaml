@@ -1,0 +1,14 @@
+general:
+  eq_log_dir: F:/EverQuest Project 1999/Logs
+  update_interval: 1
+maps:
+  geometry:
+  - 467
+  - 287
+  - 365
+  - 379
+  grid_line_width: 1
+  last_zone: Butcherblock Mountains
+  line_width: 1
+  show_poi: false
+  toggled: true
