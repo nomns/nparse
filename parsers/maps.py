@@ -24,10 +24,10 @@ class Maps(ParserWindow):
         self._map_canvas = MapCanvas()
         self.content.addWidget(self._map_canvas, 1)
 
-        try:
+        if config.data['maps']['last_zone']:
             self._map_canvas.load_map(config.data['maps']['last_zone'])
-        except:
-            traceback.print_exc()
+        else:
+            self._map_canvas.load_map('west freeport')
 
         self._position_label = QLabel()
         self._position_label.setObjectName('MapAreaLabel')

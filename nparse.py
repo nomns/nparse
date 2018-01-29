@@ -46,8 +46,8 @@ class NomnsParse(QApplication):
             if parser.name in config.data.keys() and 'geometry' in config.data[parser.name].keys():
                 g = config.data[parser.name]['geometry']
                 parser.setGeometry(g[0], g[1], g[2], g[3])
-                if config.data[parser.name]['toggled']:
-                    parser.show()
+            if config.data[parser.name]['toggled']:
+                parser.show()
 
     def _toggle(self, toggle=1):
         if toggle and not self._toggled:
@@ -92,7 +92,7 @@ class NomnsParse(QApplication):
         nparse_toggle.triggered.connect(self._toggle)
         self._toggled_menu_item = nparse_toggle
         seperator = menu.addSeparator()
-        get_eq_dir = menu.addAction("Select EQ Directory")
+        get_eq_dir = menu.addAction("Select EQ Logs Directory")
         get_eq_dir.triggered.connect(self._get_eq_directory)
         # generate parser specific sub menus
         for parser in self._parsers:
@@ -104,7 +104,7 @@ class NomnsParse(QApplication):
         return menu
 
     def _get_eq_directory(self, _):
-        dir_path = str(QFileDialog.getExistingDirectory(None, 'Select Everquest Directory'))
+        dir_path = str(QFileDialog.getExistingDirectory(None, 'Select Everquest Logs Directory'))
         if dir_path:
             config.data['general']['eq_log_dir'] = dir_path
             config.save()
