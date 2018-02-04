@@ -113,7 +113,7 @@ class NomnsParse(QApplication):
             self._toggle(1)
 
     def _quit(self):
-        self._toggle(0)
+        self._toggle()
         self._system_tray.setVisible(False)
         self.quit()
 
