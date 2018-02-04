@@ -6,7 +6,7 @@ from glob import glob
 
 class ThreadedLogReader(threading.Thread):
 
-    def __init__(self, eq_directory, interval = 1):
+    def __init__(self, eq_directory, interval = 250):
         self._interval = interval
         self._eq_directory = eq_directory
 
@@ -43,7 +43,7 @@ class ThreadedLogReader(threading.Thread):
         while self._active:
             self._update_log_file()
             self._check_log()
-            time.sleep(self._interval)
+            time.sleep(self._interval/1000.0)
 
     def stop(self):
         self._active = False

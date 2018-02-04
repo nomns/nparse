@@ -1,0 +1,24 @@
+general:
+  eq_log_dir: F:/EverQuest Project 1999/Logs
+  update_interval_msec: 500
+maps:
+  geometry:
+  - 1935
+  - 44
+  - 267
+  - 261
+  grid_line_width: 1
+  last_zone: East Commonlands
+  line_width: 1
+  scale: 0.05411289978216766
+  show_poi: false
+  toggled: true
+spells:
+  geometry:
+  - 1937
+  - 306
+  - 247
+  - 508
+  level: 50
+  seconds_offset: 0
+  toggled: true

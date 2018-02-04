@@ -1,9 +1,10 @@
 """Map parser for nparse."""
 import traceback
+from PyQt5 import QtCore
 from os import path
 import math
 
-from PyQt5.QtCore import Qt, QPointF, QRectF, QSizeF, pyqtSignal, QLineF
+from PyQt5.QtCore import Qt, QPointF, QRectF, QSizeF, pyqtSignal, QLineF, QObject
 from PyQt5.QtGui import QPen, QColor, QTransform, QPainterPath, QPainter, QFont, QPixmap
 from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsRectItem,
                              QGraphicsTextItem, QGraphicsEllipseItem, QGraphicsPixmapItem, QLabel, QMenu,
@@ -16,18 +17,21 @@ from helpers import config, resource_path
 class Maps(ParserWindow):
 
     def __init__(self):
-        self.name = 'maps'
         super().__init__()
+        self.name = 'maps'
         self.setWindowTitle(self.name.title())
         self.set_title(self.name.title())
 
-        self._map_canvas = MapCanvas()
-        self.content.addWidget(self._map_canvas, 1)
+        self._setup_ui()
 
         if config.data['maps']['last_zone']:
             self._map_canvas.load_map(config.data['maps']['last_zone'])
         else:
             self._map_canvas.load_map('west freeport')
+
+    def _setup_ui(self):
+        self._map_canvas = MapCanvas()
+        self.content.addWidget(self._map_canvas, 1)
 
         self._position_label = QLabel()
         self._position_label.setObjectName('MapAreaLabel')
@@ -35,26 +39,17 @@ class Maps(ParserWindow):
 
         self._map_canvas.position_update.connect(self._update_position_label)
 
-    def parse(self, date, text):
+    def parse(self, time, text):
         if text[:23] == 'LOADING, PLEASE WAIT...':
             pass
         if text[:16] == 'You have entered':
             self._map_canvas.load_map(text[17:-1])
         if text[:16] == 'Your Location is':
             try:
-                self._map_canvas.add_player('__you__', date, text[17:])
+                self._map_canvas.add_player('__you__', time, text[17:])
                 self._map_canvas.update_players()
             except:
                 traceback.print_exc()
-
-    def toggle(self, _=None):
-        if self.isVisible():
-            self.hide()
-            config.data['maps']['toggled'] = False
-        else:
-            self.show()
-            config.data['maps']['toggled'] = True
-        config.save()
 
     def _update_position_label(self):
         mp = self._map_canvas.mouse_point
@@ -98,7 +93,7 @@ class MapCanvas(QGraphicsView):
         # Class Init
         self._scene = QGraphicsScene(self)
         self.setScene(self._scene)
-        self.scale_ratio = 1
+        self.scale_ratio = config.data['maps']['scale']
         self.map_data = None
         self.map_line_path_items = {}
         self.map_points_items = []
@@ -112,7 +107,7 @@ class MapCanvas(QGraphicsView):
 
     def load_map(self, map_name):
         try:
-            map_data = MapData(map_name)
+            map_data = MapData(str(map_name))
         except:
             traceback.print_exc()
         else:
@@ -156,8 +151,8 @@ class MapCanvas(QGraphicsView):
         colors = {}
         for map_line in self.map_data.map_lines:
             key = str(map_line.r) + ',' \
-                  + str(map_line.g) + ',' \
-                  + str(map_line.b)
+                + str(map_line.g) + ',' \
+                + str(map_line.b)
             if key not in line_path.keys():
                 line_path[key] = QPainterPath()
                 colors[key] = QColor().fromRgb(
@@ -234,9 +229,9 @@ class MapCanvas(QGraphicsView):
             if player_data.name == '__you__':
                 if not self.map_user_item:
                     self.map_user_item = QGraphicsPixmapItem(
-                        QPixmap('data/maps/player_icon.png'))
+                        QPixmap('data/maps/user.png'))
                     self._scene.addItem(self.map_user_item)
-                    self.map_user_item.setOffset(-10, -20)
+                    self.map_user_item.setOffset(-10, -10)
                     self.map_user_item.setZValue(10)
                 self.map_user_item.setPos(player_data.x, player_data.y)
                 self.map_user_item.setScale(1 / self.scale_ratio)
@@ -285,13 +280,15 @@ class MapCanvas(QGraphicsView):
         # scene
         self.setTransform(QTransform())  # reset transform object
         self.scale_ratio = min(5.0, max(0.006, ratio))
+        config.data['maps']['scale'] = self.scale_ratio
         self.scale(self.scale_ratio, self.scale_ratio)
 
         # map lines
         map_line_width = config.data['maps']['line_width']
         for key in self.map_line_path_items.keys():
             pen = self.map_line_path_items[key].pen()
-            pen.setWidth(max(map_line_width, map_line_width / self.scale_ratio))
+            pen.setWidth(
+                max(map_line_width, map_line_width / self.scale_ratio))
             self.map_line_path_items[key].setPen(pen)
 
         # map grid
@@ -308,8 +305,10 @@ class MapCanvas(QGraphicsView):
                     text_item.setVisible(True)
                 rect = rect_item.rect()
                 x, y = rect.x(), rect.y()
-                rect_item.setRect(x, y, max(5.0, 5.0 / self.scale_ratio), max(5.0, 5.0 / self.scale_ratio))
-                text_item.setFont(QFont('Noto Sans', max(8.0, 8.0 / self.scale_ratio)))
+                rect_item.setRect(
+                    x, y, max(5.0, 5.0 / self.scale_ratio), max(5.0, 5.0 / self.scale_ratio))
+                text_item.setFont(
+                    QFont('Noto Sans', max(8.0, 8.0 / self.scale_ratio)))
                 text_x = x - text_item.boundingRect().width() / 2
                 text_item.setX(int(text_x + self._to_scale(5.0)))
             else:
@@ -330,7 +329,8 @@ class MapCanvas(QGraphicsView):
         if self.map_way_point:
             rect = self.map_way_point.rect.rect()
             x, y = rect.x(), rect.y()
-            self.map_way_point.rect.setRect(x, y, self._to_scale(8.0), self._to_scale(8.0))
+            self.map_way_point.rect.setRect(
+                x, y, self._to_scale(8.0), self._to_scale(8.0))
             if '__you__' in self.players.keys():
                 x, y = self.players['__you__'].x, self.players['__you__'].y
                 self.map_way_point.line.setVisible(True)
@@ -338,7 +338,8 @@ class MapCanvas(QGraphicsView):
                 line.setP1(QPointF(x, y))
                 line.setP2(rect.center())
                 self.map_way_point.line.setLine(line)
-                self.map_way_point.line.setPen(QPen(Qt.green, self._to_scale(1), Qt.DashLine))
+                self.map_way_point.line.setPen(
+                    QPen(Qt.green, self._to_scale(1), Qt.DashLine))
 
         # user icon
         if self.map_user_item:
@@ -430,6 +431,8 @@ class MapCanvas(QGraphicsView):
         # create menu
         pos = self.mapToScene(event.pos())
         menu = QMenu(self)
+        # remove from memory after usage
+        menu.setAttribute(Qt.WA_DeleteOnClose)
         way_point_menu = menu.addMenu("Way Point")
         way_point_create = way_point_menu.addAction("Create on Cursor")
         way_point_delete = way_point_menu.addAction("Clear")
@@ -452,7 +455,8 @@ class MapCanvas(QGraphicsView):
             if self.map_way_point:
                 self._scene.removeItem(self.map_way_point.line)
                 self._scene.removeItem(self.map_way_point.rect)
-            rect = QGraphicsRectItem(QRectF(QPointF(pos.x(), pos.y()), QSizeF(8.0, 8.0)))
+            rect = QGraphicsRectItem(
+                QRectF(QPointF(pos.x(), pos.y()), QSizeF(8.0, 8.0)))
             rect.setBrush(Qt.green)
             rect.setZValue(11)
             x, y = 0.0, 0.0
@@ -475,13 +479,16 @@ class MapCanvas(QGraphicsView):
 
         if action == load_map:
             dialog = QInputDialog(self)
+            dialog.setAttribute(Qt.WA_DeleteOnClose)
             dialog.setWindowTitle('Load Map')
             dialog.setLabelText('Select map to load:')
-            dialog.setComboBoxItems([map for map in self.map_data.map_pairs.keys()])
+            dialog.setComboBoxItems(
+                [map.title() for map in self.map_data.map_pairs.keys()])
             if dialog.exec_():
-                self.load_map(dialog.textValue())
+                self.load_map(dialog.textValue().lower())
 
         self._update()
+
     def resizeEvent(self, event):
         self.center()
         QGraphicsView.resizeEvent(self, event)
@@ -492,7 +499,7 @@ class MapData:
     def __init__(self, map_name):
         self.map_name = map_name
         self.map_keys_file = 'data/maps/map_keys.ini'
-        self.map_file_location = 'data/maps'
+        self.map_file_location = 'data/maps/map_files'
         self.map_pairs = {}
         self.map_lines = []
         self.map_points = []
@@ -630,11 +637,13 @@ class MapPoint:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
+
 class WayPoint:
     def __init__(self, **kwargs):
         self.line = None
         self.rect = None
         self.__dict__.update(kwargs)
+
 
 class MapLine:
     def __init__(self, **kwargs):

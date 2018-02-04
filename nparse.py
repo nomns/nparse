@@ -4,7 +4,7 @@ import sys
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon, QFontDatabase
 from PyQt5.QtWidgets import (
-    QSystemTrayIcon, QApplication, QMenu, QFileDialog)
+    QSystemTrayIcon, QApplication, QMenu, QFileDialog, QMessageBox)
 
 from helpers import config, logreader, parse_line, resource_path
 import parsers
@@ -17,6 +17,14 @@ class NomnsParse(QApplication):
 
     def __init__(self, *args):
         super().__init__(*args)
+
+        # validate settings file
+        try:
+            config.verify_settings()
+        except ValueError as error:
+            QMessageBox.critical(
+                None, 'Critical Error', 'Config file nparse.config.yaml contains errors.  Please obtain a valid settings file.', QMessageBox.Ok)
+            sys.exit()
 
         # Updater/Ticks
         self._toggled = False
@@ -40,7 +48,8 @@ class NomnsParse(QApplication):
 
     def _load_parsers(self):
         self._parsers = [
-            parsers.Maps()
+            parsers.Maps(),
+            parsers.Spells()
         ]
         for parser in self._parsers:
             if parser.name in config.data.keys() and 'geometry' in config.data[parser.name].keys():
@@ -52,18 +61,19 @@ class NomnsParse(QApplication):
     def _toggle(self, toggle=1):
         if toggle and not self._toggled:
             try:
-                config.verify_settings()
+                config.verify_paths()
             except ValueError as error:
-                self._system_tray.showMessage(error.args[0], error.args[1], msecs=3000)
+                self._system_tray.showMessage(
+                    error.args[0], error.args[1], msecs=3000)
 
             else:
                 self._thread = logreader.ThreadedLogReader(
                     config.data['general']['eq_log_dir'],
-                    config.data['general']['update_interval']
+                    config.data['general']['update_interval_msec']
                 )
                 self._thread.start()
                 self._timer.start(
-                    1000 * config.data['general']['update_interval']
+                    config.data['general']['update_interval_msec']
                 )
                 self._toggled = True
                 self._toggled_menu_item.setChecked(True)
@@ -78,9 +88,9 @@ class NomnsParse(QApplication):
     def _parse(self):
         for line in self._thread.get_new_lines():
             if line:
-                date, text = parse_line(line)
+                timestamp, text = parse_line(line)
                 for parser in self._parsers:
-                    parser.parse(date, text)
+                    parser.parse(timestamp, text)
 
     def _create_menu(self):
         """Returns a new QMenu for system tray."""
@@ -91,7 +101,7 @@ class NomnsParse(QApplication):
             nparse_toggle.setChecked(True)
         nparse_toggle.triggered.connect(self._toggle)
         self._toggled_menu_item = nparse_toggle
-        seperator = menu.addSeparator()
+        menu.addSeparator()
         get_eq_dir = menu.addAction("Select EQ Logs Directory")
         get_eq_dir.triggered.connect(self._get_eq_directory)
         # generate parser specific sub menus
@@ -104,7 +114,8 @@ class NomnsParse(QApplication):
         return menu
 
     def _get_eq_directory(self, _):
-        dir_path = str(QFileDialog.getExistingDirectory(None, 'Select Everquest Logs Directory'))
+        dir_path = str(QFileDialog.getExistingDirectory(
+            None, 'Select Everquest Logs Directory'))
         if dir_path:
             config.data['general']['eq_log_dir'] = dir_path
             config.save()
@@ -129,11 +140,14 @@ if __name__ == "__main__":
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APPID)
     except:
         pass
+
     APP = NomnsParse(sys.argv)
     APP.setStyleSheet(open(resource_path('data/ui/_.css')).read())
     APP.setWindowIcon(QIcon(resource_path('data/ui/icon.png')))
     APP.setQuitOnLastWindowClosed(False)
-    QFontDatabase.addApplicationFont(resource_path('data/fonts/NotoSans-Regular.ttf'))
-    QFontDatabase.addApplicationFont(resource_path('data/fonts/NotoSans-Bold.ttf'))
+    QFontDatabase.addApplicationFont(
+        resource_path('data/fonts/NotoSans-Regular.ttf'))
+    QFontDatabase.addApplicationFont(
+        resource_path('data/fonts/NotoSans-Bold.ttf'))
 
     sys.exit(APP.exec())

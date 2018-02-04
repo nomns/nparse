@@ -6,6 +6,7 @@ import yaml
 data = {}
 _filename = ''
 
+
 def load(filename):
     """
     Load yaml from file.
@@ -25,6 +26,7 @@ def load(filename):
         data = {}
         load(location)
 
+
 def save():
     """
     Saves yaml file to previously opened location.
@@ -38,9 +40,37 @@ def save():
 import os
 from glob import glob
 
+
 def verify_settings():
     global data
-    """ Return True if settings specific to nparse are valid, else False."""
+    # verify nparse.config.yaml contains what it should
+    try:
+        # general
+        _ = int(data['general']['update_interval_msec'])
+
+        # maps
+        _ = int(data['maps']['grid_line_width'])
+        _ = int(data['maps']['scale'])
+        _ = (type(data['maps']['show_poi']) == bool)
+        _ = (type(data['maps']['toggled']) == bool)
+        geometry = data['maps'].get('geometry', None)
+        if geometry:
+            assert(len([int(x) for x in geometry]) == 4)
+
+        # spells
+        _ = int(data['spells']['level'])
+        _ = int(data['spells']['seconds_offset'])
+        _ = (type(data['spells']['toggled']) == bool)
+        geometry = data['spells'].get('geometry', None)
+        if geometry:
+            assert(len([int(x) for x in geometry]) == 4)
+
+    except:
+        raise ValueError('critical')
+
+
+def verify_paths():
+    global data
     # verify eq log directory exists
     try:
         assert(os.path.isdir(os.path.join(data['general']['eq_log_dir'])))
@@ -56,12 +86,4 @@ def verify_settings():
         raise ValueError(
             'No Logs Found',
             'No Everquest log files were found.  Ensure both your directory is set and logging is turned on in your Everquest client.'
-        )
-
-    try:
-        _ = int(data['general']['update_interval'])
-    except:
-        raise ValueError(
-            'Critical Config Problem',
-            'There are settings missing in the config file which should not be missing.  Replace nparse.config.yaml into the same directory as the executable.'
         )

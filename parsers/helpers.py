@@ -1,11 +1,16 @@
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QBoxLayout, QLabel
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QBoxLayout, QLabel, QFrame
+
+from helpers import config
 
 
-class ParserWindow(QWidget):
+class ParserWindow(QFrame):
 
     def __init__(self):
         super().__init__()
+        self.name = ''
+        self.setObjectName('ParserWindow')
+
         self.setWindowFlags(
             Qt.WindowStaysOnTopHint |
             Qt.WindowCloseButtonHint |
@@ -33,7 +38,6 @@ class ParserWindow(QWidget):
         self._title.setObjectName("ParserWindowTitle")
 
         button = QPushButton(u'\u2630')
-        button.setIconSize(QSize(40, 40))
         button.setObjectName('ParserButton')
         self._menu_content.addWidget(button, 0)
         self._menu_content.addWidget(self._title, 1)
@@ -46,11 +50,23 @@ class ParserWindow(QWidget):
         button.clicked.connect(self._toggle_frame)
 
     def _toggle_frame(self):
+        current_geometry = self.geometry()
         if bool(self.windowFlags() & Qt.FramelessWindowHint):
             self.setWindowFlags(self.windowFlags() & ~Qt.FramelessWindowHint)
+            self.setGeometry(current_geometry)
         else:
             self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint)
+            self.setGeometry(current_geometry)
         self.show()
 
     def set_title(self, title):
         self._title.setText(title)
+
+    def toggle(self, _=None):
+        if self.isVisible():
+            self.hide()
+            config.data[self.name]['toggled'] = False
+        else:
+            self.show()
+            config.data[self.name]['toggled'] = True
+        config.save()
