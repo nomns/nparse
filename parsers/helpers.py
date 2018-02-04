@@ -58,6 +58,10 @@ class ParserWindow(QFrame):
             self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint)
             self.setGeometry(current_geometry)
         self.show()
+        g = self.geometry()
+        config.data[self.name]['geometry'] = [
+            g.x(), g.y(), g.width(), g.height()]
+        config.save()
 
     def set_title(self, title):
         self._title.setText(title)

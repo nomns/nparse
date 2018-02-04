@@ -28,7 +28,6 @@ class NomnsParse(QApplication):
 
         # Updater/Ticks
         self._toggled = False
-        self._toggled_menu_item = None
         self._timer = QTimer()
         self._timer.timeout.connect(self._parse)
         self._thread = None
@@ -44,7 +43,7 @@ class NomnsParse(QApplication):
         self._system_tray.show()
 
         # Turn On
-        self._toggle(1)
+        self._toggle()
 
     def _load_parsers(self):
         self._parsers = [
@@ -58,8 +57,8 @@ class NomnsParse(QApplication):
             if config.data[parser.name]['toggled']:
                 parser.show()
 
-    def _toggle(self, toggle=1):
-        if toggle and not self._toggled:
+    def _toggle(self):
+        if not self._toggled:
             try:
                 config.verify_paths()
             except ValueError as error:
@@ -76,14 +75,12 @@ class NomnsParse(QApplication):
                     config.data['general']['update_interval_msec']
                 )
                 self._toggled = True
-                self._toggled_menu_item.setChecked(True)
         else:
             if self._thread:
                 self._timer.stop()
                 self._thread.stop()
                 self._thread.join()
             self._toggled = False
-            self._toggled_menu_item.setChecked(False)
 
     def _parse(self):
         for line in self._thread.get_new_lines():
@@ -95,13 +92,6 @@ class NomnsParse(QApplication):
     def _create_menu(self):
         """Returns a new QMenu for system tray."""
         menu = QMenu()
-        nparse_toggle = menu.addAction('Toggle nParse')
-        nparse_toggle.setCheckable(True)
-        if self._toggled:
-            nparse_toggle.setChecked(True)
-        nparse_toggle.triggered.connect(self._toggle)
-        self._toggled_menu_item = nparse_toggle
-        menu.addSeparator()
         get_eq_dir = menu.addAction("Select EQ Logs Directory")
         get_eq_dir.triggered.connect(self._get_eq_directory)
         # generate parser specific sub menus
@@ -123,11 +113,6 @@ class NomnsParse(QApplication):
             self._toggle(1)
 
     def _quit(self):
-        for parser in self._parsers:
-            g = parser.geometry()
-            config.data[parser.name]['geometry'] = [
-                g.x(), g.y(), g.width(), g.height()]
-        config.save()
         self._toggle(0)
         self._system_tray.setVisible(False)
         self.quit()
