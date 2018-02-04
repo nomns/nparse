@@ -109,11 +109,11 @@ class NomnsParse(QApplication):
         if dir_path:
             config.data['general']['eq_log_dir'] = dir_path
             config.save()
-            self._toggle(0)
-            self._toggle(1)
+            self._toggle()
 
     def _quit(self):
-        self._toggle()
+        if self._toggled:
+            self._toggle()
         self._system_tray.setVisible(False)
         self.quit()
 

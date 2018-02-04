@@ -174,16 +174,19 @@ class SpellWidget(QFrame):
         self.setObjectName('SpellWidget')
         self.spell = spell
 
+        self._setup_ui()
+        self._calculate(timestamp)
+        self.setProperty('Warning', False)
+        self._time_label.setProperty('Warning', False)
+        self._update()
+
+    def _calculate(self, timestamp):
         self._ticks = get_spell_duration(
             self.spell, config.data['spells']['level'])
         self._seconds = (int(self._ticks * 6 +
                              config.data['spells']['seconds_offset']))
         self.end_time = timestamp + datetime.timedelta(seconds=self._seconds)
-
-        self._setup_ui()
-        self.setProperty('Warning', False)
-        self._time_label.setProperty('Warning', False)
-        self._update()
+        self.progress.setMaximum(self._seconds)
 
     def _setup_ui(self):
         # self
@@ -201,7 +204,6 @@ class SpellWidget(QFrame):
             self.progress.setObjectName('SpellWidgetProgressBarGood')
         else:
             self.progress.setObjectName('SpellWidgetProgressBarBad')
-        self.progress.setMaximum(self._seconds)
 
         # labels
         progress_layout = QHBoxLayout(self.progress)
@@ -216,7 +218,7 @@ class SpellWidget(QFrame):
         layout.addWidget(self.progress, 1)
 
     def recast(self, timestamp):
-        self.end_time = timestamp + datetime.timedelta(seconds=self._seconds)
+        self._calculate(timestamp)
         self.setProperty('Warning', False)
         self.setStyle(self.style())
         self._time_label.setProperty('Warning', False)
