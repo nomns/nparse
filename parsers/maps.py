@@ -479,13 +479,13 @@ class MapCanvas(QGraphicsView):
 
         if action == load_map:
             dialog = QInputDialog(self)
-            dialog.setAttribute(Qt.WA_DeleteOnClose)
             dialog.setWindowTitle('Load Map')
             dialog.setLabelText('Select map to load:')
-            dialog.setComboBoxItems(
-                [map.title() for map in self.map_data.map_pairs.keys()])
+            dialog.setComboBoxItems(sorted([map.title()
+                                            for map in self.map_data.map_pairs.keys()]))
             if dialog.exec_():
                 self.load_map(dialog.textValue().lower())
+            dialog.deleteLater()
 
         self._update()
 

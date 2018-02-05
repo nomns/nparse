@@ -8,9 +8,9 @@ maps:
   - 250
   - 720
   grid_line_width: 1
-  last_zone: East Commonlands
+  last_zone: erud's crossing
   line_width: 1
-  scale: 0.05
+  scale: 0.08296251592302355
   show_poi: true
   toggled: true
 spells:
