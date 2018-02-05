@@ -51,6 +51,10 @@ class Spells(ParserWindow):
               text[:20] == 'Your target resisted' or
               text[:29] == 'Your spell did not take hold.' or
               text[:26] == 'You try to cast a spell on'):
+<<<<<<< HEAD
+=======
+            print(text)
+>>>>>>> 0944e7daaff730accb0d51312ddc7e38c8399cbe
             self._casting = None
         elif (self._casting and
               text[:len(self._casting.effect_text_you)] in self._casting.effect_text_you and
