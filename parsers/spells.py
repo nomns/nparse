@@ -49,9 +49,10 @@ class Spells(ParserWindow):
         elif (self._casting and
               text[:26] == 'Your spell is interrupted.' or
               text[:20] == 'Your target resisted' or
-              text[:29] == 'Your spell did not take hold'):
+              text[:29] == 'Your spell did not take hold.' or
+              text[:26] == 'You try to cast a spell on'):
+            print(text)
             self._casting = None
-            print('cancelling text: ', text)
         elif (self._casting and
               text[:len(self._casting.effect_text_you)] in self._casting.effect_text_you and
               len(self._casting.effect_text_you) > 0):
