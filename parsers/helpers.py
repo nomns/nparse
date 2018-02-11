@@ -11,15 +11,18 @@ class ParserWindow(QFrame):
         self.name = ''
         self.setObjectName('ParserWindow')
 
-        self.setWindowFlags(
-            Qt.WindowStaysOnTopHint |
-            Qt.WindowCloseButtonHint |
-            Qt.FramelessWindowHint |
-            Qt.WindowMinMaxButtonsHint
-        )
         self.setWindowOpacity(0.85)
 
         self._create_widgets()
+
+    def set_flags(self):
+        self.setWindowFlags(
+            Qt.FramelessWindowHint |
+            Qt.WindowStaysOnTopHint |
+            Qt.WindowCloseButtonHint |
+            Qt.WindowMinMaxButtonsHint
+        )
+        self._toggle_frame
 
     def _create_widgets(self):
         self.content = QVBoxLayout()

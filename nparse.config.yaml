@@ -2,23 +2,27 @@ general:
   eq_log_dir: F:/EverQuest Project 1999/Logs
   update_interval_msec: 250
 maps:
+  auto_follow: true
   geometry:
-  - 1963
-  - 277
-  - 250
-  - 720
+  - 3494
+  - 274
+  - 349
+  - 238
   grid_line_width: 1
-  last_zone: erud's crossing
+  last_zone: Lavastorm Mountains
   line_width: 1
-  scale: 0.08296251592302355
+  scale: 0.10742858301372651
   show_poi: true
   toggled: true
 spells:
   geometry:
-  - 1954
-  - 106
+  - 3546
+  - 60
   - 208
-  - 112
-  level: 1
+  - 208
+  level: 51
   seconds_offset: 0
   toggled: true
+  use_secondary:
+  - levitate
+  use_secondary_all: false

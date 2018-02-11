@@ -1,5 +1,6 @@
 """NomnsParse: Parsing tools for Project 1999."""
 import sys
+import webbrowser
 
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon, QFontDatabase
@@ -10,6 +11,8 @@ from helpers import config, logreader, parse_line, resource_path
 import parsers
 
 config.load('nparse.config.yaml')
+
+CURRENT_VERSION = 'v0.2.2'
 
 
 class NomnsParse(QApplication):
@@ -55,6 +58,7 @@ class NomnsParse(QApplication):
                 g = config.data[parser.name]['geometry']
                 parser.setGeometry(g[0], g[1], g[2], g[3])
             if config.data[parser.name]['toggled']:
+                parser.set_flags()
                 parser.show()
 
     def _toggle(self):
@@ -92,6 +96,10 @@ class NomnsParse(QApplication):
     def _create_menu(self):
         """Returns a new QMenu for system tray."""
         menu = QMenu()
+        get_eq_dir = menu.addAction(
+            "Check For Update ({})".format(CURRENT_VERSION))
+        get_eq_dir.triggered.connect(self._open_releases_website)
+        menu.addSeparator()
         get_eq_dir = menu.addAction("Select EQ Logs Directory")
         get_eq_dir.triggered.connect(self._get_eq_directory)
         # generate parser specific sub menus
@@ -102,6 +110,9 @@ class NomnsParse(QApplication):
         quit_action = menu.addAction("Quit")
         quit_action.triggered.connect(self._quit)
         return menu
+
+    def _open_releases_website(self, _):
+        webbrowser.open('https://github.com/nomns/nparse/releases')
 
     def _get_eq_directory(self, _):
         dir_path = str(QFileDialog.getExistingDirectory(

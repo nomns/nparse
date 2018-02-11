@@ -3,15 +3,26 @@ import traceback
 from PyQt5 import QtCore
 from os import path
 import math
+import datetime
 
-from PyQt5.QtCore import Qt, QPointF, QRectF, QSizeF, pyqtSignal, QLineF, QObject
-from PyQt5.QtGui import QPen, QColor, QTransform, QPainterPath, QPainter, QFont, QPixmap
+from PyQt5.QtCore import Qt, QPointF, QRectF, QSizeF, pyqtSignal, QLineF, QObject, QTimer
+from PyQt5.QtGui import QPen, QColor, QTransform, QPainterPath, QPainter, QFont, QPixmap, QTransform
 from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsRectItem,
                              QGraphicsTextItem, QGraphicsEllipseItem, QGraphicsPixmapItem, QLabel, QMenu,
-                             QGraphicsLineItem, QInputDialog)
+                             QGraphicsLineItem, QInputDialog, QGraphicsItemGroup)
 
 from parsers import ParserWindow
-from helpers import config, resource_path
+from helpers import config, resource_path, to_range, to_real_xy, to_eq_xy, get_degrees_from_line, format_time, text_time_to_seconds
+
+SPAWN_TEXT_MIN = 0.1
+SPAWN_TEXT_SIZE = 10
+SPAWN_TEXT_MAX = 50
+TEXT_SIZE_MIN = 0.1
+TEXT_SIZE = 12
+TEXT_SIZE_MAX = 50
+POINT_SIZE_MIN = 0.1
+POINT_SIZE = 5
+POINT_SIZE_MAX = 25
 
 
 class Maps(ParserWindow):
@@ -56,8 +67,9 @@ class Maps(ParserWindow):
         if not mp:
             player = self._map_canvas.players.get('__you__', None)
             if player:
+                x, y = to_eq_xy(player.location.x, player.location.y)
                 self._position_label.setText(
-                    'player: ({:.2f}, {:.2f})'.format(-player.y, -player.x))
+                    'player: ({:.2f}, {:.2f})'.format(-player.location.y, -player.location.x))
         else:
             self._position_label.setText(
                 'mouse: ({:.2f}, {:.2f})'.format(mp.x(), mp.y()))
@@ -72,7 +84,9 @@ class MapCanvas(QGraphicsView):
         points/poi text: 2
         players: 9
         user: 10
-        way point: 11
+        directional: 11
+        spawn_point 15
+        way point: 20 and 21 (line and point)
     """
 
     position_update = pyqtSignal()
@@ -99,9 +113,10 @@ class MapCanvas(QGraphicsView):
         self.map_points_items = []
         self.map_points_text_items = []
         self.map_grid_path_item = QGraphicsPathItem()
-        self.map_points_player_items = {}
         self.map_user_item = None
+        self.map_user_directional = None
         self.map_way_point = None
+        self.map_spawn_points = []
         self.mouse_point = None
         self.players = {}
 
@@ -115,7 +130,9 @@ class MapCanvas(QGraphicsView):
             self._scene.clear()
             self._create_map_items()
             self.map_user_item = None
+            self.map_user_directional = None
             self.map_way_point = None
+            self.map_spawn_points = []
             self.update_players()
             self.set_scene_padding(self.map_data.map_grid_geometry.width,
                                    self.map_data.map_grid_geometry.height)
@@ -176,7 +193,7 @@ class MapCanvas(QGraphicsView):
         self.map_points_text_items = []
         self.map_points_items = []
         for map_point in self.map_data.map_points:
-            color = QColor().fromRgb(map_point.r, map_point.g, map_point.b)
+            color = QColor().fromRgb(map_point.color.r, map_point.color.g, map_point.color.b)
             rect = QGraphicsRectItem(
                 QRectF(
                     QPointF(map_point.x, map_point.y),
@@ -191,7 +208,7 @@ class MapCanvas(QGraphicsView):
             text = QGraphicsTextItem(text_string)
             text.setDefaultTextColor(color)
             text.setPos(map_point.x, map_point.y)
-            text.setFont(QFont('Noto Sans', 8, 2))
+            text.setFont(QFont('Noto Sans', 8))
             text.setZValue(2)
             self.map_points_text_items.append(text)
 
@@ -214,62 +231,39 @@ class MapCanvas(QGraphicsView):
         self._update()
 
     def update_players(self):
-        # Convert lists to sets
-        player_list_set = set(self.players.keys())
-
-        # Player points and text should be the same so only use one
-        player_items_set = set(self.map_points_player_items.keys())
-
-        # calculate size of player circles
-        circle_size = max(10.0, 10 / self.scale_ratio)
-
         # Draw and/or update all players in players
-        for player in player_list_set:
-            player_data = self.players[player]
-            if player_data.name == '__you__':
+        for player in self.players.values():
+            if player.name == '__you__':
                 if not self.map_user_item:
                     self.map_user_item = QGraphicsPixmapItem(
                         QPixmap('data/maps/user.png'))
                     self._scene.addItem(self.map_user_item)
                     self.map_user_item.setOffset(-10, -10)
                     self.map_user_item.setZValue(10)
-                self.map_user_item.setPos(player_data.x, player_data.y)
-                self.map_user_item.setScale(1 / self.scale_ratio)
-            else:
-                if player in player_items_set and \
-                        self.map_points_player_items[player] in self._scene.items():
-                    # Update
-                    self.map_points_player_items[player_data.name].setRect(
-                        player_data.x - circle_size / 2,
-                        player_data.y - circle_size / 2,
-                        circle_size,
-                        circle_size
-                    )
+                    self.map_user_item.setPos(
+                        player.location.x, player.location.y)
                 else:
-                    # Create New Point
-                    color = QColor().fromRgb(
-                        player_data.r,
-                        player_data.g,
-                        player_data.b
+                    if not self.map_user_directional:
+                        self.map_user_directional = QGraphicsPixmapItem(
+                            QPixmap('data/maps/directional.png'))
+                        self._scene.addItem(self.map_user_directional)
+                        self.map_user_directional.setZValue(11)
+                        self.map_user_directional.setOffset(-15, -15)
+                        self.map_user_item.setScale(1 / self.scale_ratio)
+                    self.map_user_directional.setRotation(
+                        get_degrees_from_line(
+                            player.location.x,
+                            player.location.y,
+                            player.previous_location.x,
+                            player.previous_location.y
+                        )
                     )
-                    circle = QGraphicsEllipseItem(
-                        player_data.x - circle_size / 2,
-                        player_data.y - circle_size / 2,
-                        circle_size,
-                        circle_size
+                    self.map_user_item.setPos(
+                        player.location.x, player.location.y
                     )
-                    circle.setBrush(color)
-                    self.map_points_player_items[player_data.name] = circle
-                    self._scene.addItem(
-                        self.map_points_player_items[player_data.name]
+                    self.map_user_directional.setPos(
+                        player.location.x, player.location.y
                     )
-
-        # Find/remove players who aren't in players list from the map
-        for key in [player for player in player_items_set
-                    if player not in player_list_set]:
-            self._scene.removeItem(self.map_points_player_items[key])
-
-        # Center map
         self.center()
         self._update()
 
@@ -279,7 +273,7 @@ class MapCanvas(QGraphicsView):
 
         # scene
         self.setTransform(QTransform())  # reset transform object
-        self.scale_ratio = min(5.0, max(0.006, ratio))
+        self.scale_ratio = to_range(ratio, 0.0006, 5.0)
         config.data['maps']['scale'] = self.scale_ratio
         self.scale(self.scale_ratio, self.scale_ratio)
 
@@ -306,47 +300,50 @@ class MapCanvas(QGraphicsView):
                 rect = rect_item.rect()
                 x, y = rect.x(), rect.y()
                 rect_item.setRect(
-                    x, y, max(5.0, 5.0 / self.scale_ratio), max(5.0, 5.0 / self.scale_ratio))
+                    x, y, to_range(self._to_scale(POINT_SIZE),
+                                   POINT_SIZE_MIN, POINT_SIZE_MAX),
+                    to_range(self._to_scale(POINT_SIZE),
+                             POINT_SIZE_MIN, POINT_SIZE_MAX))
+
                 text_item.setFont(
-                    QFont('Noto Sans', max(8.0, 8.0 / self.scale_ratio)))
-                text_x = x - text_item.boundingRect().width() / 2
-                text_item.setX(int(text_x + self._to_scale(5.0)))
+                    QFont('Noto Sans', to_range(self._to_scale(TEXT_SIZE), TEXT_SIZE_MIN, TEXT_SIZE_MAX), italic=True))
+                text_item.setX(x - text_item.boundingRect().width() / 2)
             else:
                 rect_item.setVisible(False)
                 text_item.setVisible(False)
 
-        # player points
-        circle_size = max(10.0, 10.0 / self.scale_ratio)
-        for player in self.map_points_player_items.keys():
-            self.map_points_player_items[player].setRect(
-                self.players[player].x - circle_size / 2,
-                self.players[player].y - circle_size / 2,
-                circle_size,
-                circle_size
-            )
-
         # way point
         if self.map_way_point:
-            rect = self.map_way_point.rect.rect()
-            x, y = rect.x(), rect.y()
-            self.map_way_point.rect.setRect(
-                x, y, self._to_scale(8.0), self._to_scale(8.0))
+            self.map_way_point.pixmap.setScale(1 / self.scale_ratio)
             if '__you__' in self.players.keys():
-                x, y = self.players['__you__'].x, self.players['__you__'].y
-                self.map_way_point.line.setVisible(True)
+                x, y = self.players['__you__'].location.x, self.players['__you__'].location.y
                 line = self.map_way_point.line.line()
                 line.setP1(QPointF(x, y))
-                line.setP2(rect.center())
                 self.map_way_point.line.setLine(line)
                 self.map_way_point.line.setPen(
                     QPen(Qt.green, self._to_scale(1), Qt.DashLine))
+                self.map_way_point.line.setVisible(True)
 
         # user icon
         if self.map_user_item:
             self.map_user_item.setScale(1 / self.scale_ratio)
 
+        # user directional
+        if self.map_user_directional:
+            self.map_user_directional.setScale(1 / self.scale_ratio)
+
+        for spawn in self.map_spawn_points:
+            spawn.pixmap.setScale(to_range(1 / self.scale_ratio, 1, 10))
+            spawn.text.setScale(to_range(1 / self.scale_ratio, 1, 10))
+            spawn.realign()
+            # spawn.text.setX(spawn.location.x -
+            # spawn.text.boundingRect().width() / 2 * spawn.text.scale())
+
+            # spawn.text.setY(spawn.location.y + 5 * spawn.text.scale())
+
     def _to_scale(self, float_value):
-        return max(float_value, float_value / self.scale_ratio)
+        # return max(float_value, float_value / self.scale_ratio)
+        return float_value / self.scale_ratio
 
     def set_scene_padding(self, padding_x, padding_y):
         """Create an empty padding around used coordinates to allow more movement when dragging map."""
@@ -360,42 +357,25 @@ class MapCanvas(QGraphicsView):
         # Center on Player for now by default
         # Added try/except because self.__init__ causes resize event
         try:
-            if '__you__' in self.players.keys():
+            if config.data['maps']['auto_follow'] and '__you__' in self.players.keys():
                 self.centerOn(
-                    self.players['__you__'].x,
-                    self.players['__you__'].y
-                )
+                    self.players['__you__'].location.x, self.players['__you__'].location.y)
         except AttributeError as e:
             print("MapCanvas().center():", e)
 
     def add_player(self, name, time_stamp, location):
-        y, x, z = [float(value) for value in location.strip().split(',')]
-        y = -y
-        x = -x
+        x, y, z = [float(value) for value in location.strip().split(',')]
+        x, y = to_real_xy(x, y)  # eq pos to standard pos
         if name not in self.players.keys():
-            r, g, b = (0, 255, 0)
-            flag = '__other__'
-            user_level = None
-            if name == '__you__':
-                r, g, b = (0, 255, 0)
-                flag = '__you__'
-                user_level = None
+            r, g, b = (0, 0, 0) if name == '__you__' else (0, 255, 0)
             self.players[name] = Player(
                 name=name,
-                x=x,
-                y=y,
-                z=z,
-                r=r,
-                g=g,
-                b=b,
-                flag=flag,
-                user_level=user_level,
-                time_stamp=time_stamp
+                location=MapPoint(x=x, y=y, z=z, r=r, g=g, b=b),
+                time_stamp=time_stamp,
             )
         else:
-            self.players[name].x = x
-            self.players[name].y = y
-            self.players[name].z = z
+            self.players[name].previous_location = self.players[name].location
+            self.players[name].location = MapPoint(x=x, y=y, z=z)
             self.players[name].time_stamp = time_stamp
 
         self.mouse_point = None
@@ -433,20 +413,63 @@ class MapCanvas(QGraphicsView):
         menu = QMenu(self)
         # remove from memory after usage
         menu.setAttribute(Qt.WA_DeleteOnClose)
-        way_point_menu = menu.addMenu("Way Point")
-        way_point_create = way_point_menu.addAction("Create on Cursor")
-        way_point_delete = way_point_menu.addAction("Clear")
-        show_menu = menu.addMenu("Show")
-        show_poi = show_menu.addAction("Points of Interest")
+        spawn_point_menu = menu.addMenu('Spawn Point')
+        spawn_point_create = spawn_point_menu.addAction('Create on Cursor')
+        spawn_point_delete = spawn_point_menu.addAction('Delete on Cursor')
+        spawn_point_delete_all = spawn_point_menu.addAction('Delete All')
+        way_point_menu = menu.addMenu('Way Point')
+        way_point_create = way_point_menu.addAction('Create on Cursor')
+        way_point_delete = way_point_menu.addAction('Clear')
+        show_menu = menu.addMenu('Show')
+        show_poi = show_menu.addAction('Points of Interest')
         show_poi.setCheckable(True)
+        auto_follow = menu.addAction('Auto Follow')
+        auto_follow.setCheckable(True)
         if config.data['maps']['show_poi']:
             show_poi.setChecked(True)
-        load_map = menu.addAction("Load Map")
+        if config.data['maps']['auto_follow']:
+            auto_follow.setChecked(True)
+        load_map = menu.addAction('Load Map')
 
         # execute
         action = menu.exec_(self.mapToGlobal(event.pos()))
 
         # parse response
+
+        if action == spawn_point_create:
+            spawn_time = text_time_to_seconds('6:40')
+            dialog = QInputDialog(self)
+            dialog.setWindowTitle('Create Spawn Point')
+            dialog.setLabelText('Respawn Time (hh:mm:ss):')
+            dialog.setTextValue('6:40')
+
+            if dialog.exec_():
+                spawn_time = text_time_to_seconds(dialog.textValue())
+            dialog.deleteLater()
+
+            spawn = SpawnPointItem(
+                location=MapPoint(x=pos.x(), y=pos.y()),
+                length=spawn_time
+            )
+
+            self._scene.addItem(spawn)
+            self.map_spawn_points.append(spawn)
+            spawn.start()
+
+        if action == spawn_point_delete:
+            pixmap = self._scene.itemAt(
+                pos.x(), pos.y(), QTransform())
+            if pixmap:
+                group = pixmap.parentItem()
+                if group:
+                    self.map_spawn_points.remove(group)
+                    self._scene.removeItem(group)
+
+        if action == spawn_point_delete_all:
+            for spawn_point in self.map_spawn_points:
+                self._scene.removeItem(spawn_point)
+            self.map_spawn_points = []
+
         if action == show_poi:
             config.data['maps']['show_poi'] = show_poi.isChecked()
             config.save()
@@ -454,35 +477,38 @@ class MapCanvas(QGraphicsView):
         if action == way_point_create:
             if self.map_way_point:
                 self._scene.removeItem(self.map_way_point.line)
-                self._scene.removeItem(self.map_way_point.rect)
-            rect = QGraphicsRectItem(
-                QRectF(QPointF(pos.x(), pos.y()), QSizeF(8.0, 8.0)))
-            rect.setBrush(Qt.green)
-            rect.setZValue(11)
-            x, y = 0.0, 0.0
-            if '__you__' in self.players.keys():
-                x, y = self.players['__you__'].x, self.players['__you__'].y
-            q_line = QLineF(x, y, 0.0, 0.0)
-            q_line.setP2(rect.rect().center())
-            line = QGraphicsLineItem(q_line)
+                self._scene.removeItem(self.map_way_point.pixmap)
+            pixmap = QGraphicsPixmapItem(QPixmap('data/maps/waypoint.png'))
+            pixmap.setOffset(-10, -20)
+            pixmap.setZValue(21)
+            wp_x = pos.x()
+            wp_y = pos.y()
+            pixmap.setPos(wp_x, wp_y)
+            line = QGraphicsLineItem(0.0, 0.0, wp_x, wp_y)
             line.setVisible(False)
-            line.setPen(QPen(Qt.green, 1, Qt.DashLine))
-            line.setZValue(11)
-            self.map_way_point = WayPoint(line=line, rect=rect)
+            line.setZValue(20)
+            self.map_way_point = WayPoint(
+                line=line, pixmap=pixmap, x=wp_x, y=wp_y)
             self._scene.addItem(self.map_way_point.line)
-            self._scene.addItem(self.map_way_point.rect)
+            self._scene.addItem(self.map_way_point.pixmap)
+
         if action == way_point_delete:
             if self.map_way_point:
                 self._scene.removeItem(self.map_way_point.line)
-                self._scene.removeItem(self.map_way_point.rect)
+                self._scene.removeItem(self.map_way_point.pixmap)
             self.map_way_point = None
+
+        if action == auto_follow:
+            config.data['maps']['auto_follow'] = True if action.isChecked(
+            ) else False
+            config.save()
 
         if action == load_map:
             dialog = QInputDialog(self)
             dialog.setWindowTitle('Load Map')
             dialog.setLabelText('Select map to load:')
-            dialog.setComboBoxItems(sorted([map.title()
-                                            for map in self.map_data.map_pairs.keys()]))
+            dialog.setComboBoxItems(
+                sorted([map.title() for map in self.map_data.map_zone_keys.keys()]))
             if dialog.exec_():
                 self.load_map(dialog.textValue().lower())
             dialog.deleteLater()
@@ -500,7 +526,7 @@ class MapData:
         self.map_name = map_name
         self.map_keys_file = 'data/maps/map_keys.ini'
         self.map_file_location = 'data/maps/map_files'
-        self.map_pairs = {}
+        self.map_zone_keys = {}
         self.map_lines = []
         self.map_points = []
         self.grid_lines = []
@@ -515,11 +541,11 @@ class MapData:
         with open(self.map_keys_file, 'r') as file:
             for line in file.readlines():
                 values = line.split('=')
-                self.map_pairs[values[0].strip()] = values[1].strip()
+                self.map_zone_keys[values[0].strip()] = values[1].strip()
 
     def load_map_data(self):
         # Get list of all map files for current zone
-        base_map_name = self.map_pairs[self.map_name.strip().lower()]
+        base_map_name = self.map_zone_keys[self.map_name.strip().lower()]
         extensions = ['.txt', '_1.txt', '_2.txt', '_3.txt']
         map_files = []
         for extension in extensions:
@@ -567,9 +593,8 @@ class MapData:
                                 x=int(float(data[0])),
                                 y=int(float(data[1])),
                                 z=int(float(data[2])),
-                                r=int(float(data[3])),
-                                g=int(float(data[4])),
-                                b=int(float(data[5])),
+                                color=Color(r=int(float(data[3])), g=int(
+                                    float(data[4])), b=int(float(data[5]))),
                                 size=int(float(data[6])),
                                 text=str(data[7])
                             )
@@ -578,10 +603,8 @@ class MapData:
                         pass  # Do not add to list
 
         # Setup Grid Size
-        lowest_x = min(x_list)
-        highest_x = max(x_list)
-        lowest_y = min(y_list)
-        highest_y = max(y_list)
+        lowest_x, highest_x = min(x_list), max(x_list)
+        lowest_y, highest_y = min(y_list), max(y_list)
         self.map_grid_geometry = MapGridGeometry(
             lowest_x=lowest_x,
             highest_x=highest_x,
@@ -630,18 +653,38 @@ class MapData:
 
 class Player:
     def __init__(self, **kwargs):
+        self.name = ''
+        self.location = MapPoint()
+        self.previous_location = MapPoint()
+        self.timestamp = None  # datetime
         self.__dict__.update(kwargs)
 
 
 class MapPoint:
     def __init__(self, **kwargs):
+        self.x = 0
+        self.y = 0
+        self.z = 0
+        self.color = Color()
+        self.size = 0
+        self.text = ''
+        self.__dict__.update(kwargs)
+
+
+class Color:
+    def __init__(self, **kwargs):
+        self.r = 255
+        self.g = 255
+        self.b = 255
+        self.a = 255
         self.__dict__.update(kwargs)
 
 
 class WayPoint:
     def __init__(self, **kwargs):
+        self.location = MapPoint()
         self.line = None
-        self.rect = None
+        self.pixmap = None
         self.__dict__.update(kwargs)
 
 
@@ -660,4 +703,82 @@ class MapLine:
 
 class MapGridGeometry:
     def __init__(self, **kwargs):
+        self.lowest_x = 0
+        self.highest_x = 0
+        self.lowest_y = 0
+        self.highest_y = 0
+        self.center_x = 0
+        self.center_y = 0
+        self.width = 0
+        self.height = 0
         self.__dict__.update(kwargs)
+
+
+class SpawnPointItem(QGraphicsItemGroup):
+
+    def __init__(self, name=None, location=MapPoint(), length=None):
+        super().__init__()
+        self.location = location
+        self.length = length if length else 10
+        self.name = name if name else 'SPAWN'
+        self.setToolTip(name)
+
+        self._setup_ui()
+
+        self.timer = QTimer()
+
+    def _setup_ui(self):
+        pixmap = QGraphicsPixmapItem(QPixmap('data/maps/spawn.png'))
+        pixmap.setPos(self.location.x, self.location.y)
+        pixmap.setOffset(-10, -10)
+        text = QGraphicsTextItem('0')
+
+        self.addToGroup(pixmap)
+        self.addToGroup(text)
+
+        self.setZValue(15)
+
+        self.pixmap = pixmap
+        self.text = text
+
+    def _update(self):
+        if self.timer:
+            remaining = self._end_time - datetime.datetime.now()
+            remaining_seconds = remaining.total_seconds()
+            if remaining_seconds < 0:
+                self.stop()
+            elif remaining_seconds <= 30:
+                self.text.setHtml(
+                    "<font color='red' size='5'>{}</font>".format(
+                        format_time(remaining))
+                )
+            else:
+                self.text.setHtml(
+                    "<font color='white'>{}</font>".format(
+                        format_time(remaining))
+                )
+            self.realign()
+
+            if remaining_seconds > 0 and self.timer:
+                self.timer.singleShot(1000, self._update)
+
+    def realign(self):
+        self.text.setPos(
+            self.location.x -
+            self.text.boundingRect().width() / 2 *
+            self.text.scale(),
+            self.location.y + 5 * self.text.scale()
+        )
+
+    def start(self, _=None, timestamp=None):
+        timestamp = timestamp if timestamp else datetime.datetime.now()
+        self._end_time = timestamp + datetime.timedelta(seconds=self.length)
+        if self.timer:
+            self._update()
+
+    def stop(self):
+        self.text.setHtml(
+            "<font color='green'>{}</font>".format(self.name.upper()))
+
+    def mouseDoubleClickEvent(self, _):
+        self.start()

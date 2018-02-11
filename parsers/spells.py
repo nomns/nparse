@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QFrame, QGraphicsDropShadowEffect, QHBoxLayout,
                              QInputDialog, QLabel, QMenu, QProgressBar,
                              QPushButton, QScrollArea, QVBoxLayout, QWidget)
 
-from helpers import config, resource_path
+from helpers import config, resource_path, format_time
 from parsers import ParserWindow
 
 
@@ -69,6 +69,10 @@ class Spells(ParserWindow):
         menu.setAttribute(Qt.WA_DeleteOnClose)
         level_change = menu.addAction(
             'Change Level ({})'.format(config.data['spells']['level']))
+        pvp_durations = menu.addAction('Use PvP Formulas (untested)')
+        pvp_durations.setCheckable(True)
+        if config.data['spells']['use_secondary_all']:
+            pvp_durations.setChecked(True)
 
         action = menu.exec_(QCursor.pos())
 
@@ -80,6 +84,10 @@ class Spells(ParserWindow):
             if changed:
                 config.data['spells']['level'] = level
                 config.save()
+
+        if action == pvp_durations:
+            config.data['spells']['use_secondary_all'] = pvp_durations.isChecked()
+            config.save()
 
 
 class SpellContainer(QFrame):
@@ -226,14 +234,15 @@ class SpellWidget(QFrame):
 
     def _update(self):
         remaining = self.end_time - datetime.datetime.now()
+        remaining_seconds = remaining.total_seconds()
         self.progress.setValue(remaining.seconds)
         self.progress.update()
-        if remaining.seconds <= 30:
+        if remaining_seconds <= 30:
             self.setProperty('Warning', True)
             self.setStyle(self.style())
             self._time_label.setProperty('Warning', True)
             self._time_label.setStyle(self._time_label.style())
-        if remaining.seconds <= 0:
+        if remaining_seconds <= 0:
             self._remove()
         self._time_label.setText(format_time(remaining))
         QTimer.singleShot(1000, self._update)
@@ -273,12 +282,13 @@ Spell = namedtuple(
 def create_spell_book():
     """ Returns a dictionary of Spell by k, v -> spell_name, Spell() """
     spell_book = {}
+    spellnames = []
     with open('data/spells/spells_us.txt') as spell_file:
         for line in spell_file:
-            values = line.split('^')
+            values = line.strip().split('^')
             spell_book[values[1]] = Spell(
                 id=int(values[0]),
-                name=values[1],
+                name=values[1].lower(),
                 pet_location=values[3],
                 effect_text_you=values[6],
                 effect_text_other=values[7],
@@ -291,80 +301,78 @@ def create_spell_book():
                 type=int(values[83]),
                 spell_icon=int(values[144])
             )
+            if [value for value in values[104:119] if value != '255']:
+                spellnames.append(values[1])
+    print(spell_book['Levitate'])
+    spells = [spell_book[name] for name in spellnames]
+    spells = [spell for spell in spells if (
+        spell.duration != spell.pvp_duration) and spell.type == 1]
+    print('\n'.join([str((s.name, s.duration, s.pvp_duration))
+                     for s in spells]))
     return spell_book
 
 
-def format_time(time_delta):
-    time_string = ''
-    days = time_delta.days
-    hours, remainder = divmod(time_delta.seconds, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    if sum([days, hours, minutes]):
-        time_string += '{}d'.format(days) if days else ''
-        time_string += '{}h'.format(hours) if hours else ''
-        time_string += '{}m'.format(minutes) if minutes else ''
-        time_string += '{}s'.format(seconds) if seconds else ''
-        return time_string
-    else:
-        return str(seconds)
-
-
 def get_spell_duration(spell, level):
+    if config.data['spells']['use_secondary_all'] or spell.name in config.data['spells']['use_secondary']:
+        formula, duration = spell.pvp_duration_formula, spell.pvp_duration
+    else:
+        formula, duration = spell.duration_formula, spell.duration
+
     spell_ticks = 0
-    if spell.duration_formula == 0:
+    if formula == 0:
         spell_ticks = 0
-    if spell.duration_formula == 1:
+    if formula == 1:
         spell_ticks = int(math.ceil(level / float(2.0)))
-        if spell_ticks > spell.duration:
-            spell_ticks = spell.duration
-    if spell.duration_formula == 2:
+        if spell_ticks > duration:
+            spell_ticks = duration
+    if formula == 2:
         spell_ticks = int(math.ceil(level / float(5.0) * 3))
-        if spell_ticks > spell.duration:
-            spell_ticks = spell.duration
-    if spell.duration_formula == 3:
+        if spell_ticks > duration:
+            spell_ticks = duration
+    if formula == 3:
         spell_ticks = int(level * 30)
-        if spell_ticks > spell.duration:
-            spell_ticks = spell.duration
-    if spell.duration_formula == 4:
-        if spell.duration == 0:
+        if spell_ticks > duration:
+            spell_ticks = duration
+    if formula == 4:
+        if duration == 0:
             spell_ticks = 50
         else:
-            spell_ticks = spell.duration
-    if spell.duration_formula == 5:
-        spell_ticks = spell.duration
+            spell_ticks = duration
+    if formula == 5:
+        spell_ticks = duration
         if spell_ticks == 0:
             spell_ticks = 3
-    if spell.duration_formula == 6:
+    if formula == 6:
         spell_ticks = int(math.ceil(level / float(2.0)))
-        if spell_ticks > spell.duration:
-            spell_ticks = spell.duration
-    if spell.duration_formula == 7:
+        if spell_ticks > duration:
+            spell_ticks = duration
+    if formula == 7:
         spell_ticks = level
-        if spell_ticks > spell.duration:
-            spell_ticks = spell.duration
-    if spell.duration_formula == 8:
+        if spell_ticks > duration:
+            spell_ticks = duration
+    if formula == 8:
         spell_ticks = level + 10
-        if spell_ticks > spell.duration:
-            spell_ticks = spell.duration
-    if spell.duration_formula == 9:
+        if spell_ticks > duration:
+            spell_ticks = duration
+    if formula == 9:
         spell_ticks = int((level * 2) + 10)
-        if spell_ticks > spell.duration:
-            spell_ticks = spell.duration
-    if spell.duration_formula == 10:
+        if spell_ticks > duration:
+            spell_ticks = duration
+    if formula == 10:
         spell_ticks = int(level * 3 + 10)
-        if spell_ticks > spell.duration:
-            spell_ticks = spell.duration
-    if spell.duration_formula == 11:
-        spell_ticks = spell.duration
-    if spell.duration_formula == 12:
-        spell_ticks = spell.duration
-    if spell.duration_formula == 15:
-        spell_ticks = spell.duration
-    if spell.duration_formula == 50:
+        if spell_ticks > duration:
+            spell_ticks = duration
+    if formula == 11:
+        spell_ticks = duration
+    if formula == 12:
+        spell_ticks = duration
+    if formula == 15:
+        spell_ticks = duration
+    if formula == 50:
         spell_ticks = 72000
-    if spell.duration_formula == 3600:
-        if spell.duration == 0:
+    if formula == 3600:
+        if duration == 0:
             spell_ticks = 3600
         else:
-            spell_ticks = spell.duration
+            spell_ticks = duration
     return spell_ticks
