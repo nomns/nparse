@@ -12,7 +12,7 @@ import parsers
 
 config.load('nparse.config.yaml')
 
-CURRENT_VERSION = 'v0.2.2'
+CURRENT_VERSION = 'v0.2.3'
 
 
 class NomnsParse(QApplication):
