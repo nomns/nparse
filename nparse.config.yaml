@@ -4,20 +4,20 @@ general:
 maps:
   auto_follow: true
   geometry:
-  - 2077
-  - 276
+  - 1533
+  - 277
   - 349
   - 238
   grid_line_width: 1
   last_zone: Lavastorm Mountains
   line_width: 1
-  scale: 0.10742858301372651
+  scale: 0.1644800820121333
   show_poi: true
   toggled: true
 spells:
   geometry:
-  - 3546
-  - 60
+  - 1310
+  - 282
   - 208
   - 208
   level: 51

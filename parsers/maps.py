@@ -334,10 +334,10 @@ class MapCanvas(QGraphicsView):
 
         #  spawn points
         for spawn in self.map_spawn_points:
-            spawn.pixmap.setScale(1 / self.scale_ratio)
-            spawn.text.setScale(1 / self.scale_ratio)
+            # spawn.pixmap.setScale(1 / self.scale_ratio)
+            # spawn.text.setScale(1 / self.scale_ratio)
+            spawn.setScale(1 / self.scale_ratio)
             spawn.realign()
-            spawn.prepareGeometryChange()
 
     def _to_scale(self, float_value):
         # return max(float_value, float_value / self.scale_ratio)
@@ -727,12 +727,11 @@ class SpawnPointItem(QGraphicsItemGroup):
 
     def _setup_ui(self):
         pixmap = QGraphicsPixmapItem(QPixmap('data/maps/spawn.png'))
-        pixmap.setPos(self.location.x, self.location.y)
-        pixmap.setOffset(-10, -10)
         text = QGraphicsTextItem('0')
 
         self.addToGroup(pixmap)
         self.addToGroup(text)
+        self.setPos(self.location.x, self.location.y)
 
         self.setZValue(15)
 
@@ -762,10 +761,8 @@ class SpawnPointItem(QGraphicsItemGroup):
 
     def realign(self):
         self.text.setPos(
-            self.location.x -
-            self.text.boundingRect().width() / 2 *
-            self.text.scale(),
-            self.location.y + 5 * self.text.scale()
+            -self.text.boundingRect().width() / 2 + self.pixmap.boundingRect().width() / 2,
+            15
         )
 
     def start(self, _=None, timestamp=None):
@@ -776,7 +773,9 @@ class SpawnPointItem(QGraphicsItemGroup):
 
     def stop(self):
         self.text.setHtml(
-            "<font color='green'>{}</font>".format(self.name.upper()))
+            "<font color='green' align='center'>{}</font>".format(self.name.upper()))
 
     def mouseDoubleClickEvent(self, _):
+        print(self.boundingRect())
+        box = self.boundingRect()
         self.start()
