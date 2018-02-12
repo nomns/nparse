@@ -332,14 +332,12 @@ class MapCanvas(QGraphicsView):
         if self.map_user_directional:
             self.map_user_directional.setScale(1 / self.scale_ratio)
 
+        #  spawn points
         for spawn in self.map_spawn_points:
-            spawn.pixmap.setScale(to_range(1 / self.scale_ratio, 1, 10))
-            spawn.text.setScale(to_range(1 / self.scale_ratio, 1, 10))
+            spawn.pixmap.setScale(1 / self.scale_ratio)
+            spawn.text.setScale(1 / self.scale_ratio)
             spawn.realign()
-            # spawn.text.setX(spawn.location.x -
-            # spawn.text.boundingRect().width() / 2 * spawn.text.scale())
-
-            # spawn.text.setY(spawn.location.y + 5 * spawn.text.scale())
+            spawn.prepareGeometryChange()
 
     def _to_scale(self, float_value):
         # return max(float_value, float_value / self.scale_ratio)

@@ -4,8 +4,8 @@ general:
 maps:
   auto_follow: true
   geometry:
-  - 3494
-  - 274
+  - 2077
+  - 276
   - 349
   - 238
   grid_line_width: 1
