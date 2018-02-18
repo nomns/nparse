@@ -4,8 +4,10 @@ import math
 import re
 from datetime import datetime, timedelta
 
+from .settings import SettingsWindow
 
-def parse_line(line: str):
+
+def parse_line(line):
     """
     Parses and then returns an everquest log entry's date and text.
     """
@@ -13,6 +15,12 @@ def parse_line(line: str):
     sdate = line[1:index - 1].strip()
     text = line[index:].strip()
     return datetime.strptime(sdate, '%a %b %d %H:%M:%S %Y'), text
+
+def strip_timestamp(line):
+    """
+    Strings EQ Timestamp from log entry.
+    """
+    return line[line.find("]")++ 1:].strip()
 
 
 def resource_path(relative_path):
@@ -46,6 +54,7 @@ def get_degrees_from_line(x1, y1, x2, y2):
 
 
 def format_time(time_delta):
+    """Returns a string from a timedelta '#d #h #m #s', but only 's' if d, h, m are all 0."""
     time_string = ''
     days = time_delta.days
     hours, remainder = divmod(time_delta.seconds, 3600)
@@ -61,16 +70,16 @@ def format_time(time_delta):
 
 
 def text_time_to_seconds(text_time):
-    """ 'hh:mm:ss' -> seconds """
+    """ Returns string 'hh:mm:ss' -> seconds """
     parts = text_time.split(':')
     seconds, minutes, hours = 0, 0, 0
     try:
         seconds = int(parts[-1])
         minutes = int(parts[-2])
         hours = int(parts[-3])
-    except IndexError as e:
+    except IndexError:
         pass
-    except ValueError as e:
+    except ValueError:
         return
 
     return timedelta(hours=hours, minutes=minutes, seconds=seconds).total_seconds()

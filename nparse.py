@@ -2,17 +2,18 @@
 import sys
 import webbrowser
 
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QIcon, QFontDatabase
+from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtGui import QIcon, QFontDatabase, QCursor
 from PyQt5.QtWidgets import (
     QSystemTrayIcon, QApplication, QMenu, QFileDialog, QMessageBox)
 
-from helpers import config, logreader, parse_line, resource_path
+from helpers import config, logreader, parse_line, resource_path, SettingsWindow
 import parsers
 
-config.load('nparse.config.yaml')
+config.load('nparse.config.yml')
 
-CURRENT_VERSION = 'v0.2.4'
+
+CURRENT_VERSION = 'v0.3-alpha'
 
 
 class NomnsParse(QApplication):
@@ -26,27 +27,32 @@ class NomnsParse(QApplication):
             config.verify_settings()
         except ValueError as error:
             QMessageBox.critical(
-                None, 'Critical Error', 'Config file nparse.config.yaml contains errors.  Please obtain a valid settings file.', QMessageBox.Ok)
+                None, 
+                'Critical Error',
+                'Config file nparse.config.yml contains errors.  Please obtain a valid settings file.',
+                QMessageBox.Ok
+            )
             sys.exit()
 
-        # Updater/Ticks
+        # Updates
         self._toggled = False
-        self._timer = QTimer()
-        self._timer.timeout.connect(self._parse)
-        self._thread = None
+        self._log_reader = None
 
         # Load Parsers
         self._load_parsers()
+        self._settings = SettingsWindow()
 
         # Tray Icon
         self._system_tray = QSystemTrayIcon()
         self._system_tray.setIcon(QIcon(resource_path('data/ui/icon.png')))
-        self._system_tray.setToolTip("Nomns' Parser")
-        self._system_tray.setContextMenu(self._create_menu())
+        self._system_tray.setToolTip("nParse")
+        # self._system_tray.setContextMenu(self._create_menu())
+        self._system_tray.activated.connect(self._menu)
         self._system_tray.show()
 
         # Turn On
         self._toggle()
+    
 
     def _load_parsers(self):
         self._parsers = [
@@ -70,63 +76,72 @@ class NomnsParse(QApplication):
                     error.args[0], error.args[1], msecs=3000)
 
             else:
-                self._thread = logreader.ThreadedLogReader(
-                    config.data['general']['eq_log_dir'],
-                    config.data['general']['update_interval_msec']
-                )
-                self._thread.start()
-                self._timer.start(
-                    config.data['general']['update_interval_msec']
-                )
+                self._log_reader = logreader.LogReader(config.data['general']['eq_log_dir'])
+                self._log_reader.new_line.connect(self._parse)
                 self._toggled = True
         else:
-            if self._thread:
-                self._timer.stop()
-                self._thread.stop()
-                self._thread.join()
+            if self._log_reader:
+                self._log_reader.deleteLater()
+                self._log_reader = None
             self._toggled = False
 
-    def _parse(self):
-        for line in self._thread.get_new_lines():
-            if line:
-                timestamp, text = parse_line(line)
-                for parser in self._parsers:
-                    parser.parse(timestamp, text)
+    def _parse(self, new_line):
+        if new_line:
+            timestamp, text = new_line
+            print(text)
+            #  don't send parse to non toggled items, except maps.  always parse maps
+            for parser in [parser for parser in self._parsers if config.data[parser.name]['toggled'] or parser.name == 'maps']:
+                parser.parse(timestamp, text)
 
-    def _create_menu(self):
+    def _menu(self, event):
         """Returns a new QMenu for system tray."""
         menu = QMenu()
-        get_eq_dir = menu.addAction(
-            "Check For Update ({})".format(CURRENT_VERSION))
-        get_eq_dir.triggered.connect(self._open_releases_website)
+        menu.setAttribute(Qt.WA_DeleteOnClose)
+        check_version_action = menu.addAction('Check For Update ({})'.format(CURRENT_VERSION))
         menu.addSeparator()
-        get_eq_dir = menu.addAction("Select EQ Logs Directory")
-        get_eq_dir.triggered.connect(self._get_eq_directory)
-        # generate parser specific sub menus
+        get_eq_dir_action = menu.addAction('Select EQ Logs Directory')
+        menu.addSeparator()
+
+        parser_toggles = set()
         for parser in self._parsers:
-            parser_menu = menu.addMenu(parser.name.title())
-            show_action = parser_menu.addAction("Toggle")
-            show_action.triggered.connect(parser.toggle)
-        quit_action = menu.addAction("Quit")
-        quit_action.triggered.connect(self._quit)
-        return menu
+            toggle = menu.addAction(parser.name.title())
+            toggle.setCheckable(True)
+            toggle.setChecked(config.data[parser.name]['toggled'])
+            parser_toggles.add(toggle)
 
-    def _open_releases_website(self, _):
-        webbrowser.open('https://github.com/nomns/nparse/releases')
+        menu.addSeparator()
+        settings_action = menu.addAction('Settings')
+        menu.addSeparator()
+        quit_action = menu.addAction('Quit')
 
-    def _get_eq_directory(self, _):
-        dir_path = str(QFileDialog.getExistingDirectory(
-            None, 'Select Everquest Logs Directory'))
-        if dir_path:
-            config.data['general']['eq_log_dir'] = dir_path
-            config.save()
-            self._toggle()
+        action = menu.exec_(QCursor.pos())
 
-    def _quit(self):
-        if self._toggled:
-            self._toggle()
-        self._system_tray.setVisible(False)
-        self.quit()
+        if action == check_version_action:
+            webbrowser.open('https://github.com/nomns/nparse/releases')
+        
+        elif action == get_eq_dir_action:
+            dir_path = str(QFileDialog.getExistingDirectory(None, 'Select Everquest Logs Directory'))
+            if dir_path:
+                config.data['general']['eq_log_dir'] = dir_path
+                config.save()
+                self._toggle()
+
+        elif action == settings_action:
+            if self._settings.exec_():
+                # Update required settings
+                for parser in self._parsers:
+                    if parser.windowOpacity() != config.data['general']['parser_opacity']:
+                        parser.setWindowOpacity(config.data['general']['parser_opacity']/100)
+        
+        elif action == quit_action:
+            if self._toggled:
+                self._toggle()
+            self._system_tray.setVisible(False)
+            self.quit()
+        
+        elif action in parser_toggles:
+            parser = [parser for parser in self._parsers if parser.name == action.text().lower()][0]
+            parser.toggle()
 
 
 if __name__ == "__main__":
@@ -141,9 +156,7 @@ if __name__ == "__main__":
     APP.setStyleSheet(open(resource_path('data/ui/_.css')).read())
     APP.setWindowIcon(QIcon(resource_path('data/ui/icon.png')))
     APP.setQuitOnLastWindowClosed(False)
-    QFontDatabase.addApplicationFont(
-        resource_path('data/fonts/NotoSans-Regular.ttf'))
-    QFontDatabase.addApplicationFont(
-        resource_path('data/fonts/NotoSans-Bold.ttf'))
+    QFontDatabase.addApplicationFont(resource_path('data/fonts/NotoSans-Regular.ttf'))
+    QFontDatabase.addApplicationFont(resource_path('data/fonts/NotoSans-Bold.ttf'))
 
     sys.exit(APP.exec())

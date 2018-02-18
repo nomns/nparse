@@ -1,18 +1,22 @@
 """Map parser for nparse."""
-import traceback
-from PyQt5 import QtCore
-from os import path
-import math
 import datetime
+import math
+from os import path
 
-from PyQt5.QtCore import Qt, QPointF, QRectF, QSizeF, pyqtSignal, QLineF, QObject, QTimer
-from PyQt5.QtGui import QPen, QColor, QTransform, QPainterPath, QPainter, QFont, QPixmap, QTransform
-from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsRectItem,
-                             QGraphicsTextItem, QGraphicsEllipseItem, QGraphicsPixmapItem, QLabel, QMenu,
-                             QGraphicsLineItem, QInputDialog, QGraphicsItemGroup)
+from PyQt5 import QtCore
+from PyQt5.QtCore import (QLineF, QObject, QPointF, QRectF, QSizeF, Qt, QTimer,
+                          pyqtSignal)
+from PyQt5.QtGui import (QColor, QFont, QPainter, QPainterPath, QPen, QPixmap,
+                         QTransform)
+from PyQt5.QtWidgets import (QGraphicsEllipseItem, QGraphicsItemGroup,
+                             QGraphicsLineItem, QGraphicsPathItem,
+                             QGraphicsPixmapItem, QGraphicsRectItem,
+                             QGraphicsScene, QGraphicsTextItem, QGraphicsView,
+                             QInputDialog, QLabel, QMenu)
 
+from helpers import (config, format_time, get_degrees_from_line, resource_path,
+                     text_time_to_seconds, to_eq_xy, to_range, to_real_xy)
 from parsers import ParserWindow
-from helpers import config, resource_path, to_range, to_real_xy, to_eq_xy, get_degrees_from_line, format_time, text_time_to_seconds
 
 SPAWN_TEXT_MIN = 0.1
 SPAWN_TEXT_SIZE = 10
@@ -56,11 +60,8 @@ class Maps(ParserWindow):
         if text[:16] == 'You have entered':
             self._map_canvas.load_map(text[17:-1])
         if text[:16] == 'Your Location is':
-            try:
-                self._map_canvas.add_player('__you__', time, text[17:])
-                self._map_canvas.update_players()
-            except:
-                traceback.print_exc()
+            self._map_canvas.add_player('__you__', time, text[17:])
+            self._map_canvas.update_players()
 
     def _update_position_label(self):
         mp = self._map_canvas.mouse_point
@@ -68,11 +69,9 @@ class Maps(ParserWindow):
             player = self._map_canvas.players.get('__you__', None)
             if player:
                 x, y = to_eq_xy(player.location.x, player.location.y)
-                self._position_label.setText(
-                    'player: ({:.2f}, {:.2f})'.format(-player.location.y, -player.location.x))
+                self._position_label.setText('player: ({:.2f}, {:.2f})'.format(x, y))
         else:
-            self._position_label.setText(
-                'mouse: ({:.2f}, {:.2f})'.format(mp.x(), mp.y()))
+            self._position_label.setText('mouse: ({:.2f}, {:.2f})'.format(mp.x(), mp.y()))
 
 
 class MapCanvas(QGraphicsView):
@@ -124,7 +123,7 @@ class MapCanvas(QGraphicsView):
         try:
             map_data = MapData(str(map_name))
         except:
-            traceback.print_exc()
+            pass
         else:
             self.map_data = map_data
             self._scene.clear()
@@ -134,15 +133,13 @@ class MapCanvas(QGraphicsView):
             self.map_way_point = None
             self.map_spawn_points = []
             self.update_players()
-            self.set_scene_padding(self.map_data.map_grid_geometry.width,
-                                   self.map_data.map_grid_geometry.height)
+            self.set_scene_padding(self.map_data.map_grid_geometry.width, self.map_data.map_grid_geometry.height)
             self.draw()
             self.centerOn(0, 0)
             config.data['maps']['last_zone'] = self.map_data.map_name
             config.save()
 
     def _create_map_items(self):
-
         # Create grid lines
         grid_line_width = 3
         self.map_grid_path_item = QGraphicsPathItem()
@@ -167,26 +164,15 @@ class MapCanvas(QGraphicsView):
         line_path = {}
         colors = {}
         for map_line in self.map_data.map_lines:
-            key = str(map_line.r) + ',' \
-                + str(map_line.g) + ',' \
-                + str(map_line.b)
+            key = str(map_line.r) + ',' + str(map_line.g) + ',' + str(map_line.b)
             if key not in line_path.keys():
                 line_path[key] = QPainterPath()
-                colors[key] = QColor().fromRgb(
-                    map_line.r,
-                    map_line.g,
-                    map_line.b
-                )
+                colors[key] = QColor().fromRgb(map_line.r, map_line.g, map_line.b)
             line_path[key].moveTo(QPointF(map_line.x1, map_line.y1))
             line_path[key].lineTo(QPointF(map_line.x2, map_line.y2))
         for key in line_path.keys():
             self.map_line_path_items[key] = QGraphicsPathItem(line_path[key])
-            self.map_line_path_items[key].setPen(
-                QPen(
-                    colors[key],
-                    map_line_width
-                )
-            )
+            self.map_line_path_items[key].setPen(QPen(colors[key], map_line_width))
             self.map_line_path_items[key].setZValue(1)
 
         # Create points of interest
@@ -194,12 +180,7 @@ class MapCanvas(QGraphicsView):
         self.map_points_items = []
         for map_point in self.map_data.map_points:
             color = QColor().fromRgb(map_point.color.r, map_point.color.g, map_point.color.b)
-            rect = QGraphicsRectItem(
-                QRectF(
-                    QPointF(map_point.x, map_point.y),
-                    QSizeF(5, 5)
-                )
-            )
+            rect = QGraphicsRectItem(QRectF(QPointF(map_point.x, map_point.y), QSizeF(5, 5)))
             rect.setPen(QPen(Qt.white, 1))
             rect.setBrush(color)
             rect.setZValue(2)
@@ -235,17 +216,14 @@ class MapCanvas(QGraphicsView):
         for player in self.players.values():
             if player.name == '__you__':
                 if not self.map_user_item:
-                    self.map_user_item = QGraphicsPixmapItem(
-                        QPixmap('data/maps/user.png'))
+                    self.map_user_item = QGraphicsPixmapItem(QPixmap('data/maps/user.png'))
                     self._scene.addItem(self.map_user_item)
                     self.map_user_item.setOffset(-10, -10)
                     self.map_user_item.setZValue(10)
-                    self.map_user_item.setPos(
-                        player.location.x, player.location.y)
+                    self.map_user_item.setPos(player.location.x, player.location.y)
                 else:
                     if not self.map_user_directional:
-                        self.map_user_directional = QGraphicsPixmapItem(
-                            QPixmap('data/maps/directional.png'))
+                        self.map_user_directional = QGraphicsPixmapItem(QPixmap('data/maps/directional.png'))
                         self._scene.addItem(self.map_user_directional)
                         self.map_user_directional.setZValue(11)
                         self.map_user_directional.setOffset(-15, -15)
@@ -258,12 +236,8 @@ class MapCanvas(QGraphicsView):
                             player.previous_location.y
                         )
                     )
-                    self.map_user_item.setPos(
-                        player.location.x, player.location.y
-                    )
-                    self.map_user_directional.setPos(
-                        player.location.x, player.location.y
-                    )
+                    self.map_user_item.setPos(player.location.x, player.location.y)
+                    self.map_user_directional.setPos(player.location.x, player.location.y)
         self.center()
         self._update()
 
@@ -281,8 +255,7 @@ class MapCanvas(QGraphicsView):
         map_line_width = config.data['maps']['line_width']
         for key in self.map_line_path_items.keys():
             pen = self.map_line_path_items[key].pen()
-            pen.setWidth(
-                max(map_line_width, map_line_width / self.scale_ratio))
+            pen.setWidth(max(map_line_width, map_line_width / self.scale_ratio))
             self.map_line_path_items[key].setPen(pen)
 
         # map grid
@@ -300,11 +273,9 @@ class MapCanvas(QGraphicsView):
                 rect = rect_item.rect()
                 x, y = rect.x(), rect.y()
                 rect_item.setRect(
-                    x, y, to_range(self._to_scale(POINT_SIZE),
-                                   POINT_SIZE_MIN, POINT_SIZE_MAX),
-                    to_range(self._to_scale(POINT_SIZE),
-                             POINT_SIZE_MIN, POINT_SIZE_MAX))
-
+                    x, y, to_range(self._to_scale(POINT_SIZE), POINT_SIZE_MIN, POINT_SIZE_MAX),
+                    to_range(self._to_scale(POINT_SIZE), POINT_SIZE_MIN, POINT_SIZE_MAX)
+                )
                 text_item.setFont(
                     QFont('Noto Sans', to_range(self._to_scale(TEXT_SIZE), TEXT_SIZE_MIN, TEXT_SIZE_MAX), italic=True))
                 text_item.setX(x - text_item.boundingRect().width() / 2)
@@ -320,8 +291,7 @@ class MapCanvas(QGraphicsView):
                 line = self.map_way_point.line.line()
                 line.setP1(QPointF(x, y))
                 self.map_way_point.line.setLine(line)
-                self.map_way_point.line.setPen(
-                    QPen(Qt.green, self._to_scale(1), Qt.DashLine))
+                self.map_way_point.line.setPen(QPen(Qt.green, self._to_scale(1), Qt.DashLine))
                 self.map_way_point.line.setVisible(True)
 
         # user icon
@@ -334,32 +304,21 @@ class MapCanvas(QGraphicsView):
 
         #  spawn points
         for spawn in self.map_spawn_points:
-            # spawn.pixmap.setScale(1 / self.scale_ratio)
-            # spawn.text.setScale(1 / self.scale_ratio)
             spawn.setScale(1 / self.scale_ratio)
             spawn.realign()
 
     def _to_scale(self, float_value):
-        # return max(float_value, float_value / self.scale_ratio)
         return float_value / self.scale_ratio
 
     def set_scene_padding(self, padding_x, padding_y):
         """Create an empty padding around used coordinates to allow more movement when dragging map."""
         rect = self._scene.sceneRect()
-        rect.adjust(
-            -padding_x * 2, -padding_y * 2, padding_x * 2, padding_y * 2
-        )
+        rect.adjust(-padding_x * 2, -padding_y * 2, padding_x * 2, padding_y * 2)
         self.setSceneRect(rect)
 
     def center(self):
-        # Center on Player for now by default
-        # Added try/except because self.__init__ causes resize event
-        try:
-            if config.data['maps']['auto_follow'] and '__you__' in self.players.keys():
-                self.centerOn(
-                    self.players['__you__'].location.x, self.players['__you__'].location.y)
-        except AttributeError as e:
-            print("MapCanvas().center():", e)
+        if config.data['maps']['auto_follow'] and '__you__' in self.players.keys():
+            self.centerOn(self.players['__you__'].location.x, self.players['__you__'].location.y)
 
     def add_player(self, name, time_stamp, location):
         x, y, z = [float(value) for value in location.strip().split(',')]
@@ -445,10 +404,7 @@ class MapCanvas(QGraphicsView):
                 spawn_time = text_time_to_seconds(dialog.textValue())
             dialog.deleteLater()
 
-            spawn = SpawnPointItem(
-                location=MapPoint(x=pos.x(), y=pos.y()),
-                length=spawn_time
-            )
+            spawn = SpawnPointItem(location=MapPoint(x=pos.x(), y=pos.y()), length=spawn_time)
 
             self._scene.addItem(spawn)
             self.map_spawn_points.append(spawn)
@@ -760,10 +716,8 @@ class SpawnPointItem(QGraphicsItemGroup):
                 self.timer.singleShot(1000, self._update)
 
     def realign(self):
-        self.text.setPos(
-            -self.text.boundingRect().width() / 2 + self.pixmap.boundingRect().width() / 2,
-            15
-        )
+        self.setPos(self.location.x - self.boundingRect().width() / 2, self.location.y - self.boundingRect().height() / 2)
+        self.text.setPos(-self.text.boundingRect().width() / 2 + self.pixmap.boundingRect().width() / 2, 15)
 
     def start(self, _=None, timestamp=None):
         timestamp = timestamp if timestamp else datetime.datetime.now()
@@ -776,6 +730,4 @@ class SpawnPointItem(QGraphicsItemGroup):
             "<font color='green' align='center'>{}</font>".format(self.name.upper()))
 
     def mouseDoubleClickEvent(self, _):
-        print(self.boundingRect())
-        box = self.boundingRect()
         self.start()

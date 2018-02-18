@@ -10,11 +10,9 @@ class ParserWindow(QFrame):
         super().__init__()
         self.name = ''
         self.setObjectName('ParserWindow')
-
-        self.setWindowOpacity(0.85)
+        self.setWindowOpacity(config.data['general']['parser_opacity'] / 100)
 
         self._create_widgets()
-
     def set_flags(self):
         self.setWindowFlags(
             Qt.FramelessWindowHint |
@@ -22,6 +20,12 @@ class ParserWindow(QFrame):
             Qt.WindowCloseButtonHint |
             Qt.WindowMinMaxButtonsHint
         )
+        # Ensure Qt.WindowStaysOnTopHint works.
+        # For some reason it doesn't work all the time when set above.
+        # Maybe the below will help as manually toggling the window frame fixes it.
+        # 3 times is for toggling frameless on, off, then on.
+        self._toggle_frame
+        self._toggle_frame
         self._toggle_frame
 
     def _create_widgets(self):
@@ -40,7 +44,8 @@ class ParserWindow(QFrame):
         self._title = QLabel()
         self._title.setObjectName("ParserWindowTitle")
 
-        button = QPushButton(u'\u2630')
+        # button = QPushButton(u'\u21F1')
+        button = QPushButton(u'\u2637')
         button.setObjectName('ParserButton')
         self._menu_content.addWidget(button, 0)
         self._menu_content.addWidget(self._title, 1)
@@ -76,4 +81,8 @@ class ParserWindow(QFrame):
         else:
             self.show()
             config.data[self.name]['toggled'] = True
+        config.save()
+    
+    def closeEvent(self, _):
+        config.data[self.name]['toggled'] = False
         config.save()

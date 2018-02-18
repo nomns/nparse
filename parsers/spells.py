@@ -1,14 +1,16 @@
 import datetime
 import math
+import string
 from collections import namedtuple
 
-from PyQt5.QtCore import QEvent, QObject, QRect, Qt, QTimer
+from PyQt5.QtCore import QEvent, QObject, QRect, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCursor, QIcon, QPixmap
 from PyQt5.QtWidgets import (QFrame, QGraphicsDropShadowEffect, QHBoxLayout,
                              QInputDialog, QLabel, QMenu, QProgressBar,
-                             QPushButton, QScrollArea, QVBoxLayout, QWidget)
+                             QPushButton, QScrollArea, QSpinBox, QVBoxLayout,
+                             QWidget)
 
-from helpers import config, resource_path, format_time
+from helpers import config, format_time, resource_path
 from parsers import ParserWindow
 
 
@@ -20,10 +22,14 @@ class Spells(ParserWindow):
         self.name = 'spells'
         self.setWindowTitle(self.name.title())
         self.set_title(self.name.title())
+
         self._setup_ui()
 
         self.spell_book = create_spell_book()
         self._casting = None  # holds Spell when casting
+        self._zoning = None  # holds time of zone or None
+        self._spell_triggers = []  # need a queue because of landing windows
+        self._spell_trigger = None
 
     def _setup_ui(self):
         self.setMinimumWidth(150)
@@ -33,61 +39,76 @@ class Spells(ParserWindow):
         self._scroll_area.setWidget(self._spell_container)
         self._scroll_area.setObjectName('SpellScrollArea')
         self.content.addWidget(self._scroll_area, 1)
-        self._settings_button = QPushButton(u'\u2699')
-        self._settings_button.setObjectName('ParserButton')
-        self.menu_area.addWidget(self._settings_button, 0)
-        self._settings_button.clicked.connect(self._settings_context_menu)
+        self._level_widget = QSpinBox()
+        self._level_widget.setRange(1, 65)
+        self._level_widget.setValue(config.data['spells']['level'])
+        self._level_widget.setPrefix('lvl. ')
+        self.menu_area.addWidget(self._level_widget, 0)
+        self._level_widget.valueChanged.connect(self._level_change)
+
+    def _spell_triggered(self):
+        """SpellTrigger spell_triggered event handler. """
+        if self._spell_trigger:
+            if self._spell_trigger.activated:
+                for target in self._spell_trigger.targets:
+                    self._spell_container.add_spell(self._spell_trigger.spell, target[0], target[1])
+                    print(self._spell_trigger.spell.resist_type)
+        self._remove_spell_trigger()
 
     def parse(self, timestamp, text):
-        """Parse casting triggers (casting, failure, success."""
+        """Parse casting triggers (casting, failure, success)."""
+
+        if self._spell_trigger:
+            self._spell_trigger.parse(timestamp, text)
+
+        # Initial Spell Cast and trigger setup
         if text[:17] == 'You begin casting':
-            self._casting = None
             spell = self.spell_book.get(text[18:-1], None)
             if spell and spell.duration_formula != 0:
-                self._casting = spell
-                self._casting_time = timestamp
-        elif (self._casting and
+                self._spell_triggered()  # in case we cut off the cast window, force trigger
+                self._remove_spell_trigger()
+
+                spell_trigger = SpellTrigger(
+                    spell=spell,
+                    timestamp=timestamp
+                )
+                spell_trigger.spell_triggered.connect(self._spell_triggered)
+                self._spell_trigger = spell_trigger
+
+        # Spell Interrupted
+        elif (self._spell_triggers and
               text[:26] == 'Your spell is interrupted.' or
               text[:20] == 'Your target resisted' or
               text[:29] == 'Your spell did not take hold.' or
               text[:26] == 'You try to cast a spell on'):
-            self._casting = None
-        elif (self._casting and
-              text[:len(self._casting.effect_text_you)] in self._casting.effect_text_you and
-              len(self._casting.effect_text_you) > 0):
-            self._spell_container.add_spell(self._casting, timestamp)
-            self._casting = None
-        elif (self._casting and
-              text[len(text) - len(self._casting.effect_text_other):] == self._casting.effect_text_other and
-              len(self._casting.effect_text_other) > 0):
-            target = text[:len(text) - len(self._casting.effect_text_other)]
-            self._spell_container.add_spell(self._casting, timestamp, target)
-            self._casting = None
+            self._remove_spell_trigger()
 
-    def _settings_context_menu(self, event):
-        menu = QMenu(self._settings_button)
-        menu.setAttribute(Qt.WA_DeleteOnClose)
-        level_change = menu.addAction(
-            'Change Level ({})'.format(config.data['spells']['level']))
-        pvp_durations = menu.addAction('Use PvP Formulas (untested)')
-        pvp_durations.setCheckable(True)
-        if config.data['spells']['use_secondary_all']:
-            pvp_durations.setChecked(True)
+            # Elongate self buff timers by time zoning
+        elif text[:23] == 'LOADING, PLEASE WAIT...':
+            self._spell_triggered()
+            self._remove_spell_trigger()
+            self._zoning = timestamp
+            spell_target = self._spell_container.get_spell_target_by_name('__you__')
+            if spell_target:
+                for spell_widget in spell_target.spell_widgets():
+                    spell_widget.pause()
+        elif self._zoning and text[:16] == 'You have entered':
+            delay = (timestamp - self._zoning).total_seconds()
+            spell_target = self._spell_container.get_spell_target_by_name('__you__')
+            if spell_target:
+                for spell_widget in spell_target.spell_widgets():
+                    spell_widget.elongate(delay)
+                    spell_widget.resume()
 
-        action = menu.exec_(QCursor.pos())
+    def _remove_spell_trigger(self):
+        if self._spell_trigger:
+            self._spell_trigger.stop()
+            self._spell_trigger.deleteLater()
+            self._spell_trigger = None
 
-        if action == level_change:
-            dialog = QInputDialog()
-            dialog.setAttribute(Qt.WA_DeleteOnClose)
-            level, changed = dialog.getInt(self._settings_button, 'Change Level',
-                                           'Enter your current level.', config.data['spells']['level'], 1, 65, 1)
-            if changed:
-                config.data['spells']['level'] = level
-                config.save()
-
-        if action == pvp_durations:
-            config.data['spells']['use_secondary_all'] = pvp_durations.isChecked()
-            config.save()
+    def _level_change(self, _):
+        config.data['spells']['level'] = self._level_widget.value()
+        config.save()
 
 
 class SpellContainer(QFrame):
@@ -117,6 +138,16 @@ class SpellContainer(QFrame):
                                               key=lambda x: (int(x.target_label.property('TargetType')), x.name))):
                 self.layout().insertWidget(x, widget, 0)  # + 1 - skip target label
 
+    def spell_targets(self):
+        """Returns a list of all SpellTargets."""
+        return self.findChildren(SpellTarget)
+
+    def get_spell_target_by_name(self, name):
+        spell_targets = [target for target in self.spell_targets() if target.name == name]
+        if spell_targets:
+            return spell_targets[0]
+        return None
+
 
 class SpellTarget(QFrame):
 
@@ -131,7 +162,7 @@ class SpellTarget(QFrame):
 
     def _setup_ui(self):
         self.setLayout(QVBoxLayout())
-        self.layout().setContentsMargins(2, 2, 2, 2)
+        self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
         self.target_label = QLabel(self.title.title())
         self.target_label.setObjectName('SpellTargetLabel')
@@ -144,6 +175,10 @@ class SpellTarget(QFrame):
     def _remove(self, event=None):
         self.setParent(None)
         self.deleteLater()
+
+    def spell_widgets(self):
+        """Returns a list of all SpellWidgets."""
+        return self.findChildren(SpellWidget)
 
     def childEvent(self, event):
         if event.type() == QEvent.ChildRemoved:
@@ -181,6 +216,7 @@ class SpellWidget(QFrame):
         super().__init__()
         self.setObjectName('SpellWidget')
         self.spell = spell
+        self._active = True
 
         self._setup_ui()
         self._calculate(timestamp)
@@ -189,10 +225,8 @@ class SpellWidget(QFrame):
         self._update()
 
     def _calculate(self, timestamp):
-        self._ticks = get_spell_duration(
-            self.spell, config.data['spells']['level'])
-        self._seconds = (int(self._ticks * 6 +
-                             config.data['spells']['seconds_offset']))
+        self._ticks = get_spell_duration(self.spell, config.data['spells']['level'])
+        self._seconds = (int(self._ticks * 6))
         self.end_time = timestamp + datetime.timedelta(seconds=self._seconds)
         self.progress.setMaximum(self._seconds)
 
@@ -216,7 +250,7 @@ class SpellWidget(QFrame):
         # labels
         progress_layout = QHBoxLayout(self.progress)
         progress_layout.setContentsMargins(5, 0, 5, 0)
-        self._name_label = QLabel(self.spell.name.title(), self.progress)
+        self._name_label = QLabel(string.capwords(self.spell.name), self.progress)
         self._name_label.setObjectName('SpellWidgetNameLabel')
         progress_layout.addWidget(self._name_label)
         progress_layout.insertStretch(2, 1)
@@ -233,19 +267,29 @@ class SpellWidget(QFrame):
         self._time_label.setStyle(self._time_label.style())
 
     def _update(self):
-        remaining = self.end_time - datetime.datetime.now()
-        remaining_seconds = remaining.total_seconds()
-        self.progress.setValue(remaining.seconds)
-        self.progress.update()
-        if remaining_seconds <= 30:
-            self.setProperty('Warning', True)
-            self.setStyle(self.style())
-            self._time_label.setProperty('Warning', True)
-            self._time_label.setStyle(self._time_label.style())
-        if remaining_seconds <= 0:
-            self._remove()
-        self._time_label.setText(format_time(remaining))
+        if self._active:
+            remaining = self.end_time - datetime.datetime.now()
+            remaining_seconds = remaining.total_seconds()
+            self.progress.setValue(remaining.seconds)
+            self.progress.update()
+            if remaining_seconds <= 30:
+                self.setProperty('Warning', True)
+                self.setStyle(self.style())
+                self._time_label.setProperty('Warning', True)
+                self._time_label.setStyle(self._time_label.style())
+            if remaining_seconds <= 0:
+                self._remove()
+            self._time_label.setText(format_time(remaining))
         QTimer.singleShot(1000, self._update)
+
+    def pause(self):
+        self._active = False
+
+    def resume(self):
+        self._active = True
+
+    def elongate(self, seconds):
+        self.end_time += datetime.timedelta(seconds=seconds)
 
     def _remove(self):
         self.setParent(None)
@@ -265,35 +309,104 @@ def get_spell_icon(icon_index):
     x = (file_col - 1) * 40
     y = (file_row - 1) * 40
     icon_image = QPixmap(file_name)
-    scaled_icon_image = icon_image.copy(QRect(x, y, 40, 40)).scaled(
-        15, 15, transformMode=Qt.SmoothTransformation)
+    scaled_icon_image = icon_image.copy(QRect(x, y, 40, 40)).scaled(15, 15, transformMode=Qt.SmoothTransformation)
     label = QLabel()
     label.setPixmap(scaled_icon_image)
     label.setFixedSize(15, 15)
     return label
 
 
-Spell = namedtuple(
-    "Spell",
-    "id name pet_location effect_text_you effect_text_other \
-    effect_text_worn_off cast_time duration_formula pvp_duration_formula duration pvp_duration type spell_icon")
+class Spell:
+
+    def __init__(self, **kwargs):
+        self.id = 0
+        self.name = ''
+        self.effect_text_you = ''
+        self.effect_text_other = ''
+        self.effect_text_worn_off = ''
+        self.aoe_range = 0
+        self.max_targets = 1
+        self.cast_time = 0
+        self.resist_type = 0
+        self.duration_formula = 0
+        self.pvp_duration_formula = 0
+        self.duration = 0
+        self.pvp_duration = 0
+        self.type = 0
+        self.spell_icon = 0
+        self.__dict__.update(kwargs)
+
+
+class SpellTrigger(QObject):
+
+    spell_triggered = pyqtSignal()
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.timestamp = None  # datetime
+        self.spell = None  # Spell
+        self.__dict__.update(kwargs)
+
+        self.targets = []  # [(timestamp, target)]
+        self.activated = False
+
+        # create casting trigger window
+        self._times_up_timer = QTimer()
+        self._times_up_timer.setSingleShot(True)
+        self._times_up_timer.timeout.connect(self._times_up)
+        self._activate_timer = QTimer()
+        self._activate_timer.setSingleShot(True)
+        self._activate_timer.timeout.connect(self._activate)
+
+        if config.data['spells']['use_casting_window']: 
+            #  just in case user set casting window buffer super low, create offset for more accuracy.
+            msec_offset = (datetime.datetime.now() - self.timestamp).total_seconds() * 1000
+            self._times_up_timer.start(self.spell.cast_time + config.data['spells']['casting_window_buffer'] - msec_offset)
+            self._activate_timer.start(self.spell.cast_time - config.data['spells']['casting_window_buffer'] - msec_offset)
+        else:
+            self.activated = True
+
+    def parse(self, timestamp, text):
+        if self.activated:
+            if self.spell.effect_text_you and text[:len(self.spell.effect_text_you)] == self.spell.effect_text_you:
+                # cast self
+                self.targets.append((timestamp, '__you__'))
+            elif text[len(text) - len(self.spell.effect_text_other):] == self.spell.effect_text_other and \
+                    len(self.spell.effect_text_other) > 0:
+                # cast other
+                target = text[:len(text) - len(self.spell.effect_text_other)].strip()
+                self.targets.append((timestamp, target))
+            if self.targets and self.spell.max_targets == 1:
+                self.stop()  # make sure you don't get two triggers
+                self.spell_triggered.emit()
+
+    def _times_up(self):
+        self.spell_triggered.emit()
+
+    def _activate(self):
+        self.activated = True
+    
+    def stop(self):
+        self._times_up_timer.stop()
+        self._activate_timer.stop()
 
 
 def create_spell_book():
     """ Returns a dictionary of Spell by k, v -> spell_name, Spell() """
     spell_book = {}
-    spellnames = []
     with open('data/spells/spells_us.txt') as spell_file:
         for line in spell_file:
             values = line.strip().split('^')
             spell_book[values[1]] = Spell(
                 id=int(values[0]),
                 name=values[1].lower(),
-                pet_location=values[3],
                 effect_text_you=values[6],
                 effect_text_other=values[7],
                 effect_text_worn_off=values[8],
+                aoe_range=int(values[10]),
+                max_targets=(6 if int(values[10]) > 0 else 1),
                 cast_time=int(values[13]),
+                resist_type=int(values[85]),
                 duration_formula=int(values[16]),
                 pvp_duration_formula=int(values[181]),
                 duration=int(values[17]),
@@ -301,19 +414,13 @@ def create_spell_book():
                 type=int(values[83]),
                 spell_icon=int(values[144])
             )
-            if [value for value in values[104:119] if value != '255']:
-                spellnames.append(values[1])
-    print(spell_book['Levitate'])
-    spells = [spell_book[name] for name in spellnames]
-    spells = [spell for spell in spells if (
-        spell.duration != spell.pvp_duration) and spell.type == 1]
-    print('\n'.join([str((s.name, s.duration, s.pvp_duration))
-                     for s in spells]))
     return spell_book
 
 
 def get_spell_duration(spell, level):
-    if config.data['spells']['use_secondary_all'] or spell.name in config.data['spells']['use_secondary']:
+    if spell.name in config.data['spells']['use_secondary']:
+        formula, duration = spell.pvp_duration_formula, spell.pvp_duration
+    if config.data['spells']['use_secondary_all'] and spell.type == 0:
         formula, duration = spell.pvp_duration_formula, spell.pvp_duration
     else:
         formula, duration = spell.duration_formula, spell.duration

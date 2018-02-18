@@ -43,24 +43,30 @@ from glob import glob
 
 def verify_settings():
     global data
-    # verify nparse.config.yaml contains what it should
+    # verify nparse.config.yml contains what it should
     try:
         # general
-        _ = int(data['general']['update_interval_msec'])
+        _ = int(data['general']['parser_opacity'])
+        assert((_ > 0 and _ <= 100))
 
         # maps
         _ = int(data['maps']['grid_line_width'])
         _ = int(data['maps']['scale'])
-        _ = (type(data['maps']['show_poi']) == bool)
-        _ = (type(data['maps']['toggled']) == bool)
+        _ = bool(data['maps']['show_poi'])
+        _ = bool(data['maps']['toggled'])
+        _ = bool(data['maps']['auto_follow'])
         geometry = data['maps'].get('geometry', None)
         if geometry:
             assert(len([int(x) for x in geometry]) == 4)
 
         # spells
         _ = int(data['spells']['level'])
-        _ = int(data['spells']['seconds_offset'])
-        _ = (type(data['spells']['toggled']) == bool)
+        assert(_ > 0 and _ <= 65)
+        _ = int(data['spells']['casting_window_buffer'])
+        _ = bool(data['spells']['use_casting_window'])
+        _ = bool(data['spells']['use_secondary_all'])
+        _ = bool(data['spells']['delay_self_buffs_on_zone'])
+        _ = bool(data['spells']['toggled'])
         geometry = data['spells'].get('geometry', None)
         if geometry:
             assert(len([int(x) for x in geometry]) == 4)
