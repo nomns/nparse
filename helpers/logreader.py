@@ -14,16 +14,15 @@ class LogReader(QFileSystemWatcher):
     def __init__(self, eq_directory):
         super().__init__()
 
-        self._eq_directory = eq_directory
-        self._files = glob(os.path.join(self._eq_directory, 'eqlog*.txt'))
-        self._watcher = QFileSystemWatcher([self._eq_directory] + self._files)
+        self._files = glob(os.path.join(eq_directory, 'eqlog*.txt'))
+        self._watcher = QFileSystemWatcher(self._files)
         self._watcher.fileChanged.connect(self._file_changed)
 
         self._stats = {
-            'log_file':'',
-            'last_read':0,
+            'log_file': '',
+            'last_read': 0,
         }
-    
+
     def _file_changed(self, changed_file):
         if changed_file != self._stats['log_file']:
             self._stats['log_file'] = changed_file
@@ -35,6 +34,4 @@ class LogReader(QFileSystemWatcher):
             lines = log.readlines()
             self._stats['last_read'] = log.tell()
             for line in lines:
-                self.new_line.emit((datetime.datetime.now(), strip_timestamp(line))
-                )
-        
+                self.new_line.emit((datetime.datetime.now(), strip_timestamp(line)))

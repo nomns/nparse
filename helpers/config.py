@@ -1,6 +1,9 @@
 """
 General global settings setup to provide settings.data
 """
+import os
+from glob import glob
+
 import yaml
 
 data = {}
@@ -35,10 +38,6 @@ def save():
     global _filename
     with open(_filename, mode='w') as f:
         f.write(yaml.dump(data, default_flow_style=False))
-
-
-import os
-from glob import glob
 
 
 def verify_settings():

@@ -1,17 +1,13 @@
 import datetime
 import math
 import string
-from collections import namedtuple
 
 from PyQt5.QtCore import QEvent, QObject, QRect, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QCursor, QIcon, QPixmap
-from PyQt5.QtWidgets import (QFrame, QGraphicsDropShadowEffect, QHBoxLayout,
-                             QInputDialog, QLabel, QMenu, QProgressBar,
-                             QPushButton, QScrollArea, QSpinBox, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QProgressBar,
+                             QScrollArea, QSpinBox, QVBoxLayout)
 
-from helpers import config, format_time, resource_path
-from parsers import ParserWindow
+from helpers import ParserWindow, config, format_time
 
 
 class Spells(ParserWindow):
@@ -51,7 +47,8 @@ class Spells(ParserWindow):
         if self._spell_trigger:
             if self._spell_trigger.activated:
                 for target in self._spell_trigger.targets:
-                    self._spell_container.add_spell(self._spell_trigger.spell, target[0], target[1])
+                    self._spell_container.add_spell(
+                        self._spell_trigger.spell, target[0], target[1])
                     print(self._spell_trigger.spell.resist_type)
         self._remove_spell_trigger()
 
@@ -88,13 +85,15 @@ class Spells(ParserWindow):
             self._spell_triggered()
             self._remove_spell_trigger()
             self._zoning = timestamp
-            spell_target = self._spell_container.get_spell_target_by_name('__you__')
+            spell_target = self._spell_container.get_spell_target_by_name(
+                '__you__')
             if spell_target:
                 for spell_widget in spell_target.spell_widgets():
                     spell_widget.pause()
         elif self._zoning and text[:16] == 'You have entered':
             delay = (timestamp - self._zoning).total_seconds()
-            spell_target = self._spell_container.get_spell_target_by_name('__you__')
+            spell_target = self._spell_container.get_spell_target_by_name(
+                '__you__')
             if spell_target:
                 for spell_widget in spell_target.spell_widgets():
                     spell_widget.elongate(delay)
@@ -143,7 +142,8 @@ class SpellContainer(QFrame):
         return self.findChildren(SpellTarget)
 
     def get_spell_target_by_name(self, name):
-        spell_targets = [target for target in self.spell_targets() if target.name == name]
+        spell_targets = [
+            target for target in self.spell_targets() if target.name == name]
         if spell_targets:
             return spell_targets[0]
         return None
@@ -225,7 +225,8 @@ class SpellWidget(QFrame):
         self._update()
 
     def _calculate(self, timestamp):
-        self._ticks = get_spell_duration(self.spell, config.data['spells']['level'])
+        self._ticks = get_spell_duration(
+            self.spell, config.data['spells']['level'])
         self._seconds = (int(self._ticks * 6))
         self.end_time = timestamp + datetime.timedelta(seconds=self._seconds)
         self.progress.setMaximum(self._seconds)
@@ -250,7 +251,8 @@ class SpellWidget(QFrame):
         # labels
         progress_layout = QHBoxLayout(self.progress)
         progress_layout.setContentsMargins(5, 0, 5, 0)
-        self._name_label = QLabel(string.capwords(self.spell.name), self.progress)
+        self._name_label = QLabel(
+            string.capwords(self.spell.name), self.progress)
         self._name_label.setObjectName('SpellWidgetNameLabel')
         progress_layout.addWidget(self._name_label)
         progress_layout.insertStretch(2, 1)
@@ -309,7 +311,8 @@ def get_spell_icon(icon_index):
     x = (file_col - 1) * 40
     y = (file_row - 1) * 40
     icon_image = QPixmap(file_name)
-    scaled_icon_image = icon_image.copy(QRect(x, y, 40, 40)).scaled(15, 15, transformMode=Qt.SmoothTransformation)
+    scaled_icon_image = icon_image.copy(QRect(x, y, 40, 40)).scaled(
+        15, 15, transformMode=Qt.SmoothTransformation)
     label = QLabel()
     label.setPixmap(scaled_icon_image)
     label.setFixedSize(15, 15)
@@ -358,11 +361,14 @@ class SpellTrigger(QObject):
         self._activate_timer.setSingleShot(True)
         self._activate_timer.timeout.connect(self._activate)
 
-        if config.data['spells']['use_casting_window']: 
+        if config.data['spells']['use_casting_window']:
             #  just in case user set casting window buffer super low, create offset for more accuracy.
-            msec_offset = (datetime.datetime.now() - self.timestamp).total_seconds() * 1000
-            self._times_up_timer.start(self.spell.cast_time + config.data['spells']['casting_window_buffer'] - msec_offset)
-            self._activate_timer.start(self.spell.cast_time - config.data['spells']['casting_window_buffer'] - msec_offset)
+            msec_offset = (datetime.datetime.now() -
+                           self.timestamp).total_seconds() * 1000
+            self._times_up_timer.start(
+                self.spell.cast_time + config.data['spells']['casting_window_buffer'] - msec_offset)
+            self._activate_timer.start(
+                self.spell.cast_time - config.data['spells']['casting_window_buffer'] - msec_offset)
         else:
             self.activated = True
 
@@ -374,7 +380,8 @@ class SpellTrigger(QObject):
             elif text[len(text) - len(self.spell.effect_text_other):] == self.spell.effect_text_other and \
                     len(self.spell.effect_text_other) > 0:
                 # cast other
-                target = text[:len(text) - len(self.spell.effect_text_other)].strip()
+                target = text[:len(text) -
+                              len(self.spell.effect_text_other)].strip()
                 self.targets.append((timestamp, target))
             if self.targets and self.spell.max_targets == 1:
                 self.stop()  # make sure you don't get two triggers
@@ -385,7 +392,7 @@ class SpellTrigger(QObject):
 
     def _activate(self):
         self.activated = True
-    
+
     def stop(self):
         self._times_up_timer.stop()
         self._activate_timer.stop()

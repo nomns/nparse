@@ -1,8 +1,8 @@
-from PyQt5.Qt import QIntValidator, Qt
-from PyQt5.QtWidgets import (QCheckBox, QDialog, QDialogButtonBox, QFormLayout,
-                             QFrame, QHBoxLayout, QLabel, QLineEdit,
-                             QListWidget, QListWidgetItem, QPushButton,
-                             QSpinBox, QStackedWidget, QVBoxLayout, QWidget)
+from PyQt5.Qt import Qt
+from PyQt5.QtWidgets import (QCheckBox, QDialog, QFormLayout, QFrame,
+                             QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
+                             QPushButton, QSpinBox, QStackedWidget,
+                             QVBoxLayout, QWidget)
 
 from helpers import config
 
@@ -24,16 +24,13 @@ on Red.  Using the 'PvP Duration' will use the secondary timers for non benefici
 durations for all good buffs.
 """.replace('\n', ' ')
 
+
 class SettingsWindow(QDialog):
 
     def __init__(self):
         super().__init__()
         self.setWindowTitle('nParse Settings')
-        self._setup_ui()
 
-        self._set_values()
-    
-    def _setup_ui(self):
         layout = QVBoxLayout()
 
         top_layout = QHBoxLayout()
@@ -51,10 +48,11 @@ class SettingsWindow(QDialog):
             for setting_name, stacked_widget in settings:
                 self._list_widget.addItem(QListWidgetItem(setting_name))
                 self._widget_stack.addWidget(stacked_widget)
-            
+
             self._list_widget.setCurrentRow(0)
-        
-        self._list_widget.setMaximumWidth(self._list_widget.minimumSizeHint().width())
+        self._list_widget.setMaximumWidth(
+            self._list_widget.minimumSizeHint().width())
+
         self._list_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         buttons = QWidget()
@@ -75,11 +73,13 @@ class SettingsWindow(QDialog):
         layout.addWidget(buttons, 0)
 
         self.setLayout(layout)
-    
+
+        self._set_values()
+
     def _save(self):
         for stacked_widget in self._widget_stack.findChildren(QFrame):
             for widget in stacked_widget.children():
-                wt = widget_type = type(widget)
+                wt = type(widget)
                 if wt == QCheckBox:
                     key1, key2 = widget.objectName().split(':')
                     config.data[key1][key2] = widget.isChecked()
@@ -88,15 +88,15 @@ class SettingsWindow(QDialog):
                     config.data[key1][key2] = widget.value()
         config.save()
         self.accept()
-    
+
     def _cancelled(self):
         self._set_values()
         self.reject()
-    
+
     def closeEvent(self, _):
         self._set_values()
         self.reject()
-    
+
     def _switch_stack(self):
         if self._list_widget.selectedIndexes():
             self._widget_stack.setCurrentIndex(self._list_widget.currentRow())
@@ -118,7 +118,7 @@ def create_settings():
 
     # General Settings
     general_settings = QFrame()
-    gsl = general_settings_layout = QFormLayout()
+    gsl = QFormLayout()
     gsl.addRow(SettingsHeader('parsers'))
     gsl_opacity = QSpinBox()
     gsl_opacity.setRange(1, 100)
@@ -126,13 +126,19 @@ def create_settings():
     gsl_opacity.setSuffix('%')
     gsl_opacity.setObjectName('general:parser_opacity')
     gsl.addRow('Parser Window Opacity (% 1-100)', gsl_opacity)
+    gsl_scaling = QSpinBox()
+    gsl_scaling.setRange(50, 300)
+    gsl_scaling.setSingleStep(5)
+    gsl_scaling.setSuffix('%')
+    gsl_scaling.setObjectName('general:qt_scale_factor')
+    gsl.addRow('Window Scaling Factor', gsl_scaling)
     general_settings.setLayout(gsl)
 
     stacked_widgets.append(('General', general_settings))
-    
+
     # Spell Settings
     spells_settings = QFrame()
-    ssl = spells_settings.layout = QFormLayout()
+    ssl = QFormLayout()
     ssl.addRow(SettingsHeader('general'))
     ssl_casting_window = QCheckBox()
     ssl_casting_window.setWhatsThis(WHATS_THIS_CASTING_WINDOW)
@@ -143,7 +149,8 @@ def create_settings():
     ssl_casting_window_buffer.setRange(1, 4000)
     ssl_casting_window_buffer.setSingleStep(100)
     ssl_casting_window_buffer.setObjectName('spells:casting_window_buffer')
-    ssl.addRow('Casting Window Buffer (msec 1-4000)', ssl_casting_window_buffer)
+    ssl.addRow('Casting Window Buffer (msec 1-4000)',
+               ssl_casting_window_buffer)
     ssl.addRow(SettingsHeader('experimental'))
     ssl_secondary_duration = QCheckBox()
     ssl_secondary_duration.setWhatsThis(WHATS_THIS_PVP_DURATION)
@@ -153,8 +160,42 @@ def create_settings():
 
     stacked_widgets.append(('Spells', spells_settings))
 
+    # Map Settings
+    map_settings = QFrame()
+    msl = QFormLayout()
+    msl.addRow(SettingsHeader('general'))
+    msl_line_width = QSpinBox()
+    msl_line_width.setObjectName('maps:line_width')
+    msl_line_width.setRange(1, 10)
+    msl_line_width.setSingleStep(1)
+    msl.addRow('Map Line Width', msl_line_width)
+
+    msl_grid_line_width = QSpinBox()
+    msl_grid_line_width.setObjectName('maps:grid_line_width')
+    msl_grid_line_width.setRange(1, 10)
+    msl_grid_line_width.setSingleStep(1)
+    msl.addRow('Grid Line Width', msl_grid_line_width)
+
+    msl.addRow(SettingsHeader('z levels'))
+    msl_current_z_alpha = QSpinBox()
+    msl_current_z_alpha.setRange(1, 100)
+    msl_current_z_alpha.setSingleStep(1)
+    msl_current_z_alpha.setSuffix('%')
+    msl_current_z_alpha.setObjectName('maps:current_z_alpha')
+    msl.addRow('Current Z Opacity', msl_current_z_alpha)
+
+    msl_other_z_alpha = QSpinBox()
+    msl_other_z_alpha.setRange(1, 100)
+    msl_other_z_alpha.setSingleStep(1)
+    msl_other_z_alpha.setSuffix('%')
+    msl_other_z_alpha.setObjectName('maps:other_z_alpha')
+    msl.addRow('Other Z Opacity', msl_other_z_alpha)
+
+    map_settings.setLayout(msl)
+    stacked_widgets.append(('Maps', map_settings))
 
     return stacked_widgets
+
 
 class SettingsHeader(QLabel):
 

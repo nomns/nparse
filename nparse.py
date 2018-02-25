@@ -1,19 +1,24 @@
 """NomnsParse: Parsing tools for Project 1999."""
+import os
 import sys
 import webbrowser
 
-from PyQt5.QtCore import QTimer, Qt
-from PyQt5.QtGui import QIcon, QFontDatabase, QCursor
-from PyQt5.QtWidgets import (
-    QSystemTrayIcon, QApplication, QMenu, QFileDialog, QMessageBox)
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QCursor, QFontDatabase, QIcon
+from PyQt5.QtWidgets import (QApplication, QFileDialog, QMenu, QMessageBox,
+                             QSystemTrayIcon)
 
-from helpers import config, logreader, parse_line, resource_path, SettingsWindow
 import parsers
+from helpers import config, logreader, resource_path
+from helpers.settings import SettingsWindow
 
 config.load('nparse.config.yml')
 
+os.environ['QT_SCALE_FACTOR'] = str(
+    config.data['general']['qt_scale_factor'] / 100)
 
-CURRENT_VERSION = 'v0.3-alpha'
+
+CURRENT_VERSION = 'v0.4-alpha'
 
 
 class NomnsParse(QApplication):
@@ -25,9 +30,9 @@ class NomnsParse(QApplication):
         # validate settings file
         try:
             config.verify_settings()
-        except ValueError as error:
+        except ValueError:
             QMessageBox.critical(
-                None, 
+                None,
                 'Critical Error',
                 'Config file nparse.config.yml contains errors.  Please obtain a valid settings file.',
                 QMessageBox.Ok
@@ -52,7 +57,6 @@ class NomnsParse(QApplication):
 
         # Turn On
         self._toggle()
-    
 
     def _load_parsers(self):
         self._parsers = [
@@ -64,8 +68,7 @@ class NomnsParse(QApplication):
                 g = config.data[parser.name]['geometry']
                 parser.setGeometry(g[0], g[1], g[2], g[3])
             if config.data[parser.name]['toggled']:
-                parser.set_flags()
-                parser.show()
+                parser.toggle()
 
     def _toggle(self):
         if not self._toggled:
@@ -76,7 +79,8 @@ class NomnsParse(QApplication):
                     error.args[0], error.args[1], msecs=3000)
 
             else:
-                self._log_reader = logreader.LogReader(config.data['general']['eq_log_dir'])
+                self._log_reader = logreader.LogReader(
+                    config.data['general']['eq_log_dir'])
                 self._log_reader.new_line.connect(self._parse)
                 self._toggled = True
         else:
@@ -87,8 +91,7 @@ class NomnsParse(QApplication):
 
     def _parse(self, new_line):
         if new_line:
-            timestamp, text = new_line
-            print(text)
+            timestamp, text = new_line  # (datetime, text)
             #  don't send parse to non toggled items, except maps.  always parse maps
             for parser in [parser for parser in self._parsers if config.data[parser.name]['toggled'] or parser.name == 'maps']:
                 parser.parse(timestamp, text)
@@ -97,7 +100,8 @@ class NomnsParse(QApplication):
         """Returns a new QMenu for system tray."""
         menu = QMenu()
         menu.setAttribute(Qt.WA_DeleteOnClose)
-        check_version_action = menu.addAction('Check For Update ({})'.format(CURRENT_VERSION))
+        check_version_action = menu.addAction(
+            'Check For Update ({})'.format(CURRENT_VERSION))
         menu.addSeparator()
         get_eq_dir_action = menu.addAction('Select EQ Logs Directory')
         menu.addSeparator()
@@ -118,9 +122,10 @@ class NomnsParse(QApplication):
 
         if action == check_version_action:
             webbrowser.open('https://github.com/nomns/nparse/releases')
-        
+
         elif action == get_eq_dir_action:
-            dir_path = str(QFileDialog.getExistingDirectory(None, 'Select Everquest Logs Directory'))
+            dir_path = str(QFileDialog.getExistingDirectory(
+                None, 'Select Everquest Logs Directory'))
             if dir_path:
                 config.data['general']['eq_log_dir'] = dir_path
                 config.save()
@@ -131,16 +136,18 @@ class NomnsParse(QApplication):
                 # Update required settings
                 for parser in self._parsers:
                     if parser.windowOpacity() != config.data['general']['parser_opacity']:
-                        parser.setWindowOpacity(config.data['general']['parser_opacity']/100)
-        
+                        parser.setWindowOpacity(
+                            config.data['general']['parser_opacity'] / 100)
+
         elif action == quit_action:
             if self._toggled:
                 self._toggle()
             self._system_tray.setVisible(False)
             self.quit()
-        
+
         elif action in parser_toggles:
-            parser = [parser for parser in self._parsers if parser.name == action.text().lower()][0]
+            parser = [
+                parser for parser in self._parsers if parser.name == action.text().lower()][0]
             parser.toggle()
 
 
@@ -153,10 +160,14 @@ if __name__ == "__main__":
         pass
 
     APP = NomnsParse(sys.argv)
+    monitors = APP.desktop().screenCount()
     APP.setStyleSheet(open(resource_path('data/ui/_.css')).read())
     APP.setWindowIcon(QIcon(resource_path('data/ui/icon.png')))
     APP.setQuitOnLastWindowClosed(False)
-    QFontDatabase.addApplicationFont(resource_path('data/fonts/NotoSans-Regular.ttf'))
-    QFontDatabase.addApplicationFont(resource_path('data/fonts/NotoSans-Bold.ttf'))
+    APP.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QFontDatabase.addApplicationFont(
+        resource_path('data/fonts/NotoSans-Regular.ttf'))
+    QFontDatabase.addApplicationFont(
+        resource_path('data/fonts/NotoSans-Bold.ttf'))
 
     sys.exit(APP.exec())

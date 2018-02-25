@@ -1,10 +1,9 @@
 import sys
 import os
 import math
-import re
 from datetime import datetime, timedelta
 
-from .settings import SettingsWindow
+from .parser import ParserWindow  # noqa: F401
 
 
 def parse_line(line):
@@ -16,18 +15,19 @@ def parse_line(line):
     text = line[index:].strip()
     return datetime.strptime(sdate, '%a %b %d %H:%M:%S %Y'), text
 
+
 def strip_timestamp(line):
     """
     Strings EQ Timestamp from log entry.
     """
-    return line[line.find("]")++ 1:].strip()
+    return line[line.find("]") + 1:].strip()
 
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
+        base_path = sys._MEIPASS  # pylint: disable=E1101
     except Exception:
         base_path = os.path.abspath(".")
 
@@ -37,6 +37,11 @@ def resource_path(relative_path):
 def to_range(number, min_number, max_number):
     """ Returns number of within min/max, else min/max. """
     return min(max_number, max(min_number, number))
+
+
+def within_range(number, min_number, max_number):
+    """ Returns true/false if number is within min/max. """
+    return (number >= min_number and number <= max_number)
 
 
 def to_real_xy(x, y):

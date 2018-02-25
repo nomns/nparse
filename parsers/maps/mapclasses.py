@@ -1,0 +1,209 @@
+import datetime
+
+from PyQt5.QtCore import Qt, QTimer, QPointF
+from PyQt5.QtGui import QPixmap, QPen
+from PyQt5.QtWidgets import (QGraphicsItemGroup, QGraphicsLineItem,
+                             QGraphicsPixmapItem, QGraphicsTextItem)
+
+from helpers import format_time, get_degrees_from_line
+
+
+class PointOfInterest:
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.location = MapPoint()
+        self.__dict__.update(kwargs)
+        self.text = QGraphicsTextItem()
+        self.text.setHtml(
+            "<font color='{}' size='{}'>{}</font>".format(
+                self.location.color.name(),
+                self.location.size,
+                '\u272a' + self.location.text
+            )
+        )
+        self.text.setZValue(2)
+        self.text.setPos(self.location.x, self.location.y)
+
+    def update_(self, scale):
+        self.text.setScale(scale)
+        self.text.setPos(
+            self.location.x - self.text.boundingRect().width() * 0.05 * scale,
+            self.location.y - self.text.boundingRect().height() / 2 * scale
+        )
+
+
+class Player(QGraphicsItemGroup):
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.name = ''
+        self.location = MapPoint()
+        self.previous_location = MapPoint()
+        self.timestamp = None  # datetime
+        self.__dict__.update(kwargs)
+        self.icon = QGraphicsPixmapItem(
+            QPixmap('data/maps/user.png')
+        )
+        self.icon.setOffset(-10, -10)
+        self.directional = QGraphicsPixmapItem(
+            QPixmap('data/maps/directional.png')
+        )
+        self.directional.setOffset(-15, -15)
+        self.directional.setVisible(False)
+        self.addToGroup(self.icon)
+        self.addToGroup(self.directional)
+        self.setZValue(10)
+        self.z_level = 0
+
+    def update_(self, scale):
+        if self.previous_location:
+            self.directional.setRotation(
+                get_degrees_from_line(
+                    self.location.x, self.location.y,
+                    self.previous_location.x, self.previous_location.y
+                )
+            )
+            self.setScale(scale)
+            self.setPos(self.location.x, self.location.y)
+            self.directional.setVisible(True)
+        self.setPos(self.location.x, self.location.y)
+
+
+class SpawnPoint(QGraphicsItemGroup):
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.location = MapPoint()
+        self.length = 10
+        self.name = 'pop'
+        self.__dict__.update(**kwargs)
+        self.setToolTip(self.name)
+
+        pixmap = QGraphicsPixmapItem(QPixmap('data/maps/spawn.png'))
+        text = QGraphicsTextItem('0')
+
+        self.addToGroup(pixmap)
+        self.addToGroup(text)
+        self.setPos(self.location.x, self.location.y)
+
+        self.setZValue(18)
+
+        self.pixmap = pixmap
+        self.text = text
+
+        self.timer = QTimer()
+
+    def _update(self):
+        if self.timer:
+            remaining = self._end_time - datetime.datetime.now()
+            remaining_seconds = remaining.total_seconds()
+            if remaining_seconds < 0:
+                self.stop()
+            elif remaining_seconds <= 30:
+                self.text.setHtml(
+                    "<font color='red' size='5'>{}</font>".format(
+                        format_time(remaining))
+                )
+            else:
+                self.text.setHtml(
+                    "<font color='white'>{}</font>".format(
+                        format_time(remaining))
+                )
+            self.realign()
+
+            if remaining_seconds > 0 and self.timer:
+                self.timer.singleShot(1000, self._update)
+
+    def realign(self):
+        self.setPos(self.location.x - self.boundingRect().width() / 2,
+                    self.location.y - self.boundingRect().height() / 2)
+        self.text.setPos(-self.text.boundingRect().width() /
+                         2 + self.pixmap.boundingRect().width() / 2, 15)
+
+    def start(self, _=None, timestamp=None):
+        timestamp = timestamp if timestamp else datetime.datetime.now()
+        self._end_time = timestamp + datetime.timedelta(seconds=self.length)
+        if self.timer:
+            self._update()
+
+    def stop(self):
+        self.text.setHtml(
+            "<font color='green' align='center'>{}</font>".format(self.name.upper()))
+
+    def mouseDoubleClickEvent(self, _):
+        self.start()
+
+
+class MapPoint:
+    def __init__(self, **kwargs):
+        self.x = 0
+        self.y = 0
+        self.z = 0
+        self.color = None  # QColor
+        self.size = 0
+        self.text = ''
+        self.__dict__.update(kwargs)
+
+
+class WayPoint:
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.location = MapPoint()
+        self.__dict__.update(kwargs)
+
+        self.pixmap = QGraphicsPixmapItem(QPixmap('data/maps/waypoint.png'))
+        self.pixmap.setOffset(-10, -20)
+
+        self.line = QGraphicsLineItem(
+            0.0, 0.0, self.location.x, self.location.y)
+        self.line.setPen(QPen(
+            Qt.green, 1, Qt.DashLine
+        ))
+        self.line.setVisible(False)
+
+        self.pixmap.setZValue(5)
+        self.line.setZValue(4)
+
+        self.pixmap.setPos(self.location.x, self.location.y)
+
+    def update_(self, scale, location=None):
+        self.pixmap.setScale(scale)
+        if location:
+            line = self.line.line()
+            line.setP1(QPointF(location.x, location.y))
+            self.line.setLine(line)
+
+            pen = self.line.pen()
+            pen.setWidth(1 / scale)
+            self.line.setPen(pen)
+
+            self.line.setVisible(True)
+
+
+class MapLine:
+    def __init__(self, **kwargs):
+        self.x1 = 0
+        self.x2 = 0
+        self.y1 = 0
+        self.y2 = 0
+        self.z1 = 0
+        self.color = None  # QColor
+        self.__dict__.update(kwargs)
+
+
+class MapGeometry:
+    def __init__(self, **kwargs):
+        self.lowest_x = 0
+        self.highest_x = 0
+        self.lowest_y = 0
+        self.highest_y = 0
+        self.highest_z = 0
+        self.lowest_z = 0
+        self.center_x = 0
+        self.center_y = 0
+        self.width = 0
+        self.height = 0
+        self.z_groups = []  # [(number:int, count:int)]
+        self.__dict__.update(kwargs)

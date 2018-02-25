@@ -145,26 +145,47 @@
     font-family: 'Noto Sans';
 }
 
+#ParserWindowMoveButton {
+    color:white;
+    background: black;
+    font-size: 18px;
+    padding: 1px;
+    border-radius: 5px;
+    height: 20px;
+    width: 20px;
+}
+
 #ParserWindowTitle {
     color: rgb(200, 200, 200);
     font-weight: bold;
     font-size: 14px;
 }
 
-#ParserButton {
-    color: white;
+#ParserWindowMenu QPushButton {
+    color: darkslategray;
     background: black;
+    font-size: 18px;
+    padding: 1px;
+    border-radius: 5px;
+    height: 20px;
+    width: 20px;
+}
+
+#ParserWindowMenu QPushButton:hover {
+    background: darkgreen;
+}
+
+#ParserWindowMenu QPushButton:checked {
+    color: white;
+}
+
+#ParserWindowMenu QLabel {
+
+    color: rgb(200, 200, 200);
+    font-weight: bold;
     font-size: 14px;
-    padding: 0;
 }
 
-#ParserButton:Hover {
-    background: #111133;
-}
-
-#ParserWindowMenu {
-    background-color: transparent;
-}
 
 #ParserWindowMenu QSpinBox {
     color:white;
@@ -174,8 +195,6 @@
     background-color: #050505;
     border: none;
     border-radius: 3px;
-
-
 }
 
 #MapCanvas {

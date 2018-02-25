@@ -1,28 +1,33 @@
 general:
   eq_log_dir: F:/EverQuest Project 1999/Logs
   parser_opacity: 80
+  qt_scale_factor: 100
 maps:
   auto_follow: true
+  current_z_alpha: 100
   geometry:
-  - 1620
-  - 567
-  - 276
-  - 356
+  - 1001
+  - 475
+  - 449
+  - 324
   grid_line_width: 1
-  last_zone: ak'anon
+  last_zone: lavastorm mountains
   line_width: 1
-  scale: 0.07487642513951304
+  other_z_alpha: 10
+  scale: 0.06884798963350218
+  show_grid: true
   show_poi: true
   toggled: true
+  use_z_layers: true
 spells:
   casting_window_buffer: 1000
   delay_self_buffs_on_zone: true
   geometry:
-  - 1610
-  - 35
-  - 292
-  - 522
-  level: 6
+  - 1521
+  - 467
+  - 195
+  - 348
+  level: 51
   toggled: true
   use_casting_window: true
   use_secondary:
