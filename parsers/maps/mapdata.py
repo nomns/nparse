@@ -1,6 +1,5 @@
 import os
 import math
-from glob import glob
 from collections import Counter
 
 from PyQt5.QtGui import QColor, QPen, QPainterPath
