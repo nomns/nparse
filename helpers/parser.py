@@ -48,6 +48,7 @@ class ParserWindow(QFrame):
             Qt.WindowCloseButtonHint |
             Qt.WindowMinMaxButtonsHint
         )
+        self.show()
 
     def _toggle_frame(self):
         current_geometry = self.geometry()
@@ -57,14 +58,14 @@ class ParserWindow(QFrame):
                 Qt.WindowMinMaxButtonsHint
             )
             self.setGeometry(current_geometry)
+            self.show()
         else:
             self.setWindowFlags(
                 Qt.FramelessWindowHint |
                 Qt.WindowStaysOnTopHint
             )
             self.setGeometry(current_geometry)
-        self.update()
-        self.show()
+            self.show()
         g = self.geometry()
         config.data[self.name]['geometry'] = [
             g.x(), g.y(), g.width(), g.height()]

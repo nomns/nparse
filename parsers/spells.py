@@ -49,7 +49,6 @@ class Spells(ParserWindow):
                 for target in self._spell_trigger.targets:
                     self._spell_container.add_spell(
                         self._spell_trigger.spell, target[0], target[1])
-                    print(self._spell_trigger.spell.resist_type)
         self._remove_spell_trigger()
 
     def parse(self, timestamp, text):

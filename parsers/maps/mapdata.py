@@ -117,10 +117,8 @@ class MapData(dict):
         groups = [group[0] for group in sorted(
             counter.most_common(15), key=lambda x: x[0]) if group[1]]
         for z in groups:
-            print(z)
             if last_value is None:
                 last_value = last_z_value = z
-                print(last_value, last_z_value)
                 z_groups.append(z)
             else:
                 if abs(z - last_z_value) > 20 or abs(z - last_value) > 9:
@@ -130,7 +128,6 @@ class MapData(dict):
                 else:
                     last_value = z
         self._z_groups = z_groups
-        print(self._z_groups)
 
         # Create QGraphicsPathItem for lines seperately to retain colors
         temp_dict = {}

@@ -6,15 +6,15 @@ maps:
   auto_follow: true
   current_z_alpha: 100
   geometry:
-  - 1001
-  - 475
+  - 605
+  - 129
   - 449
   - 324
   grid_line_width: 1
   last_zone: lavastorm mountains
   line_width: 1
   other_z_alpha: 10
-  scale: 0.06884798963350218
+  scale: 0.051192043964421494
   show_grid: true
   show_poi: true
   toggled: true
@@ -23,8 +23,8 @@ spells:
   casting_window_buffer: 1000
   delay_self_buffs_on_zone: true
   geometry:
-  - 1521
-  - 467
+  - 1275
+  - 309
   - 195
   - 348
   level: 51
