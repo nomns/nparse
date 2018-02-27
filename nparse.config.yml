@@ -4,20 +4,21 @@ general:
   qt_scale_factor: 100
 maps:
   auto_follow: true
+  closest_z_alpha: 20
   current_z_alpha: 100
   geometry:
-  - 1279
-  - 224
+  - 1159
+  - 420
   - 449
   - 396
   grid_line_width: 1
-  last_zone: castle mistmoore
+  last_zone: ruins of old guk
   line_width: 1
-  other_z_alpha: 10
-  scale: 2.902284635388821
+  other_z_alpha: 5
+  scale: 0.4826607518990071
   show_grid: true
   show_poi: true
-  toggled: false
+  toggled: true
   use_z_layers: true
 spells:
   casting_window_buffer: 1000

@@ -61,8 +61,9 @@ class MapData(dict):
                         ))
                         all_x.extend((x1, x2))
                         all_y.extend((y1, y2))
-                        # if abs(z1 - z2) < 2:
-                        if z1 == z2:
+                        # all_z.append(min(z1, z2))
+                        if abs(z1 - z2) < 2:
+                        # if z1 == z2:
                             all_z.extend((z1, z2))
 
                     elif line_type == 'p':  # point
@@ -123,9 +124,10 @@ class MapData(dict):
                 last_value = z
                 last_z = z[0]
                 continue
-            if (abs(last_value[0] - z[0]) < 20 and z[1] < 90) or abs(last_z - z[0]) < 3:
+            if (abs(last_value[0] - z[0]) < 25) or z[1] < 25:
                 last_value = (last_value[0], last_value[1] + z[1])
                 last_z = z[0]
+                print(last_value, 'ate', z)
             else:
                 if first_run:
                     first_run = False
@@ -137,7 +139,12 @@ class MapData(dict):
                 print('old value', last_value)
                 z_groups.append(last_value[0])
                 last_value = z
+                last_z = z[0]
                 print('new value', last_value)
+        
+        # get last iteration
+        if last_value[1] > 50:
+            z_groups.append(last_value[0])
 
         print(z_groups)
         self._z_groups = z_groups

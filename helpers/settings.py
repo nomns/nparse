@@ -177,12 +177,20 @@ def create_settings():
     msl.addRow('Grid Line Width', msl_grid_line_width)
 
     msl.addRow(SettingsHeader('z levels'))
+
     msl_current_z_alpha = QSpinBox()
     msl_current_z_alpha.setRange(1, 100)
     msl_current_z_alpha.setSingleStep(1)
     msl_current_z_alpha.setSuffix('%')
     msl_current_z_alpha.setObjectName('maps:current_z_alpha')
     msl.addRow('Current Z Opacity', msl_current_z_alpha)
+
+    msl_closest_z_alpha = QSpinBox()
+    msl_closest_z_alpha.setRange(1, 100)
+    msl_closest_z_alpha.setSingleStep(1)
+    msl_closest_z_alpha.setSuffix('%')
+    msl_closest_z_alpha.setObjectName('maps:closest_z_alpha')
+    msl.addRow('Closest Z Opacity', msl_closest_z_alpha)
 
     msl_other_z_alpha = QSpinBox()
     msl_other_z_alpha.setRange(1, 100)

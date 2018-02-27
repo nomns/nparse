@@ -75,7 +75,7 @@ class MapCanvas(QGraphicsView):
 
         current_alpha = config.data['maps']['current_z_alpha'] / 100
         other_alpha = config.data['maps']['other_z_alpha'] / 100
-        closest_alpha = 0.2
+        closest_alpha = config.data['maps']['closest_z_alpha'] / 100
 
         # scene
         self.setTransform(QTransform())  # reset transform object
