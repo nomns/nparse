@@ -115,9 +115,10 @@ class SpawnPoint(QGraphicsItemGroup):
             if remaining_seconds > 0 and self.timer:
                 self.timer.singleShot(1000, self._update)
 
-    def realign(self):
-        self.setPos(self.location.x - self.boundingRect().width() / 2,
-                    self.location.y - self.boundingRect().height() / 2)
+    def realign(self, scale=None):
+        if scale:
+            self.setPos(self.location.x - self.boundingRect().width() / 2 * scale,
+                        self.location.y - self.boundingRect().height() / 2 * scale)
         self.text.setPos(-self.text.boundingRect().width() /
                          2 + self.pixmap.boundingRect().width() / 2, 15)
 

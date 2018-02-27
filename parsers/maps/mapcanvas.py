@@ -102,12 +102,14 @@ class MapCanvas(QGraphicsView):
                 else:
                     alpha = other_alpha
             # lines
+            bolded = 0.5 if config.data['maps']['use_z_layers'] else 0.0
             for path in self._data[z]['paths'].childItems():
-                if z == current_z_level:
+                if z == current_z_level or not config.data['maps']['use_z_layers']:
                     pen = path.pen()
                     pen.setWidth(max(
-                        config.data['maps']['line_width'] + 0.5,
-                        (config.data['maps']['line_width'] + 0.5) / self._scale
+                        config.data['maps']['line_width'] + bolded,
+                        (config.data['maps']['line_width'] +
+                         bolded) / self._scale
                     ))
                     path.setPen(pen)
                 else:
@@ -165,6 +167,7 @@ class MapCanvas(QGraphicsView):
         # spawns
         for spawn in self._data.spawns:
             spawn.setScale(self.to_scale())
+            spawn.realign(self.to_scale())
             if config.data['maps']['use_z_layers']:
                 spawn.setOpacity(
                     current_alpha if (spawn.location.z ==

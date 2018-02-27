@@ -1,5 +1,5 @@
 general:
-  eq_log_dir: F:/EverQuest Project 1999/Logs
+  eq_log_dir: ''
   parser_opacity: 80
   qt_scale_factor: 100
 maps:
@@ -7,29 +7,29 @@ maps:
   closest_z_alpha: 20
   current_z_alpha: 100
   geometry:
-  - 1159
-  - 420
-  - 449
-  - 396
+  - 301
+  - 100
+  - 200
+  - 200
   grid_line_width: 1
-  last_zone: ruins of old guk
+  last_zone: east commonlands
   line_width: 1
-  other_z_alpha: 5
-  scale: 0.4826607518990071
+  other_z_alpha: 10
+  scale: 0.021398563121912056
   show_grid: true
   show_poi: true
   toggled: true
-  use_z_layers: true
+  use_z_layers: false
 spells:
   casting_window_buffer: 1000
   delay_self_buffs_on_zone: true
   geometry:
-  - 501
-  - 108
-  - 310
-  - 993
-  level: 51
-  toggled: false
+  - 100
+  - 100
+  - 200
+  - 200
+  level: 1
+  toggled: true
   use_casting_window: true
   use_secondary:
   - levitate

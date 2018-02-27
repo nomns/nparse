@@ -424,7 +424,6 @@ def create_spell_book():
 
 
 def get_spell_duration(spell, level):
-    print(spell.name)
     if spell.name in config.data['spells']['use_secondary']:
         formula, duration = spell.pvp_duration_formula, spell.pvp_duration
     elif config.data['spells']['use_secondary_all'] and spell.type == 0:
