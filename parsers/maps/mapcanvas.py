@@ -75,6 +75,7 @@ class MapCanvas(QGraphicsView):
 
         current_alpha = config.data['maps']['current_z_alpha'] / 100
         other_alpha = config.data['maps']['other_z_alpha'] / 100
+        closest_alpha = 0.2
 
         # scene
         self.setTransform(QTransform())  # reset transform object
@@ -84,7 +85,22 @@ class MapCanvas(QGraphicsView):
 
         # lines and points of interest
         current_z_level = self._data.geometry.z_groups[self._z_index]
+        closest_z_levels = set()
+        for x in [i for i in [self._z_index - 1, self._z_index + 1] if i > -1]:
+            try:
+                closest_z_levels.add(self._data.geometry.z_groups[x])
+            except:
+                pass
+
         for z in self._data.keys():
+            alpha = current_alpha
+            if config.data['maps']['use_z_layers']:
+                if z == current_z_level:
+                    alpha = current_alpha
+                elif z in closest_z_levels:
+                    alpha = closest_alpha
+                else:
+                    alpha = other_alpha
             # lines
             for path in self._data[z]['paths'].childItems():
                 if z == current_z_level:
@@ -97,18 +113,12 @@ class MapCanvas(QGraphicsView):
                 else:
                     pen = path.pen()
                     pen.setWidth(max(
-                        config.data['maps']['line_width'],
-                        config.data['maps']['line_width'] / self._scale
+                        config.data['maps']['line_width'] - 0.8,
+                        (config.data['maps']['line_width'] - 0.8) / self._scale
                     ))
                     path.setPen(pen)
 
-            if config.data['maps']['use_z_layers']:
-                if z == current_z_level:
-                    self._data[z]['paths'].setOpacity(current_alpha)
-                else:
-                    self._data[z]['paths'].setOpacity(other_alpha)
-            else:
-                self._data[z]['paths'].setOpacity(current_alpha)
+            self._data[z]['paths'].setOpacity(alpha)
 
             # points of interest
             for p in self._data[z]['poi']:

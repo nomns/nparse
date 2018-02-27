@@ -6,15 +6,15 @@ maps:
   auto_follow: true
   current_z_alpha: 100
   geometry:
-  - 605
-  - 129
+  - 1422
+  - 66
   - 449
-  - 324
+  - 396
   grid_line_width: 1
-  last_zone: lavastorm mountains
+  last_zone: castle mistmoore
   line_width: 1
   other_z_alpha: 10
-  scale: 0.051192043964421494
+  scale: 0.7652901785704923
   show_grid: true
   show_poi: true
   toggled: true
@@ -23,10 +23,10 @@ spells:
   casting_window_buffer: 1000
   delay_self_buffs_on_zone: true
   geometry:
-  - 1275
-  - 309
-  - 195
-  - 348
+  - 3
+  - 32
+  - 310
+  - 993
   level: 51
   toggled: true
   use_casting_window: true

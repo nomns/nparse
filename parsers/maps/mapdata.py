@@ -61,7 +61,9 @@ class MapData(dict):
                         ))
                         all_x.extend((x1, x2))
                         all_y.extend((y1, y2))
-                        all_z.extend((z1, z2))
+                        # if abs(z1 - z2) < 2:
+                        if z1 == z2:
+                            all_z.extend((z1, z2))
 
                     elif line_type == 'p':  # point
                         x, y, z = map(float, data[0:3])
@@ -110,23 +112,34 @@ class MapData(dict):
         # Get z levels
         counter = Counter(all_z)
 
-        # bunch together z_groups large z levels if they are within 20 of each other
+        # bunch together zgroups based on peaks with floor being low point before rise
         z_groups = []
         last_value = None
-        last_z_value = None
-        groups = [group[0] for group in sorted(
-            counter.most_common(15), key=lambda x: x[0]) if group[1]]
-        for z in groups:
+        first_run = True
+        last_z = None
+        print(sorted(counter.items(), key=lambda x: x[0]))
+        for z in sorted(counter.items(), key=lambda x: x[0]):
             if last_value is None:
-                last_value = last_z_value = z
-                z_groups.append(z)
+                last_value = z
+                last_z = z[0]
+                continue
+            if (abs(last_value[0] - z[0]) < 20 and z[1] < 90) or abs(last_z - z[0]) < 3:
+                last_value = (last_value[0], last_value[1] + z[1])
+                last_z = z[0]
             else:
-                if abs(z - last_z_value) > 20 or abs(z - last_value) > 9:
-                    last_value = last_z_value = z
-                    z_groups.append(z)
-                # TODO: review below results for more aggressive z groups
-                else:
-                    last_value = z
+                if first_run:
+                    first_run = False
+                    print('last value first run', last_value[1])
+                    if last_value[1] < 40 or abs(last_value[0] - z[0]) < 18:
+                        last_value = z
+                        last_z = z[0]
+                        continue
+                print('old value', last_value)
+                z_groups.append(last_value[0])
+                last_value = z
+                print('new value', last_value)
+
+        print(z_groups)
         self._z_groups = z_groups
 
         # Create QGraphicsPathItem for lines seperately to retain colors
@@ -177,7 +190,12 @@ class MapData(dict):
         )
 
     def get_closest_z_group(self, z):
-        return min(self._z_groups, key=lambda x: abs(x - z))
+        closest = min(self._z_groups, key=lambda x: abs(x - z))
+        if z < closest:
+            lower_index = self._z_groups.index(closest) - 1
+            if lower_index > -1:
+                closest = self._z_groups[lower_index]
+        return closest
 
     @staticmethod
     def get_zone_dict():

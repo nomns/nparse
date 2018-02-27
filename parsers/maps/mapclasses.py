@@ -18,7 +18,7 @@ class PointOfInterest:
         self.text.setHtml(
             "<font color='{}' size='{}'>{}</font>".format(
                 self.location.color.name(),
-                self.location.size,
+                1 + self.location.size,
                 '\u272a' + self.location.text
             )
         )
