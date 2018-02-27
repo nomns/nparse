@@ -6,29 +6,29 @@ maps:
   auto_follow: true
   current_z_alpha: 100
   geometry:
-  - 1422
-  - 66
+  - 1279
+  - 224
   - 449
   - 396
   grid_line_width: 1
   last_zone: castle mistmoore
   line_width: 1
   other_z_alpha: 10
-  scale: 0.7652901785704923
+  scale: 2.902284635388821
   show_grid: true
   show_poi: true
-  toggled: true
+  toggled: false
   use_z_layers: true
 spells:
   casting_window_buffer: 1000
   delay_self_buffs_on_zone: true
   geometry:
-  - 3
-  - 32
+  - 501
+  - 108
   - 310
   - 993
   level: 51
-  toggled: true
+  toggled: false
   use_casting_window: true
   use_secondary:
   - levitate
