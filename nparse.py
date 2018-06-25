@@ -138,6 +138,7 @@ class NomnsParse(QApplication):
                     if parser.windowOpacity() != config.data['general']['parser_opacity']:
                         parser.setWindowOpacity(
                             config.data['general']['parser_opacity'] / 100)
+                        parser.settings_updated()
 
         elif action == quit_action:
             if self._toggled:
@@ -160,7 +161,6 @@ if __name__ == "__main__":
         pass
 
     APP = NomnsParse(sys.argv)
-    monitors = APP.desktop().screenCount()
     APP.setStyleSheet(open(resource_path('data/ui/_.css')).read())
     APP.setWindowIcon(QIcon(resource_path('data/ui/icon.png')))
     APP.setQuitOnLastWindowClosed(False)

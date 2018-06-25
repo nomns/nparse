@@ -87,3 +87,6 @@ class ParserWindow(QFrame):
     def closeEvent(self, _):
         config.data[self.name]['toggled'] = False
         config.save()
+    
+    def settings_updated(self):
+        pass

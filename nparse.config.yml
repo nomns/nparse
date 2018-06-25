@@ -1,5 +1,5 @@
 general:
-  eq_log_dir: ''
+  eq_log_dir: F:/EverQuest Project 1999/Logs
   parser_opacity: 80
   qt_scale_factor: 100
 maps:
@@ -7,15 +7,15 @@ maps:
   closest_z_alpha: 20
   current_z_alpha: 100
   geometry:
-  - 301
-  - 100
-  - 200
+  - 1396
+  - 65
+  - 449
   - 200
   grid_line_width: 1
-  last_zone: east commonlands
+  last_zone: erud's crossing
   line_width: 1
   other_z_alpha: 10
-  scale: 0.021398563121912056
+  scale: 0.18393538451270866
   show_grid: true
   show_poi: true
   toggled: true
@@ -24,13 +24,14 @@ spells:
   casting_window_buffer: 1000
   delay_self_buffs_on_zone: true
   geometry:
-  - 100
-  - 100
-  - 200
-  - 200
-  level: 1
+  - 218
+  - 91
+  - 285
+  - 887
+  level: 8
   toggled: true
   use_casting_window: true
+  use_instants: true
   use_secondary:
   - levitate
   use_secondary_all: false

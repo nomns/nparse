@@ -5,7 +5,7 @@ import string
 from PyQt5.QtCore import QEvent, QObject, QRect, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QProgressBar,
-                             QScrollArea, QSpinBox, QVBoxLayout)
+                             QScrollArea, QSpinBox, QVBoxLayout, QPushButton)
 
 from helpers import ParserWindow, config, format_time
 
@@ -35,6 +35,12 @@ class Spells(ParserWindow):
         self._scroll_area.setWidget(self._spell_container)
         self._scroll_area.setObjectName('SpellScrollArea')
         self.content.addWidget(self._scroll_area, 1)
+        self._quick_icon = QPushButton('\u26A1')
+        self._quick_icon.setCheckable(True)
+        self._quick_icon.setToolTip('Parse Instants')
+        self._quick_icon.setChecked(config.data['spells']['use_instants'])
+        self._quick_icon.clicked.connect(self._toggle_clickies_settings)
+        self.menu_area.addWidget(self._quick_icon)
         self._level_widget = QSpinBox()
         self._level_widget.setRange(1, 65)
         self._level_widget.setValue(config.data['spells']['level'])
@@ -107,6 +113,11 @@ class Spells(ParserWindow):
     def _level_change(self, _):
         config.data['spells']['level'] = self._level_widget.value()
         config.save()
+    
+    def _toggle_clickies_settings(self, _):
+        config.data['spells']['use_instants'] = self._quick_icon.isChecked()
+        config.save()
+
 
 
 class SpellContainer(QFrame):
