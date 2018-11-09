@@ -15,9 +15,9 @@ maps:
   last_zone: butcherblock mountains
   line_width: 1
   other_z_alpha: 10
-  scale: 0.09761950740778572
+  scale: 0.3062689019088309
   show_grid: true
-  show_mouse_location: false
+  show_mouse_location: true
   show_poi: true
   toggled: true
   use_z_layers: false

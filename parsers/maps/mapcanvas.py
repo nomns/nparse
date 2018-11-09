@@ -245,7 +245,11 @@ class MapCanvas(QGraphicsView):
         QGraphicsView.leaveEvent(self, event)
 
     def mouseMoveEvent(self, event):
-        self._mouse_location.set_value(self.mapToScene(event.pos()), self._scale)
+        self._mouse_location.set_value(
+            self.mapToScene(event.pos()),
+            self._scale,
+            self
+            )
         QGraphicsView.mouseMoveEvent(self, event)
 
     def wheelEvent(self, event):
@@ -268,7 +272,8 @@ class MapCanvas(QGraphicsView):
         # Update Mouse Location
         self._mouse_location.set_value(
             self.mapToScene(event.pos()),
-            self._scale
+            self._scale,
+            self
             )
 
     def keyPressEvent(self, event):

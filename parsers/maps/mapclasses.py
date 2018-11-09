@@ -14,15 +14,26 @@ class MouseLocation(QGraphicsTextItem):
         super().__init__()
         self.setZValue(100)
 
-    def set_value(self, pos, scale):
+    def set_value(self, pos, scale, view):
         # pos = QGraphicsView.mapToScale return of mouse event pos()
+        # view = QGraphicsView of the scene view
         x, y = to_eq_xy(pos.x(), pos.y())
-        self.setPos(pos.x() + 15/scale, pos.y())  # show right of mouse pointer
+
         self.setHtml(
             "<font color='white' size='4'>{}, {}</font>".format(
                 str(int(x)), str(int(y))
             )
         )
+
+        # move hover to left if it goes out of view
+        scene_rect = view.mapToScene(view.viewport().rect()).boundingRect()
+        visible_x = -(scene_rect.x() + scene_rect.width())
+        my_rect = self.mapRectToScene(self.boundingRect())
+        if y + -(15/scale + my_rect.width()) < visible_x:
+            self.setPos(pos.x() - 15/scale - my_rect.width(), pos.y())
+        else:
+            self.setPos(pos.x() + 15/scale, pos.y())
+
         self.setScale(1/scale)
 
 
