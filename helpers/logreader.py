@@ -30,8 +30,15 @@ class LogReader(QFileSystemWatcher):
                 log.seek(0, os.SEEK_END)
                 self._stats['last_read'] = log.tell()
         with open(self._stats['log_file']) as log:
-            log.seek(self._stats['last_read'], os.SEEK_SET)
-            lines = log.readlines()
-            self._stats['last_read'] = log.tell()
-            for line in lines:
-                self.new_line.emit((datetime.datetime.now(), strip_timestamp(line)))
+            try:
+                log.seek(self._stats['last_read'], os.SEEK_SET)
+                lines = log.readlines()
+                self._stats['last_read'] = log.tell()
+                for line in lines:
+                    self.new_line.emit((
+                        datetime.datetime.now(),
+                        strip_timestamp(line)
+                        ))
+            except Exception:  # do not read lines if they cause errors
+                log.seek(0, os.SEEK_END)
+                self._stats['last_read'] = log.tell()
