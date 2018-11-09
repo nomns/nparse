@@ -45,6 +45,12 @@ class Maps(ParserWindow):
         show_grid_lines.setToolTip('Show Grid')
         show_grid_lines.clicked.connect(self._toggle_show_grid)
         button_layout.addWidget(show_grid_lines)
+        show_mouse_location = QPushButton('\U0001F6C8')
+        show_mouse_location.setCheckable(True)
+        show_mouse_location.setChecked(config.data['maps']['show_mouse_location'])
+        show_mouse_location.setToolTip('Show Loc Under Mouse Pointer')
+        show_mouse_location.clicked.connect(self._toggle_show_mouse_location)
+        button_layout.addWidget(show_mouse_location)
 
         self.menu_area.addLayout(button_layout)
 
@@ -83,3 +89,7 @@ class Maps(ParserWindow):
         config.data['maps']['show_grid'] = not config.data['maps']['show_grid']
         config.save()
         self._map.update_()
+
+    def _toggle_show_mouse_location(self, ):
+        config.data['maps']['show_mouse_location'] = not config.data['maps']['show_mouse_location']
+        config.save()

@@ -5,7 +5,25 @@ from PyQt5.QtGui import QPixmap, QPen
 from PyQt5.QtWidgets import (QGraphicsItemGroup, QGraphicsLineItem,
                              QGraphicsPixmapItem, QGraphicsTextItem)
 
-from helpers import format_time, get_degrees_from_line
+from helpers import format_time, get_degrees_from_line, to_eq_xy, to_real_xy
+
+
+class MouseLocation(QGraphicsTextItem):
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.setZValue(100)
+
+    def set_value(self, pos, scale):
+        # pos = QGraphicsView.mapToScale return of mouse event pos()
+        x, y = to_eq_xy(pos.x(), pos.y())
+        self.setPos(pos.x() + 15/scale, pos.y())  # show right of mouse pointer
+        self.setHtml(
+            "<font color='white' size='4'>{}, {}</font>".format(
+                str(int(x)), str(int(y))
+            )
+        )
+        self.setScale(1/scale)
 
 
 class PointOfInterest:

@@ -7,16 +7,17 @@ maps:
   closest_z_alpha: 20
   current_z_alpha: 100
   geometry:
-  - 1396
-  - 65
-  - 449
+  - 1338
+  - 124
+  - 530
   - 200
   grid_line_width: 1
-  last_zone: erud's crossing
+  last_zone: butcherblock mountains
   line_width: 1
   other_z_alpha: 10
-  scale: 0.18393538451270866
+  scale: 0.09761950740778572
   show_grid: true
+  show_mouse_location: false
   show_poi: true
   toggled: true
   use_z_layers: false
@@ -24,11 +25,11 @@ spells:
   casting_window_buffer: 1000
   delay_self_buffs_on_zone: true
   geometry:
-  - 218
-  - 91
+  - 1600
+  - 335
   - 285
-  - 887
-  level: 8
+  - 618
+  level: 46
   toggled: true
   use_casting_window: true
   use_instants: true

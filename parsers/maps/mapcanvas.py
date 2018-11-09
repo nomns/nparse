@@ -2,14 +2,14 @@
 import traceback
 
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QPointF
 from PyQt5.QtGui import QPainter, QTransform
 from PyQt5.QtWidgets import (QGraphicsScene, QGraphicsView, QInputDialog,
                              QMenu)
 
 from helpers import config, to_range, text_time_to_seconds
 
-from .mapclasses import MapPoint, WayPoint, Player, SpawnPoint
+from .mapclasses import MapPoint, WayPoint, Player, SpawnPoint, MouseLocation
 from .mapdata import MapData
 
 
@@ -33,6 +33,7 @@ class MapCanvas(QGraphicsView):
         self._scene = QGraphicsScene()
         self.setScene(self._scene)
         self._scale = config.data['maps']['scale']
+        self._mouse_location = MouseLocation()
 
     def load_map(self, map_name):
         try:
@@ -57,7 +58,8 @@ class MapCanvas(QGraphicsView):
                 self._data.geometry.center_x,
                 self._data.geometry.center_y
             )
-
+            self._mouse_location = MouseLocation()
+            self._scene.addItem(self._mouse_location)
             config.data['maps']['last_zone'] = self._data.zone
             config.save()
 
@@ -232,11 +234,18 @@ class MapCanvas(QGraphicsView):
 
         if name == '__you__' and config.data['maps']['auto_follow']:
             self.center()
+    
+    def enterEvent(self, event):
+        if config.data['maps']['show_mouse_location']:
+            self._mouse_location.setVisible(True)
+        QGraphicsView.enterEvent(self, event)
+    
+    def leaveEvent(self, event):
+        self._mouse_location.setVisible(False)
+        QGraphicsView.leaveEvent(self, event)
 
     def mouseMoveEvent(self, event):
-        # pos = self.mapToScene(event.pos())
-        # self.mouse_point = QPointF(-pos.y(), -pos.x())
-        # self.position_update.emit()
+        self._mouse_location.set_value(self.mapToScene(event.pos()), self._scale)
         QGraphicsView.mouseMoveEvent(self, event)
 
     def wheelEvent(self, event):
@@ -255,6 +264,12 @@ class MapCanvas(QGraphicsView):
                     self._z_index = min(
                         self._z_index + 1, len(self._data.geometry.z_groups) - 1)
                 self.update_()
+        
+        # Update Mouse Location
+        self._mouse_location.set_value(
+            self.mapToScene(event.pos()),
+            self._scale
+            )
 
     def keyPressEvent(self, event):
         # Enable drag mode while control button is being held down
