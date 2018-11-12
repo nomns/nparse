@@ -4,18 +4,18 @@ general:
   qt_scale_factor: 100
 maps:
   auto_follow: true
-  closest_z_alpha: 20
+  closest_z_alpha: 10
   current_z_alpha: 100
   geometry:
-  - 1338
-  - 124
+  - 203
+  - 761
   - 530
-  - 200
+  - 197
   grid_line_width: 1
-  last_zone: butcherblock mountains
+  last_zone: Frontier Mountains
   line_width: 1
-  other_z_alpha: 10
-  scale: 0.3062689019088309
+  other_z_alpha: 5
+  scale: 0.4284691501214948
   show_grid: true
   show_mouse_location: true
   show_poi: true
@@ -23,16 +23,20 @@ maps:
   use_z_layers: false
 spells:
   casting_window_buffer: 1000
+  custom_timers:
+  - - Journeyman Boots
+    - Your feet feel quick.
+    - 00:18:00
   delay_self_buffs_on_zone: true
   geometry:
-  - 1600
-  - 335
-  - 285
-  - 618
-  level: 46
+  - 1611
+  - 31
+  - 298
+  - 626
+  level: 33
   toggled: true
   use_casting_window: true
-  use_instants: true
+  use_custom_timers: true
   use_secondary:
   - levitate
   use_secondary_all: false

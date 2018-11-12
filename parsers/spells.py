@@ -1,13 +1,14 @@
 import datetime
 import math
 import string
+import re
 
 from PyQt5.QtCore import QEvent, QObject, QRect, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QProgressBar,
                              QScrollArea, QSpinBox, QVBoxLayout, QPushButton)
 
-from helpers import ParserWindow, config, format_time
+from helpers import ParserWindow, config, format_time, text_time_to_seconds
 
 
 class Spells(ParserWindow):
@@ -22,6 +23,8 @@ class Spells(ParserWindow):
         self._setup_ui()
 
         self.spell_book = create_spell_book()
+        self._custom_timers = {}  # regex : CustomTimer
+        self.load_custom_timers()
         self._casting = None  # holds Spell when casting
         self._zoning = None  # holds time of zone or None
         self._spell_triggers = []  # need a queue because of landing windows
@@ -35,12 +38,12 @@ class Spells(ParserWindow):
         self._scroll_area.setWidget(self._spell_container)
         self._scroll_area.setObjectName('SpellScrollArea')
         self.content.addWidget(self._scroll_area, 1)
-        self._quick_icon = QPushButton('\u26A1')
-        self._quick_icon.setCheckable(True)
-        self._quick_icon.setToolTip('Parse Instants')
-        self._quick_icon.setChecked(config.data['spells']['use_instants'])
-        self._quick_icon.clicked.connect(self._toggle_clickies_settings)
-        self.menu_area.addWidget(self._quick_icon)
+        self._custom_timer_toggle = QPushButton('\u26A1')
+        self._custom_timer_toggle.setCheckable(True)
+        self._custom_timer_toggle.setToolTip('Parse Custom Timers')
+        self._custom_timer_toggle.setChecked(config.data['spells']['use_custom_timers'])
+        self._custom_timer_toggle.clicked.connect(self._toggle_custom_timers)
+        self.menu_area.addWidget(self._custom_timer_toggle)
         self._level_widget = QSpinBox()
         self._level_widget.setRange(1, 65)
         self._level_widget.setValue(config.data['spells']['level'])
@@ -59,6 +62,22 @@ class Spells(ParserWindow):
 
     def parse(self, timestamp, text):
         """Parse casting triggers (casting, failure, success)."""
+
+        # custom timers
+        if config.data['spells']['use_custom_timers']:
+            for rx, ct in self._custom_timers.items():
+                if rx.match(text):
+                    spell = Spell(
+                        name=ct.name,
+                        duration=int(text_time_to_seconds(ct.time)/6),
+                        duration_formula=11,  # honour duration ticks
+                        spell_icon=14
+                    )
+                    self._spell_container.add_spell(
+                        spell,
+                        timestamp,
+                        '__custom__'
+                    )
 
         if self._spell_trigger:
             self._spell_trigger.parse(timestamp, text)
@@ -114,10 +133,20 @@ class Spells(ParserWindow):
         config.data['spells']['level'] = self._level_widget.value()
         config.save()
     
-    def _toggle_clickies_settings(self, _):
-        config.data['spells']['use_instants'] = self._quick_icon.isChecked()
-        config.save()
+    def load_custom_timers(self):
+        self._custom_timers = {}
+        for item in config.data['spells']['custom_timers']:
+            ct = CustomTrigger(*item)
+            rx = re.compile(
+                "^{}$".format(ct.text.replace('*', '.*')),
+                re.RegexFlag.IGNORECASE
+                )
+            self._custom_timers[rx] = ct
 
+    def _toggle_custom_timers(self, _):
+        config.data['spells']['use_custom_triggers'] = \
+            self._custom_timer_toggle.isChecked()
+        config.save()
 
 
 class SpellContainer(QFrame):
@@ -164,7 +193,12 @@ class SpellTarget(QFrame):
     def __init__(self, target='__you__'):
         super().__init__()
         self.name = target
-        self.title = 'you' if target == '__you__' else target
+        if target == '__you__':
+            self.title = 'you'
+        elif target == '__custom__':
+            self.title = 'custom'
+        else:
+            self.title = target
         self._initialized = False  # don't delete until after first spell
         self.setObjectName('SpellContainer')
 
@@ -207,7 +241,7 @@ class SpellTarget(QFrame):
                 sw.recast(timestamp)
         if not recast:
             self.layout().addWidget(SpellWidget(spell, timestamp))
-        if self.name == '__you__':
+        if self.name == '__you__' or self.name == '__custom__':
             self.target_label.setProperty('TargetType', 0)  # user
         elif not target_type:  # treat target like enemy
             self.target_label.setProperty('TargetType', 2)  # enemy
@@ -500,3 +534,17 @@ def get_spell_duration(spell, level):
         else:
             spell_ticks = duration
     return spell_ticks
+
+
+class CustomTrigger:
+
+    def __init__(self, name='', text='', time='', **kwargs):
+        self.name, self.text, self.time = name, text, time
+
+    def to_list(self):
+        return [self.name, self.text, self.time]
+    
+    def __str__(self):
+        return '{},{},{}'.format(
+            self.name, self.text, self.time
+        )
