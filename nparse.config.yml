@@ -1,21 +1,21 @@
 general:
-  eq_log_dir: F:/EverQuest Project 1999/Logs
+  eq_log_dir: ''
   parser_opacity: 80
   qt_scale_factor: 100
 maps:
   auto_follow: true
-  closest_z_alpha: 10
+  closest_z_alpha: 20
   current_z_alpha: 100
   geometry:
-  - 203
-  - 761
-  - 530
-  - 197
+  - 301
+  - 100
+  - 449
+  - 200
   grid_line_width: 1
-  last_zone: Frontier Mountains
+  last_zone: east commonlands
   line_width: 1
-  other_z_alpha: 5
-  scale: 0.4284691501214948
+  other_z_alpha: 10
+  scale: 0.021398563121912056
   show_grid: true
   show_mouse_location: true
   show_poi: true
@@ -29,14 +29,14 @@ spells:
     - 00:18:00
   delay_self_buffs_on_zone: true
   geometry:
-  - 1611
-  - 31
-  - 298
-  - 626
-  level: 33
+  - 100
+  - 100
+  - 200
+  - 200
+  level: 1
   toggled: true
-  use_casting_window: true
   use_custom_timers: true
+  use_casting_window: true
   use_secondary:
   - levitate
   use_secondary_all: false
