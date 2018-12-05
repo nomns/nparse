@@ -37,6 +37,7 @@ class ParserWindow(QFrame):
         self.menu_area = QHBoxLayout()
         menu_area.setLayout(self.menu_area)
         self._menu_content.addWidget(menu_area, 0)
+        self._menu.setVisible(False)
 
         button.clicked.connect(self._toggle_frame)
 
@@ -87,6 +88,14 @@ class ParserWindow(QFrame):
     def closeEvent(self, _):
         config.data[self.name]['toggled'] = False
         config.save()
+    
+    def enterEvent(self, event):
+        self._menu.setVisible(True)
+        QFrame.enterEvent(self, event)
+    
+    def leaveEvent(self, event):
+        self._menu.setVisible(False)
+        QFrame.leaveEvent(self, event)
     
     def settings_updated(self):
         pass
