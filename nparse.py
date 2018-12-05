@@ -18,7 +18,7 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = 'v0.4.1'
+CURRENT_VERSION = 'v0.5-alpha'
 
 
 class NomnsParse(QApplication):
