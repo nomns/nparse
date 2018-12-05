@@ -7,17 +7,10 @@ maps:
   closest_z_alpha: 20
   current_z_alpha: 100
   geometry:
-<<<<<<< HEAD
-  - 128
-  - 843
-  - 530
-  - 197
-=======
   - 301
   - 100
   - 449
   - 200
->>>>>>> master
   grid_line_width: 1
   last_zone: east commonlands
   line_width: 1
@@ -36,19 +29,11 @@ spells:
     - 00:18:00
   delay_self_buffs_on_zone: true
   geometry:
-<<<<<<< HEAD
-  - 128
-  - 208
-  - 298
-  - 626
-  level: 33
-=======
   - 100
   - 100
   - 200
   - 200
   level: 1
->>>>>>> master
   toggled: true
   use_custom_timers: true
   use_casting_window: true
