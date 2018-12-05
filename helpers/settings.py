@@ -1,9 +1,10 @@
-from PyQt5.Qt import Qt
 from PyQt5.QtWidgets import (QCheckBox, QDialog, QFormLayout, QFrame,
                              QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
                              QSpinBox, QStackedWidget, QPushButton,
                              QVBoxLayout, QWidget, QComboBox, QLineEdit,
                              QMessageBox)
+
+from PyQt5.QtCore import Qt
 
 from helpers import config, text_time_to_seconds
 
@@ -57,6 +58,7 @@ class SettingsWindow(QDialog):
             self._list_widget.minimumSizeHint().width())
 
         self._list_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        print("bar", Qt.ScrollBarAlwaysOff, type(Qt.ScrollBarAlwaysOff))
 
         buttons = QWidget()
         buttons.setObjectName('SettingsButtons')
@@ -224,6 +226,7 @@ class SettingsHeader(QLabel):
         super().__init__(*args, **kwargs)
         self.setObjectName('SettingsLabel')
         self.setAlignment(Qt.AlignCenter)
+        print("center", Qt.AlignCenter, type(Qt.AlignCenter))
 
 
 class CustomTriggerSettings(QDialog):

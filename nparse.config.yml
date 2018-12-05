@@ -7,8 +7,8 @@ maps:
   closest_z_alpha: 10
   current_z_alpha: 100
   geometry:
-  - 203
-  - 761
+  - 128
+  - 843
   - 530
   - 197
   grid_line_width: 1
@@ -29,8 +29,8 @@ spells:
     - 00:18:00
   delay_self_buffs_on_zone: true
   geometry:
-  - 1611
-  - 31
+  - 128
+  - 208
   - 298
   - 626
   level: 33
