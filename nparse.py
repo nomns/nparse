@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFileDialog, QMenu, QMessageBox,
                              QSystemTrayIcon)
 
 import parsers
-from helpers import config, logreader, resource_path
+from helpers import config, logreader, resource_path, get_version
 from helpers.settings import SettingsWindow
 
 config.load('nparse.config.yml')
@@ -18,7 +18,8 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = 'v0.5-alpha'
+CURRENT_VERSION = '0.5.0'
+ONLINE_VERSION = get_version()
 
 
 class NomnsParse(QApplication):
@@ -57,6 +58,16 @@ class NomnsParse(QApplication):
 
         # Turn On
         self._toggle()
+
+        if self.new_version_available():
+            self._system_tray.showMessage(
+                "nParse Update".format(ONLINE_VERSION),
+                "New version available!\ncurrent: {}\nonline: {}".format(
+                    CURRENT_VERSION,
+                    ONLINE_VERSION
+                ),
+                msecs=3000
+            )
 
     def _load_parsers(self):
         self._parsers = [
@@ -100,8 +111,14 @@ class NomnsParse(QApplication):
         """Returns a new QMenu for system tray."""
         menu = QMenu()
         menu.setAttribute(Qt.WA_DeleteOnClose)
-        check_version_action = menu.addAction(
-            'Check For Update ({})'.format(CURRENT_VERSION))
+        # check online for new version
+        new_version_text = ""
+        if self.new_version_available():
+            new_version_text = "Update Available {}".format(ONLINE_VERSION)
+        else:
+            new_version_text = "Version {}".format(CURRENT_VERSION)
+
+        check_version_action = menu.addAction(new_version_text)
         menu.addSeparator()
         get_eq_dir_action = menu.addAction('Select EQ Logs Directory')
         menu.addSeparator()
@@ -155,6 +172,15 @@ class NomnsParse(QApplication):
             parser = [
                 parser for parser in self._parsers if parser.name == action.text().lower()][0]
             parser.toggle()
+
+    def new_version_available(self):
+        # this will only work if numbers go up
+        try:
+            for (o, c) in zip(ONLINE_VERSION.split('.'), CURRENT_VERSION.split('.')):
+                if int(o) > int(c):
+                    return True
+        except:
+            return False
 
 
 if __name__ == "__main__":

@@ -1,9 +1,21 @@
 import sys
 import os
 import math
+import requests
+import json
 from datetime import datetime, timedelta
 
 from .parser import ParserWindow  # noqa: F401
+
+
+def get_version():
+    version = None
+    try:
+        r = requests.get('http://nparse.nomns.com/info/version')
+        version = json.loads(r.text)['version']
+    except:
+        pass
+    return version
 
 
 def parse_line(line):
