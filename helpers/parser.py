@@ -18,7 +18,6 @@ class ParserWindow(QFrame):
         self.setLayout(self.content)
         self._menu = QWidget()
         self._menu_content = QHBoxLayout()
-        # self._menu_content.setObjectName('ParserWindowMenu')
         self._menu.setLayout(self._menu_content)
         self._menu_content.setSpacing(5)
         self._menu_content.setContentsMargins(3, 0, 0, 0)
@@ -68,9 +67,6 @@ class ParserWindow(QFrame):
             self.setGeometry(current_geometry)
             self.show()
         g = self.geometry()
-        config.data[self.name]['geometry'] = [
-            g.x(), g.y(), g.width(), g.height()]
-        config.save()
 
     def set_title(self, title):
         self._title.setText(title)
@@ -88,14 +84,14 @@ class ParserWindow(QFrame):
     def closeEvent(self, _):
         config.data[self.name]['toggled'] = False
         config.save()
-    
+
     def enterEvent(self, event):
         self._menu.setVisible(True)
         QFrame.enterEvent(self, event)
-    
+
     def leaveEvent(self, event):
         self._menu.setVisible(False)
         QFrame.leaveEvent(self, event)
-    
+
     def settings_updated(self):
         pass
