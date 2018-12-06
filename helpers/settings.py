@@ -58,7 +58,6 @@ class SettingsWindow(QDialog):
             self._list_widget.minimumSizeHint().width())
 
         self._list_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        print("bar", Qt.ScrollBarAlwaysOff, type(Qt.ScrollBarAlwaysOff))
 
         buttons = QWidget()
         buttons.setObjectName('SettingsButtons')
@@ -226,7 +225,6 @@ class SettingsHeader(QLabel):
         super().__init__(*args, **kwargs)
         self.setObjectName('SettingsLabel')
         self.setAlignment(Qt.AlignCenter)
-        print("center", Qt.AlignCenter, type(Qt.AlignCenter))
 
 
 class CustomTriggerSettings(QDialog):
