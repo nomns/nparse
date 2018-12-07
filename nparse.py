@@ -165,6 +165,15 @@ class NomnsParse(QApplication):
         elif action == quit_action:
             if self._toggled:
                 self._toggle()
+
+            # save parser geometry
+            for parser in self._parsers:
+                g = parser.geometry()
+                config.data[parser.name]['geometry'] = [
+                    g.x(), g.y(), g.width(), g.height()
+                ]
+                config.save()
+
             self._system_tray.setVisible(False)
             self.quit()
 
