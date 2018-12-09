@@ -122,6 +122,10 @@ class SettingsWindow(QDialog):
         # General Settings
         general_settings = QFrame()
         gsl = QFormLayout()
+        gsl.addRow(SettingsHeader('general'))
+        gsl_update_check = QCheckBox()
+        gsl_update_check.setObjectName('general:update_check')
+        gsl.addRow('Check for Updates', gsl_update_check)
         gsl.addRow(SettingsHeader('parsers'))
         gsl_opacity = QSpinBox()
         gsl_opacity.setRange(1, 100)

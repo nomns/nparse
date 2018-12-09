@@ -2,7 +2,8 @@
     "general": {
         "eq_log_dir": "F:/EverQuest Project 1999/Logs",
         "parser_opacity": 80,
-        "qt_scale_factor": 100
+        "qt_scale_factor": 100,
+        "update_check": true
     },
     "maps": {
         "auto_follow": true,

@@ -60,8 +60,13 @@ def verify_settings():
         100,
         lambda x: (x >= 100 and x <= 300)
         )
+    data['general']['update_check'] = get_setting(
+        data['general'].get('update_check', True),
+        True
+    )
 
     # maps
+    data['maps'] = data.get('maps', {})
     data['maps']['auto_follow'] = get_setting(
         data['maps'].get('auto_follow', True),
         True
@@ -132,6 +137,7 @@ def verify_settings():
         )
 
     # spells
+    data['spells'] = data.get('spells', {})
     data['spells']['casting_window_buffer'] = get_setting(
         data['spells'].get('casting_window_buffer', 1000),
         1000,
