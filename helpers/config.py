@@ -27,11 +27,6 @@ def load(filename):
         # nparse.config.json does not exist, create blank data
         data = {}
 
-    if data and 'location' in data.keys():
-        location = data['location']
-        data = {}
-        load(location)
-
 
 def save():
     """
