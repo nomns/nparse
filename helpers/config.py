@@ -41,36 +41,168 @@ def save():
 
 def verify_settings():
     global data
-    # verify nparse.config.json contains what it should
+    # verify nparse.config.json contains what it should and
+    # set defaults if appropriate
+
+    # general
+    data['general'] = data.get('general', {})
+    data['general']['eq_log_dir'] = get_setting(
+        data['general'].get('eq_log_dir', ''),
+        ''
+        )
+    data['general']['parser_opacity'] = get_setting(
+        data['general'].get('parser_opacity', 80),
+        80,
+        lambda x: (x > 0 and x <= 100)
+        )
+    data['general']['qt_scale_factor'] = get_setting(
+        data['general'].get('qt_scale_factor', 100),
+        100,
+        lambda x: (x >= 100 and x <= 300)
+        )
+
+    # maps
+    data['maps']['auto_follow'] = get_setting(
+        data['maps'].get('auto_follow', True),
+        True
+        )
+    data['maps']['closest_z_alpha'] = get_setting(
+        data['maps'].get('closest_z_alpha', 20),
+        20,
+        lambda x: (x >= 1 and x <= 100)
+        )
+    data['maps']['current_z_alpha'] = get_setting(
+        data['maps'].get('current_z_alpha', 100),
+        100,
+        lambda x: (x >= 1 and x <= 100)
+        )
+    data['maps']['geometry'] = get_setting(
+        data['maps'].get('geometry', [100, 100, 400, 200]),
+        [100, 100, 400, 200],
+        lambda x: (
+            len(x) == 4 and
+            isinstance(x[0], int) and
+            isinstance(x[1], int) and
+            isinstance(x[2], int) and
+            isinstance(x[3], int)
+            )
+        )
+    data['maps']['grid_line_width'] = get_setting(
+        data['maps'].get('grid_line_width', 1),
+        1,
+        lambda x: (x >= 1 and x <= 10)
+        )
+    data['maps']['last_zone'] = get_setting(
+        data['maps'].get('last_zone', ''),
+        ''
+        )
+    data['maps']['line_width'] = get_setting(
+        data['maps'].get('line_width', 1),
+        1,
+        lambda x: (x >= 1 and x <= 10)
+        )
+    data['maps']['other_z_alpha'] = get_setting(
+        data['maps'].get('other_z_alpha', 10),
+        10,
+        lambda x: (x >= 1 and x <= 100)
+        )
+    data['maps']['scale'] = get_setting(
+        data['maps'].get('scale', 0.07),
+        0.07
+        )
+    data['maps']['show_grid'] = get_setting(
+        data['maps'].get('show_grid', True),
+        True
+        )
+    data['maps']['show_mouse_location'] = get_setting(
+        data['maps'].get('show_mouse_location', True),
+        True
+        )
+    data['maps']['show_poi'] = get_setting(
+        data['maps'].get('show_poi', True),
+        True
+        )
+    data['maps']['toggled'] = get_setting(
+        data['maps'].get('toggled', True),
+        True
+        )
+    data['maps']['show_z_layers'] = get_setting(
+        data['maps'].get('show_z_layers', False),
+        False
+        )
+
+    # spells
+    data['spells']['casting_window_buffer'] = get_setting(
+        data['spells'].get('casting_window_buffer', 1000),
+        1000,
+        lambda x: (x >= 1 and x <= 4000)
+        )
+    data['spells']['custom_timers'] = get_setting(
+        data['spells'].get('custom_timers', [[]]),
+        [["Journeyman Boots", "Your feet feel quick.", "00:18:00"]],
+        lambda x: (
+            isinstance(x[0], list) and
+            isinstance(x[0][0], str) and
+            isinstance(x[0][1], str) and
+            isinstance(x[0][2], str)
+            )
+        )
+    data['spells']['delay_self_buffs_on_zone'] = get_setting(
+        data['spells'].get('delay_self_buffs_on_zone', True),
+        True
+        )
+    data['spells']['geometry'] = get_setting(
+        data['spells'].get('geometry', [550, 100, 200, 400]),
+        [550, 100, 200, 400],
+        lambda x: (
+            len(x) == 4 and
+            isinstance(x[0], int) and
+            isinstance(x[1], int) and
+            isinstance(x[2], int) and
+            isinstance(x[3], int)
+            )
+        )
+    data['spells']['level'] = get_setting(
+        data['spells'].get('level', 1),
+        1,
+        lambda x: (x >= 1 and x <= 65)
+        )
+    data['spells']['toggled'] = get_setting(
+        data['spells'].get('toggled', True),
+        True
+        )
+    data['spells']['use_casting_window'] = get_setting(
+        data['spells'].get('use_casting_window', True),
+        True
+        )
+    data['spells']['use_custom_timers'] = get_setting(
+        data['spells'].get('use_custom_timers', True),
+        True
+        )
+    data['spells']['use_custom_triggers'] = get_setting(
+        data['spells'].get('use_custom_triggers', True),
+        True
+        )
+    data['spells']['use_secondary'] = get_setting(
+        data['spells'].get('use_secondary', ["levitate"]),
+        ["levitate"],
+        lambda x: isinstance(x, list)
+        )
+    data['spells']['use_secondary_all'] = get_setting(
+        data['spells'].get('use_secondary_all', False),
+        False
+        )
+
+ 
+def get_setting(setting, default, func=None):
     try:
-        # general
-        _ = int(data['general']['parser_opacity'])
-        assert((_ > 0 and _ <= 100))
-
-        # maps
-        _ = int(data['maps']['grid_line_width'])
-        _ = int(data['maps']['scale'])
-        _ = bool(data['maps']['show_poi'])
-        _ = bool(data['maps']['toggled'])
-        _ = bool(data['maps']['auto_follow'])
-        geometry = data['maps'].get('geometry', None)
-        if geometry:
-            assert(len([int(x) for x in geometry]) == 4)
-
-        # spells
-        _ = int(data['spells']['level'])
-        assert(_ > 0 and _ <= 65)
-        _ = int(data['spells']['casting_window_buffer'])
-        _ = bool(data['spells']['use_casting_window'])
-        _ = bool(data['spells']['use_secondary_all'])
-        _ = bool(data['spells']['delay_self_buffs_on_zone'])
-        _ = bool(data['spells']['toggled'])
-        geometry = data['spells'].get('geometry', None)
-        if geometry:
-            assert(len([int(x) for x in geometry]) == 4)
-
+        assert(type(setting) == type(default))
+        if func:
+            if not func(setting):
+                return default
+        return setting
     except:
-        raise ValueError('critical')
+        return default
 
 
 def verify_paths():

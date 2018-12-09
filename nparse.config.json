@@ -9,19 +9,20 @@
         "closest_z_alpha": 20,
         "current_z_alpha": 100,
         "geometry": [
-            488,
-            655,
+            432,
+            571,
             223,
-            200
+            206
         ],
         "grid_line_width": 1,
         "last_zone": "Ak'Anon",
         "line_width": 1,
         "other_z_alpha": 10,
-        "scale": 0.07803277479985518,
+        "scale": 0.6101785019190402,
         "show_grid": true,
         "show_mouse_location": true,
         "show_poi": false,
+        "show_z_layers": false,
         "toggled": true,
         "use_z_layers": false
     },

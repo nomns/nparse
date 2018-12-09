@@ -130,7 +130,7 @@ class SettingsWindow(QDialog):
         gsl_opacity.setObjectName('general:parser_opacity')
         gsl.addRow('Parser Window Opacity (% 1-100)', gsl_opacity)
         gsl_scaling = QSpinBox()
-        gsl_scaling.setRange(50, 300)
+        gsl_scaling.setRange(100, 300)
         gsl_scaling.setSingleStep(5)
         gsl_scaling.setSuffix('%')
         gsl_scaling.setObjectName('general:qt_scale_factor')

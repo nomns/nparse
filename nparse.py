@@ -13,6 +13,8 @@ from helpers import config, logreader, resource_path, get_version
 from helpers.settings import SettingsWindow
 
 config.load('nparse.config.json')
+# validate settings file
+config.verify_settings()
 
 os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
@@ -28,17 +30,6 @@ class NomnsParse(QApplication):
     def __init__(self, *args):
         super().__init__(*args)
 
-        # validate settings file
-        try:
-            config.verify_settings()
-        except ValueError:
-            QMessageBox.critical(
-                None,
-                'Critical Error',
-                'Config file nparse.config.yml contains errors.  Please obtain a valid settings file.',
-                QMessageBox.Ok
-            )
-            sys.exit()
 
         # Updates
         self._toggled = False
