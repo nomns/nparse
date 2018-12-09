@@ -20,8 +20,12 @@ def load(filename):
     global _filename
     _filename = filename
 
-    with open(_filename) as f:
-        data = json.loads(f.read())
+    try:
+        with open(_filename, 'r+') as f:
+            data = json.loads(f.read())
+    except:
+        # nparse.config.json does not exist, create blank data
+        data = {}
 
     if data and 'location' in data.keys():
         location = data['location']
@@ -131,8 +135,8 @@ def verify_settings():
         data['maps'].get('toggled', True),
         True
         )
-    data['maps']['show_z_layers'] = get_setting(
-        data['maps'].get('show_z_layers', False),
+    data['maps']['use_z_layers'] = get_setting(
+        data['maps'].get('use_z_layers', False),
         False
         )
 
@@ -179,10 +183,6 @@ def verify_settings():
         )
     data['spells']['use_casting_window'] = get_setting(
         data['spells'].get('use_casting_window', True),
-        True
-        )
-    data['spells']['use_custom_timers'] = get_setting(
-        data['spells'].get('use_custom_timers', True),
         True
         )
     data['spells']['use_custom_triggers'] = get_setting(

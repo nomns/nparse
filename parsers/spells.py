@@ -41,7 +41,7 @@ class Spells(ParserWindow):
         self._custom_timer_toggle = QPushButton('\u26A1')
         self._custom_timer_toggle.setCheckable(True)
         self._custom_timer_toggle.setToolTip('Parse Custom Timers')
-        self._custom_timer_toggle.setChecked(config.data['spells']['use_custom_timers'])
+        self._custom_timer_toggle.setChecked(config.data['spells']['use_custom_triggers'])
         self._custom_timer_toggle.clicked.connect(self._toggle_custom_timers)
         self.menu_area.addWidget(self._custom_timer_toggle)
         self._level_widget = QSpinBox()
@@ -64,7 +64,7 @@ class Spells(ParserWindow):
         """Parse casting triggers (casting, failure, success)."""
 
         # custom timers
-        if config.data['spells']['use_custom_timers']:
+        if config.data['spells']['use_custom_triggers']:
             for rx, ct in self._custom_timers.items():
                 if rx.match(text):
                     spell = Spell(
