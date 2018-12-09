@@ -1,0 +1,54 @@
+{
+    "general": {
+        "eq_log_dir": "F:/EverQuest Project 1999/Logs",
+        "parser_opacity": 80,
+        "qt_scale_factor": 100
+    },
+    "maps": {
+        "auto_follow": true,
+        "closest_z_alpha": 20,
+        "current_z_alpha": 100,
+        "geometry": [
+            488,
+            655,
+            223,
+            200
+        ],
+        "grid_line_width": 1,
+        "last_zone": "Ak'Anon",
+        "line_width": 1,
+        "other_z_alpha": 10,
+        "scale": 0.07803277479985518,
+        "show_grid": true,
+        "show_mouse_location": true,
+        "show_poi": false,
+        "toggled": true,
+        "use_z_layers": false
+    },
+    "spells": {
+        "casting_window_buffer": 1000,
+        "custom_timers": [
+            [
+                "Journeyman Boots",
+                "Your feet feel quick.",
+                "00:18:00"
+            ]
+        ],
+        "delay_self_buffs_on_zone": true,
+        "geometry": [
+            138,
+            146,
+            200,
+            688
+        ],
+        "level": 5,
+        "toggled": true,
+        "use_casting_window": true,
+        "use_custom_timers": true,
+        "use_custom_triggers": true,
+        "use_secondary": [
+            "levitate"
+        ],
+        "use_secondary_all": false
+    }
+}

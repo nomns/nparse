@@ -12,7 +12,7 @@ import parsers
 from helpers import config, logreader, resource_path, get_version
 from helpers.settings import SettingsWindow
 
-config.load('nparse.config.yml')
+config.load('nparse.config.json')
 
 os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)

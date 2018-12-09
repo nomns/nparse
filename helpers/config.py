@@ -3,8 +3,7 @@ General global settings setup to provide settings.data
 """
 import os
 from glob import glob
-
-import yaml
+import json
 
 data = {}
 _filename = ''
@@ -12,7 +11,7 @@ _filename = ''
 
 def load(filename):
     """
-    Load yaml from file.
+    Load json from file.
 
     If resulting json has 'location' declared, 'data' dict will be wiped and
     populated with the yaml at file location 'location'.
@@ -22,7 +21,7 @@ def load(filename):
     _filename = filename
 
     with open(_filename) as f:
-        data = yaml.load(f)
+        data = json.loads(f.read())
 
     if data and 'location' in data.keys():
         location = data['location']
@@ -32,17 +31,17 @@ def load(filename):
 
 def save():
     """
-    Saves yaml file to previously opened location.
+    Saves json to previously opened location.
     """
     global data
     global _filename
     with open(_filename, mode='w') as f:
-        f.write(yaml.dump(data, default_flow_style=False))
+        f.write(json.dumps(data, indent=4, sort_keys=True))
 
 
 def verify_settings():
     global data
-    # verify nparse.config.yml contains what it should
+    # verify nparse.config.json contains what it should
     try:
         # general
         _ = int(data['general']['parser_opacity'])
