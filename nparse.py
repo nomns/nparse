@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFileDialog, QMenu, QMessageBox,
 
 import parsers
 from helpers import config, logreader, resource_path, get_version
-from helpers.settings import SettingsWindow
+from settings import SettingsWindow
 
 config.load('nparse.config.json')
 # validate settings file
@@ -32,7 +32,6 @@ class NomnsParse(QApplication):
 
     def __init__(self, *args):
         super().__init__(*args)
-
 
         # Updates
         self._toggled = False
@@ -105,6 +104,7 @@ class NomnsParse(QApplication):
         """Returns a new QMenu for system tray."""
         menu = QMenu()
         menu.setAttribute(Qt.WA_DeleteOnClose)
+
         # check online for new version
         new_version_text = ""
         if self.new_version_available():
@@ -144,12 +144,15 @@ class NomnsParse(QApplication):
 
         elif action == settings_action:
             if self._settings.exec_():
+                self._settings.save_settings()
                 # Update required settings
                 for parser in self._parsers:
                     if parser.windowOpacity() != config.data['general']['parser_opacity']:
                         parser.setWindowOpacity(
                             config.data['general']['parser_opacity'] / 100)
                         parser.settings_updated()
+            else:
+                self._settings.set_values()
             # some settings are saved within other settings automatically
             # force update
             for parser in self._parsers:

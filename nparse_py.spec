@@ -19,6 +19,8 @@ from glob import glob
 a.datas += [(filename, filename, '.') for filename in glob('data/fonts/*')]
 a.datas += [('data/ui/_.css', 'data/ui/_.css', '.')]
 a.datas += [('data/ui/icon.png', 'data/ui/icon.png', '.')]
+a.datas += [('data/ui/settings.ui', 'data/ui/settings.ui', '.')]
+
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
