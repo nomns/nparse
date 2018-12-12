@@ -12,7 +12,7 @@ import parsers
 from helpers import config, logreader, resource_path, get_version
 from settings import SettingsWindow
 
-config.load('nparse.config.json')
+config.load()
 # validate settings file
 config.verify_settings()
 

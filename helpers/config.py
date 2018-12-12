@@ -6,36 +6,49 @@ from glob import glob
 import json
 
 data = {}
-_filename = ''
+triggers = {}
+CONFIG_FILE = ''
+TRIGGER_FILE = ''
 
 
-def load(filename):
+def load(config_file='nparse.config.json', trigger_file='nparse.triggers.json'):
     """
     Load json from file.
 
     If resulting json has 'location' declared, 'data' dict will be wiped and
     populated with the yaml at file location 'location'.
     """
-    global data
-    global _filename
-    _filename = filename
+    global data, triggers, CONFIG_FILE, TRIGGER_FILE
+    CONFIG_FILE = config_file
+    TRIGGER_FILE = trigger_file
 
+    # load config file
     try:
-        with open(_filename, 'r+') as f:
+        with open(CONFIG_FILE, 'r+') as f:
             data = json.loads(f.read())
     except:
         # nparse.config.json does not exist, create blank data
         data = {}
+
+    # load trigger file
+    try:
+        with open(TRIGGER_FILE, 'r+') as f:
+            triggers = json.loads(f.read())
+    except:
+        # nparse.triggers.json does not exist, create blank data
+        triggers = {}
 
 
 def save():
     """
     Saves json to previously opened location.
     """
-    global data
-    global _filename
-    with open(_filename, mode='w') as f:
-        f.write(json.dumps(data, indent=4, sort_keys=True))
+    global data, CONFIG_FILE, triggers, TRIGGER_FILE
+    try:
+        open(CONFIG_FILE, mode='w').write(json.dumps(data, indent=4, sort_keys=True))
+        open(TRIGGER_FILE, mode='w').write(json.dumps(triggers, indent=4, sort_keys=True))
+    except:
+        pass  # fail silent
 
 
 def get_setting(setting, default, func=None):
@@ -179,10 +192,6 @@ def verify_settings():
     )
     data['spells']['use_casting_window'] = get_setting(
         data['spells'].get('use_casting_window', True),
-        True
-    )
-    data['spells']['use_custom_triggers'] = get_setting(
-        data['spells'].get('use_custom_triggers', True),
         True
     )
     data['spells']['use_secondary'] = get_setting(

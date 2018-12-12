@@ -7,7 +7,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from helpers import config, text_time_to_seconds, resource_path
-from parsers.spells import CustomTrigger
 
 
 class SettingsWindow(QDialog):
@@ -23,6 +22,8 @@ class SettingsWindow(QDialog):
 
         # events
         self.addTriggerButton.clicked.connect(self._addTrigger)
+
+        # self.triggerTreeView
 
     def _addTrigger(self, _):
         text, response = QInputDialog.getText(

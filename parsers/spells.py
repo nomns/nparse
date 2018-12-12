@@ -23,8 +23,6 @@ class Spells(ParserWindow):
         self._setup_ui()
 
         self.spell_book = create_spell_book()
-        self._custom_timers = {}  # regex : CustomTimer
-        self.load_custom_timers()
         self._casting = None  # holds Spell when casting
         self._zoning = None  # holds time of zone or None
         self._spell_triggers = []  # need a queue because of landing windows
@@ -38,12 +36,6 @@ class Spells(ParserWindow):
         self._scroll_area.setWidget(self._spell_container)
         self._scroll_area.setObjectName('SpellScrollArea')
         self.content.addWidget(self._scroll_area, 1)
-        self._custom_timer_toggle = QPushButton('\u26A1')
-        self._custom_timer_toggle.setCheckable(True)
-        self._custom_timer_toggle.setToolTip('Parse Custom Timers')
-        self._custom_timer_toggle.setChecked(config.data['spells']['use_custom_triggers'])
-        self._custom_timer_toggle.clicked.connect(self._toggle_custom_timers)
-        self.menu_area.addWidget(self._custom_timer_toggle)
         self._level_widget = QSpinBox()
         self._level_widget.setRange(1, 65)
         self._level_widget.setValue(config.data['spells']['level'])
@@ -115,21 +107,6 @@ class Spells(ParserWindow):
 
     def _level_change(self, _):
         config.data['spells']['level'] = self._level_widget.value()
-        config.save()
-
-    def load_custom_timers(self):
-        self._custom_timers = {}
-        for item in config.data['spells']['custom_timers']:
-            ct = CustomTrigger(*item)
-            rx = re.compile(
-                "^{}$".format(ct.text.replace('*', '.*')),
-                re.RegexFlag.IGNORECASE
-            )
-            self._custom_timers[rx] = ct
-
-    def _toggle_custom_timers(self, _):
-        config.data['spells']['use_custom_triggers'] = \
-            self._custom_timer_toggle.isChecked()
         config.save()
 
 
