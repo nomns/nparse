@@ -152,12 +152,7 @@ class NomnsParse(QApplication):
                             config.data['general']['parser_opacity'] / 100)
                         parser.settings_updated()
             else:
-                self._settings.set_values()
-            # some settings are saved within other settings automatically
-            # force update
-            for parser in self._parsers:
-                if parser.name == "spells":
-                    parser.load_custom_timers()
+                self._settings.set_values()  # revert values
 
         elif action == quit_action:
             if self._toggled:

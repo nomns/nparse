@@ -38,6 +38,17 @@ def save():
         f.write(json.dumps(data, indent=4, sort_keys=True))
 
 
+def get_setting(setting, default, func=None):
+    try:
+        assert(type(setting) == type(default))
+        if func:
+            if not func(setting):
+                return default
+        return setting
+    except:
+        return default
+
+
 def verify_settings():
     global data
     # verify nparse.config.json contains what it should and
@@ -142,16 +153,6 @@ def verify_settings():
         1000,
         lambda x: (x >= 1 and x <= 4000)
     )
-    data['spells']['custom_timers'] = get_setting(
-        data['spells'].get('custom_timers', [[]]),
-        [["Journeyman Boots", "Your feet feel quick.", "00:18:00"]],
-        lambda x: (
-            isinstance(x[0], list) and
-            isinstance(x[0][0], str) and
-            isinstance(x[0][1], str) and
-            isinstance(x[0][2], str)
-        )
-    )
     data['spells']['delay_self_buffs_on_zone'] = get_setting(
         data['spells'].get('delay_self_buffs_on_zone', True),
         True
@@ -193,17 +194,6 @@ def verify_settings():
         data['spells'].get('use_secondary_all', False),
         False
     )
-
-
-def get_setting(setting, default, func=None):
-    try:
-        assert(type(setting) == type(default))
-        if func:
-            if not func(setting):
-                return default
-        return setting
-    except:
-        return default
 
 
 def verify_paths():

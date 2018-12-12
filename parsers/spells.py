@@ -63,22 +63,6 @@ class Spells(ParserWindow):
     def parse(self, timestamp, text):
         """Parse casting triggers (casting, failure, success)."""
 
-        # custom timers
-        if config.data['spells']['use_custom_triggers']:
-            for rx, ct in self._custom_timers.items():
-                if rx.match(text):
-                    spell = Spell(
-                        name=ct.name,
-                        duration=int(text_time_to_seconds(ct.time)/6),
-                        duration_formula=11,  # honour duration ticks
-                        spell_icon=14
-                    )
-                    self._spell_container.add_spell(
-                        spell,
-                        timestamp,
-                        '__custom__'
-                    )
-
         if self._spell_trigger:
             self._spell_trigger.parse(timestamp, text)
 
@@ -132,7 +116,7 @@ class Spells(ParserWindow):
     def _level_change(self, _):
         config.data['spells']['level'] = self._level_widget.value()
         config.save()
-    
+
     def load_custom_timers(self):
         self._custom_timers = {}
         for item in config.data['spells']['custom_timers']:
@@ -140,7 +124,7 @@ class Spells(ParserWindow):
             rx = re.compile(
                 "^{}$".format(ct.text.replace('*', '.*')),
                 re.RegexFlag.IGNORECASE
-                )
+            )
             self._custom_timers[rx] = ct
 
     def _toggle_custom_timers(self, _):
@@ -534,17 +518,3 @@ def get_spell_duration(spell, level):
         else:
             spell_ticks = duration
     return spell_ticks
-
-
-class CustomTrigger:
-
-    def __init__(self, name='', text='', time='', **kwargs):
-        self.name, self.text, self.time = name, text, time
-
-    def to_list(self):
-        return [self.name, self.text, self.time]
-    
-    def __str__(self):
-        return '{},{},{}'.format(
-            self.name, self.text, self.time
-        )
