@@ -84,7 +84,7 @@ class SettingsWindow(QDialog):
                     widget.setChecked(config.data[section][setting])
                 elif wt == QSpinBox:
                     widget.setValue(config.data[section][setting])
-        
+
         # Remove triggertree if it exists and reinsert it
         try:
             self.treeViewLayout.removeWidget(self.triggerTree)

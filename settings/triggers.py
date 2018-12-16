@@ -52,7 +52,7 @@ class TriggerTree(QTreeWidget):
             )
         except IndexError:
             return False
-    
+
     def add_new_trigger(self, trigger_name):
         d = {'__enabled__': False}
         qtrig = TriggerItem(trigger_name=trigger_name, trigger_data=d)
@@ -105,13 +105,13 @@ class TriggerTree(QTreeWidget):
                 if trigger_name == qtrig.text(0):
                     return True
         return False
-    
+
     def group_exists(self, group_name):
         for qgroup in [self.root.child(x) for x in range(self.root.childCount())]:
             if qgroup.text(0) == group_name:
                 return True
         return False
-    
+
     def dataChanged(self, *args):
         try:
             item = self.itemFromIndex(args[0])
@@ -119,7 +119,7 @@ class TriggerTree(QTreeWidget):
                 item.value['__enabled__'] = True if item.checkState == Qt.Checked else False
         except:
             pass
-    
+
 
 class TriggerGroup(QTreeWidgetItem):
 
@@ -137,5 +137,3 @@ class TriggerItem(QTreeWidgetItem):
         self.setText(0, trigger_name)
         self.value = trigger_data
         self.setFlags(self.flags() | Qt.ItemIsDragEnabled | Qt.ItemIsUserCheckable)
-
-

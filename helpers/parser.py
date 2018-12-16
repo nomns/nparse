@@ -42,31 +42,19 @@ class ParserWindow(QFrame):
 
     def set_flags(self):
         self.setFocus()
-        self.setWindowFlags(
-            Qt.FramelessWindowHint |
-            Qt.WindowStaysOnTopHint |
-            Qt.WindowCloseButtonHint |
-            Qt.WindowMinMaxButtonsHint
-        )
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowCloseButtonHint | Qt.WindowMinMaxButtonsHint)
         self.show()
 
     def _toggle_frame(self):
         current_geometry = self.geometry()
         if bool(self.windowFlags() & Qt.FramelessWindowHint):
-            self.setWindowFlags(
-                Qt.WindowCloseButtonHint |
-                Qt.WindowMinMaxButtonsHint
-            )
+            self.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowMinMaxButtonsHint)
             self.setGeometry(current_geometry)
             self.show()
         else:
-            self.setWindowFlags(
-                Qt.FramelessWindowHint |
-                Qt.WindowStaysOnTopHint
-            )
+            self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
             self.setGeometry(current_geometry)
             self.show()
-        g = self.geometry()
 
     def set_title(self, title):
         self._title.setText(title)

@@ -38,7 +38,7 @@ class LogReader(QFileSystemWatcher):
                     self.new_line.emit((
                         datetime.datetime.now(),
                         strip_timestamp(line)
-                        ))
+                    ))
             except Exception:  # do not read lines if they cause errors
                 log.seek(0, os.SEEK_END)
                 self._stats['last_read'] = log.tell()

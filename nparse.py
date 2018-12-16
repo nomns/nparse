@@ -5,7 +5,7 @@ import webbrowser
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor, QFontDatabase, QIcon
-from PyQt5.QtWidgets import (QApplication, QFileDialog, QMenu, QMessageBox,
+from PyQt5.QtWidgets import (QApplication, QFileDialog, QMenu,
                              QSystemTrayIcon)
 
 import parsers

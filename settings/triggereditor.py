@@ -34,7 +34,7 @@ class TriggerEditor(QDialog):
         self.ttsPlayButton.clicked.connect(self._play_tts_file)
 
         self._set_values()
-    
+
     def _create_tts_file(self, _):
         # ensure data/tts directory exists, otherwise create
         if not os.path.exists('data/tts'):
@@ -62,28 +62,28 @@ class TriggerEditor(QDialog):
             pygame.mixer.music.play()
         except:
             pass
-    
+
     def _choose_sound_file(self, _):
         fd = QFileDialog(self)
         f = fd.getOpenFileName(filter='*.mp3')
         if f[0]:
             self.soundFileLabel.setText(f[0])
-    
+
     def _load_timer_icon(self, icon_index):
         try:
             self.timerIconLayout.itemAt(0).widget().setParent(None)
         except:
             pass
         self.timerIconLayout.addWidget(get_spell_icon(icon_index))
-    
+
     def _text_size_changed(self, _):
         f = self.textExample.font()
         f.setPointSize(self.textSizeSpinBox.value())
         self.textExample.setFont(f)
-    
+
     def _text_text_changed(self, _):
         self.textExample.setText(self.textTextLineEdit.text())
-    
+
     def _name_changed(self, _):
         self.timerExample.setText(self.nameLineEdit.text())
 
@@ -130,7 +130,7 @@ class TriggerEditor(QDialog):
                 self.triggerRegexLineEdit.setText(t['regex'])
         except:
             self.triggerTextRadio.setChecked(True)
-        
+
         # action
         try:
             a = d['action']
@@ -175,7 +175,7 @@ class TriggerEditor(QDialog):
             t['text'] = self.triggerTextLineEdit.text()
         elif self.triggerRegexRadio.isChecked():
             t['regex'] = self.triggerRegexLineEdit.text()
-        
+
         a = {}
         if self.timerCheckBox.isChecked():
             a['timer'] = {}
@@ -202,4 +202,3 @@ class TriggerEditor(QDialog):
         data['action'] = a
         d['data'] = data
         return d
-    
