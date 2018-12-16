@@ -59,7 +59,7 @@ class TriggerTree(QTreeWidget):
         qtrig.setCheckState(0, Qt.Unchecked)
         try:
             selected_item = self.selectedItems()[0]
-            if not selected_item.parent().data():
+            if not selected_item.parent():
                 selected_item.addChild(qtrig)
             else:
                 selected_item = selected_item.parent()
