@@ -116,7 +116,7 @@ class TriggerTree(QTreeWidget):
         try:
             item = self.itemFromIndex(args[0])
             if item.parent():
-                item.value['__enabled__'] = True if item.checkState == Qt.Checked else False
+                item.value['__enabled__'] = True if item.checkState(0) == Qt.Checked else False
         except:
             pass
 
