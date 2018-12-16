@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>304</width>
+    <width>333</width>
     <height>334</height>
    </rect>
   </property>
@@ -398,10 +398,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <layout class="QVBoxLayout" name="verticalLayout_13">
-             <item>
-              <widget class="QTreeView" name="triggerTreeView"/>
-             </item>
+            <layout class="QVBoxLayout" name="treeViewLayout">
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_2">
                <property name="leftMargin">
@@ -424,9 +421,16 @@
                 </spacer>
                </item>
                <item>
+                <widget class="QPushButton" name="newGroupButton">
+                 <property name="text">
+                  <string>new group</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <widget class="QPushButton" name="addTriggerButton">
                  <property name="text">
-                  <string>add</string>
+                  <string>new trigger</string>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
@@ -434,9 +438,9 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButton_2">
+                <widget class="QPushButton" name="removeButton">
                  <property name="text">
-                  <string>remove</string>
+                  <string>remove selected</string>
                  </property>
                 </widget>
                </item>

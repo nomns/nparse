@@ -1,12 +1,11 @@
-from PyQt5.QtWidgets import (QCheckBox, QDialog, QFormLayout, QFrame,
-                             QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
-                             QSpinBox, QStackedWidget, QPushButton,
-                             QVBoxLayout, QWidget, QComboBox, QLineEdit,
-                             QMessageBox, QInputDialog)
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (QMessageBox, QInputDialog, QDialog,
+                             QCheckBox, QSpinBox)
 from PyQt5 import uic
+from PyQt5.QtCore import Qt
 
-from helpers import config, text_time_to_seconds, resource_path
+from helpers import config, resource_path
+from .triggers import TriggerTree
+from .triggereditor import TriggerEditor
 
 
 class SettingsWindow(QDialog):
@@ -22,8 +21,8 @@ class SettingsWindow(QDialog):
 
         # events
         self.addTriggerButton.clicked.connect(self._addTrigger)
-
-        # self.triggerTreeView
+        self.newGroupButton.clicked.connect(self._addGroup)
+        self.removeButton.clicked.connect(self._removeItem)
 
     def _addTrigger(self, _):
         text, response = QInputDialog.getText(
@@ -32,7 +31,37 @@ class SettingsWindow(QDialog):
             "Enter Trigger Name:"
         )
         if response:
-            print(text)
+            if not self.triggerTree.trigger_exists(text):
+                self.triggerTree.add_new_trigger(text)
+
+    def _addGroup(self, _=None):
+        text, response = QInputDialog.getText(
+            self,
+            "New Group",
+            "Enter New Group Name:"
+        )
+        if response:
+            # todo read from model
+            if not self.triggerTree.group_exists(text):
+                self.triggerTree.add_new_group(text)
+            else:
+                QMessageBox(
+                    QMessageBox.Warning,
+                    "Warning", "{} group already exists.".format(text),
+                    QMessageBox.Ok
+                ).exec()
+                self._addGroup()
+
+    def _removeItem(self, _=None):
+        if self.triggerTree.is_group_selected():
+            r = QMessageBox.question(
+                self,
+                "Are you sure?",
+                "Selected item is a group.  Remove group and all triggers it contains?"
+            )
+            if r == QMessageBox.No:
+                return
+        self.triggerTree.remove_selected()
 
     def save_settings(self):
         for section, references in self._ref.items():
@@ -44,6 +73,7 @@ class SettingsWindow(QDialog):
                 elif wt == QSpinBox:
                     config.data[section][setting] = widget.value()
                     widget.setValue(config.data[section][setting])
+        config.triggers = self.triggerTree.get_values()
         config.save()
 
     def set_values(self):
@@ -54,6 +84,35 @@ class SettingsWindow(QDialog):
                     widget.setChecked(config.data[section][setting])
                 elif wt == QSpinBox:
                     widget.setValue(config.data[section][setting])
+        
+        # Remove triggertree if it exists and reinsert it
+        try:
+            self.treeViewLayout.removeWidget(self.triggerTree)
+        except:
+            pass
+        self.triggerTree = TriggerTree()
+        self.triggerTree.edit_trigger.connect(self._edit_selected_trigger)
+        self.treeViewLayout.insertWidget(0, self.triggerTree, 1)
+
+    def _edit_selected_trigger(self):
+        # if group, do nothing
+        # if trigger, edit
+        if not self.triggerTree.is_group_selected():
+            try:
+                item = self.triggerTree.selectedItems()[0]
+                te = TriggerEditor(item.text(0), item.value)
+                r = te.exec()
+                if r:
+                    updated = te.value()
+                    if not self.triggerTree.trigger_exists(updated['name']):
+                        item.setText(0, updated['name'])
+                    item.value = updated['data']
+                    item.setCheckState(
+                        0,
+                        Qt.Checked if updated['data']['__enabled__'] else Qt.Unchecked
+                    )
+            except IndexError:
+                pass
 
     def _build_ref(self):
         d = {

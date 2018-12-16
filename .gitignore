@@ -65,3 +65,4 @@ old/
 nparse.config.json
 assets/
 nparse.triggers.json
+data/tts/*

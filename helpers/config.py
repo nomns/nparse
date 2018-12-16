@@ -24,29 +24,29 @@ def load(config_file='nparse.config.json', trigger_file='nparse.triggers.json'):
 
     # load config file
     try:
-        with open(CONFIG_FILE, 'r+') as f:
-            data = json.loads(f.read())
+        data = json.loads(open(CONFIG_FILE, 'r+').read())
     except:
         # nparse.config.json does not exist, create blank data
         data = {}
 
     # load trigger file
     try:
-        with open(TRIGGER_FILE, 'r+') as f:
-            triggers = json.loads(f.read())
+        triggers = json.loads(open(TRIGGER_FILE, 'r+').read())
     except:
         # nparse.triggers.json does not exist, create blank data
         triggers = {}
 
 
-def save():
+def save(save_data=True, save_triggers=True):
     """
     Saves json to previously opened location.
     """
     global data, CONFIG_FILE, triggers, TRIGGER_FILE
     try:
-        open(CONFIG_FILE, mode='w').write(json.dumps(data, indent=4, sort_keys=True))
-        open(TRIGGER_FILE, mode='w').write(json.dumps(triggers, indent=4, sort_keys=True))
+        if save_data:
+            open(CONFIG_FILE, mode='w').write(json.dumps(data, indent=4, sort_keys=True))
+        if save_triggers:
+            open(TRIGGER_FILE, mode='w').write(json.dumps(triggers, indent=4, sort_keys=True))
     except:
         pass  # fail silent
 

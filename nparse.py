@@ -12,6 +12,8 @@ import parsers
 from helpers import config, logreader, resource_path, get_version
 from settings import SettingsWindow
 
+import pygame
+
 config.load()
 # validate settings file
 config.verify_settings()
@@ -37,7 +39,7 @@ class NomnsParse(QApplication):
         self._toggled = False
         self._log_reader = None
 
-        # Load Parsers
+        # Load UI
         self._load_parsers()
         self._settings = SettingsWindow()
 
@@ -45,13 +47,13 @@ class NomnsParse(QApplication):
         self._system_tray = QSystemTrayIcon()
         self._system_tray.setIcon(QIcon(resource_path('data/ui/icon.png')))
         self._system_tray.setToolTip("nParse")
-        # self._system_tray.setContextMenu(self._create_menu())
         self._system_tray.activated.connect(self._menu)
         self._system_tray.show()
 
         # Turn On
         self._toggle()
 
+        # Version Check
         if self.new_version_available():
             self._system_tray.showMessage(
                 "nParse Update".format(ONLINE_VERSION),
@@ -202,4 +204,5 @@ if __name__ == "__main__":
     QFontDatabase.addApplicationFont(
         resource_path('data/fonts/NotoSans-Bold.ttf'))
 
+    pygame.init()
     sys.exit(APP.exec())
