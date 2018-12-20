@@ -6,7 +6,7 @@ from gtts import gTTS
 import pygame
 import os
 
-from parsers.spells import get_spell_icon
+from parsers.spells.helpers import get_spell_icon
 from helpers import resource_path
 
 
