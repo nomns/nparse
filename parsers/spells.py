@@ -1,7 +1,6 @@
 import datetime
 import math
 import string
-import re
 
 from PyQt5.QtCore import QEvent, QObject, QRect, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QPixmap
@@ -73,10 +72,10 @@ class Spells(ParserWindow):
                 self._spell_trigger = spell_trigger
 
         # Spell Interrupted
-        elif (self._spell_triggers and
-              text[:26] == 'Your spell is interrupted.' or
-              text[:20] == 'Your target resisted' or
-              text[:29] == 'Your spell did not take hold.' or
+        elif (self._spell_triggers and  # noqa W504
+              text[:26] == 'Your spell is interrupted.' or  # noqa W504
+              text[:20] == 'Your target resisted' or  # noqa W504
+              text[:29] == 'Your spell did not take hold.' or  # noqa W504
               text[:26] == 'You try to cast a spell on'):
             self._remove_spell_trigger()
 

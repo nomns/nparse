@@ -67,7 +67,8 @@ class NomnsParse(QApplication):
     def _load_parsers(self):
         self._parsers = [
             parsers.Maps(),
-            parsers.Spells()
+            parsers.Spells(),
+            parsers.Triggers()
         ]
         for parser in self._parsers:
             if parser.name in config.data.keys() and 'geometry' in config.data[parser.name].keys():
@@ -145,6 +146,7 @@ class NomnsParse(QApplication):
                 self._toggle()
 
         elif action == settings_action:
+            self._settings.set_values()
             if self._settings.exec_():
                 self._settings.save_settings()
                 # Update required settings

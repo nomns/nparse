@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>333</width>
-    <height>334</height>
+    <width>345</width>
+    <height>574</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,7 +29,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -346,6 +346,165 @@
              </widget>
             </item>
            </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_7">
+         <property name="title">
+          <string>Bar Colors</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_13">
+          <item>
+           <widget class="QLabel" name="buffBarLabel">
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">padding: 5px</string>
+            </property>
+            <property name="text">
+             <string>Buff Bar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QPushButton" name="buffTextColorButton">
+              <property name="text">
+               <string>Text Color</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="buffBarColorButton">
+              <property name="text">
+               <string>Bar Color</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="debuffBarLabel">
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">padding: 5px</string>
+            </property>
+            <property name="text">
+             <string>Debuff Bar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QPushButton" name="debuffTextColorButton">
+              <property name="text">
+               <string>Text Color</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="debuffBarColorButton">
+              <property name="text">
+               <string>Bar Color</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_8">
+         <property name="title">
+          <string>Target Colors</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_14">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,0">
+            <item>
+             <widget class="QLabel" name="youTargetLabel">
+              <property name="autoFillBackground">
+               <bool>true</bool>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">padding: 5px</string>
+              </property>
+              <property name="text">
+               <string>You</string>
+              </property>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignRight">
+             <widget class="QPushButton" name="youColorButton">
+              <property name="text">
+               <string>Set Color</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,0">
+            <item>
+             <widget class="QLabel" name="friendlyTargetLabel">
+              <property name="autoFillBackground">
+               <bool>true</bool>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">padding: 5px</string>
+              </property>
+              <property name="text">
+               <string>Friendly</string>
+              </property>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignRight">
+             <widget class="QPushButton" name="friendlyColorButton">
+              <property name="text">
+               <string>Set Color</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="1,0">
+            <item>
+             <widget class="QLabel" name="enemyTargetLabel">
+              <property name="autoFillBackground">
+               <bool>true</bool>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">padding: 5px</string>
+              </property>
+              <property name="text">
+               <string>Enemy</string>
+              </property>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignRight">
+             <widget class="QPushButton" name="enemyColorButton">
+              <property name="text">
+               <string>Set Color</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="targetTextColorButton">
+            <property name="text">
+             <string>Set Target Text Color</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>

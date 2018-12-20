@@ -5,6 +5,8 @@ import requests
 import json
 from datetime import datetime, timedelta
 
+from PyQt5.QtGui import QColor
+
 from .parser import ParserWindow  # noqa: F401
 
 
@@ -100,3 +102,17 @@ def text_time_to_seconds(text_time):
         return
 
     return timedelta(hours=hours, minutes=minutes, seconds=seconds).total_seconds()
+
+
+def set_qcolor(widget, foreground=None, background=None):
+    p = widget.palette()
+    if foreground:
+        p.setColor(widget.foregroundRole(), QColor.fromRgb(*foreground))
+    if background:
+        p.setColor(widget.backgroundRole(), QColor.fromRgb(*background))
+    widget.setPalette(p)
+
+
+def get_rgb(widget, role):
+    p = widget.palette()
+    return p.color(role).getRgb()

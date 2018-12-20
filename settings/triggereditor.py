@@ -68,6 +68,7 @@ class TriggerEditor(QDialog):
         f = fd.getOpenFileName(filter='*.mp3')
         if f[0]:
             self.soundFileLabel.setText(f[0])
+        fd.setParent(None)
 
     def _load_timer_icon(self, icon_index):
         try:
@@ -102,6 +103,7 @@ class TriggerEditor(QDialog):
         p = w.palette()
         p.setColor(w.backgroundRole(), color)
         w.setPalette(p)
+        cd.setParent(None)
 
     def _choose_timer_text_color(self, _):
         cd = QColorDialog(parent=self)

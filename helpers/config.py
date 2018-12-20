@@ -203,6 +203,94 @@ def verify_settings():
         data['spells'].get('use_secondary_all', False),
         False
     )
+    data['spells']['buff_bar_color'] = get_setting(
+        data['spells'].get('buff_bar_color', [40, 122, 169]),
+        [40, 122, 169],
+        lambda x: (
+            len(x) == 4 and
+            isinstance(x[0], int) and
+            isinstance(x[1], int) and
+            isinstance(x[2], int)
+        )
+    )
+
+    data['spells']['debuff_bar_color'] = get_setting(
+        data['spells'].get('debuff_bar_color', [221, 119, 0]),
+        [221, 119, 0],
+        lambda x: (
+            len(x) == 4 and
+            isinstance(x[0], int) and
+            isinstance(x[1], int) and
+            isinstance(x[2], int)
+        )
+    )
+    data['spells']['buff_text_color'] = get_setting(
+        data['spells'].get('buff_text_color', [0, 0, 0]),
+        [0, 0, 0],
+        lambda x: (
+            len(x) == 4 and
+            isinstance(x[0], int) and
+            isinstance(x[1], int) and
+            isinstance(x[2], int)
+        )
+    )
+    data['spells']['debuff_text_color'] = get_setting(
+        data['spells'].get('debuff_text_color', [0, 0, 0]),
+        [0, 0, 0],
+        lambda x: (
+            len(x) == 4 and
+            isinstance(x[0], int) and
+            isinstance(x[1], int) and
+            isinstance(x[2], int)
+        )
+    )
+    data['spells']['you_target_color'] = get_setting(
+        data['spells'].get('you_target_color', [22, 66, 91]),
+        [22, 66, 91],
+        lambda x: (
+            len(x) == 4 and
+            isinstance(x[0], int) and
+            isinstance(x[1], int) and
+            isinstance(x[2], int)
+        )
+    )
+    data['spells']['friendly_target_color'] = get_setting(
+        data['spells'].get('friendly_target_color', [0, 68, 0]),
+        [0, 68, 0],
+        lambda x: (
+            len(x) == 4 and
+            isinstance(x[0], int) and
+            isinstance(x[1], int) and
+            isinstance(x[2], int)
+        )
+    )
+    data['spells']['enemy_target_color'] = get_setting(
+        data['spells'].get('enemy_target_color', [68, 0, 0]),
+        [68, 0, 0],
+        lambda x: (
+            len(x) == 4 and
+            isinstance(x[0], int) and
+            isinstance(x[1], int) and
+            isinstance(x[2], int)
+        )
+    )
+    data['spells']['target_text_color'] = get_setting(
+        data['spells'].get('target_text_color', [255, 255, 255]),
+        [255, 255, 255],
+        lambda x: (
+            len(x) == 4 and
+            isinstance(x[0], int) and
+            isinstance(x[1], int) and
+            isinstance(x[2], int)
+        )
+    )
+
+    # triggers
+    data['triggers'] = data.get('triggers', {})
+    data['triggers']['toggled'] = get_setting(
+        data['triggers'].get('toggled', True),
+        True
+    )
 
 
 def verify_paths():
