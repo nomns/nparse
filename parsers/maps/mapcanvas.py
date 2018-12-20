@@ -2,7 +2,7 @@
 import traceback
 
 
-from PyQt5.QtCore import Qt, QPointF
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPainter, QTransform
 from PyQt5.QtWidgets import (QGraphicsScene, QGraphicsView, QInputDialog,
                              QMenu)
@@ -234,12 +234,12 @@ class MapCanvas(QGraphicsView):
 
         if name == '__you__' and config.data['maps']['auto_follow']:
             self.center()
-    
+
     def enterEvent(self, event):
         if config.data['maps']['show_mouse_location']:
             self._mouse_location.setVisible(True)
         QGraphicsView.enterEvent(self, event)
-    
+
     def leaveEvent(self, event):
         self._mouse_location.setVisible(False)
         QGraphicsView.leaveEvent(self, event)
@@ -249,7 +249,7 @@ class MapCanvas(QGraphicsView):
             self.mapToScene(event.pos()),
             self._scale,
             self
-            )
+        )
         QGraphicsView.mouseMoveEvent(self, event)
 
     def wheelEvent(self, event):
@@ -268,13 +268,13 @@ class MapCanvas(QGraphicsView):
                     self._z_index = min(
                         self._z_index + 1, len(self._data.geometry.z_groups) - 1)
                 self.update_()
-        
+
         # Update Mouse Location
         self._mouse_location.set_value(
             self.mapToScene(event.pos()),
             self._scale,
             self
-            )
+        )
 
     def keyPressEvent(self, event):
         # Enable drag mode while control button is being held down

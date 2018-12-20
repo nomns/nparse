@@ -13,7 +13,7 @@ class Triggers(ParserWindow):
     # pass on regular parser procedures
     def set_flags(self):
         pass
-    
+
     def set_geometry(self, *args):
         pass
 
@@ -22,4 +22,3 @@ class Triggers(ParserWindow):
 
     def settings_updated(self):
         pass
-    

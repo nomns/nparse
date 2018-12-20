@@ -1,2 +1,1 @@
-from .spells import Spells  # noqa F401
-
+from .window import Spells  # noqa

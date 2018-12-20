@@ -43,7 +43,7 @@ class SettingsWindow(QDialog):
         cd.setParent(None)
 
     def _set_buff_bar_color(self, _):
-        cd = QColorDialog(parent=self) 
+        cd = QColorDialog(parent=self)
         color = cd.getColor()
         set_qcolor(
             self.buffBarLabel,
@@ -52,7 +52,7 @@ class SettingsWindow(QDialog):
         cd.setParent(None)
 
     def _set_debuff_text_color(self, _):
-        cd = QColorDialog(parent=self) 
+        cd = QColorDialog(parent=self)
         color = cd.getColor()
         set_qcolor(
             self.debuffBarLabel,
@@ -61,14 +61,14 @@ class SettingsWindow(QDialog):
         cd.setParent(None)
 
     def _set_debuff_bar_color(self, _):
-        cd = QColorDialog(parent=self) 
+        cd = QColorDialog(parent=self)
         color = cd.getColor()
         set_qcolor(
             self.debuffBarLabel,
             background=color.getRgb()
         )
         cd.setParent(None)
-    
+
     def _set_you_color(self, _):
         cd = QColorDialog(parent=self)
         color = cd.getColor()
@@ -95,7 +95,7 @@ class SettingsWindow(QDialog):
             background=color.getRgb()
         )
         cd.setParent(None)
-    
+
     def _set_target_text_color(self, _):
         cd = QColorDialog(parent=self)
         color = cd.getColor()
@@ -161,7 +161,7 @@ class SettingsWindow(QDialog):
                 elif wt == QSpinBox:
                     config.data[section][setting] = widget.value()
                     widget.setValue(config.data[section][setting])
-        #spell color bars
+        # spell color bars
         config.data['spells']['buff_text_color'] = get_rgb(self.buffBarLabel, self.buffBarLabel.foregroundRole())
         config.data['spells']['buff_bar_color'] = get_rgb(self.buffBarLabel, self.buffBarLabel.backgroundRole())
         config.data['spells']['debuff_text_color'] = get_rgb(self.debuffBarLabel, self.debuffBarLabel.foregroundRole())
