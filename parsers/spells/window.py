@@ -1,9 +1,10 @@
 from PyQt5.QtWidgets import QScrollArea, QSpinBox
 
-from helpers import ParserWindow, config
+from helpers import config
+from widgets.parser import ParserWindow
 from .spellcontainer import SpellContainer
 from .spelltrigger import SpellTrigger
-from .helpers import create_spell_book
+from .spell import create_spell_book
 
 
 class Spells(ParserWindow):
@@ -43,19 +44,18 @@ class Spells(ParserWindow):
         if self._spell_trigger:
             if self._spell_trigger.activated:
                 for target in self._spell_trigger.targets:
-                    self._spell_container.add_spell(
+                    self._spell_container.add_timer(
                         self._spell_trigger.spell, target[0], target[1])
         self._remove_spell_trigger()
 
     def parse(self, timestamp, text):
         """Parse casting triggers (casting, failure, success)."""
-
         if self._spell_trigger:
             self._spell_trigger.parse(timestamp, text)
 
         # Initial Spell Cast and trigger setup
         if text[:17] == 'You begin casting':
-            spell = self.spell_book.get(text[18:-1], None)
+            spell = self.spell_book.get(text[18:-1].lower(), None)
             if spell and spell.duration_formula != 0:
                 self._spell_triggered()  # in case we cut off the cast window, force trigger
                 self._remove_spell_trigger()

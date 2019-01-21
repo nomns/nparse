@@ -12,8 +12,6 @@ import parsers
 from helpers import config, logreader, resource_path, get_version
 from settings import SettingsWindow
 
-import pygame
-
 config.load()
 # validate settings file
 config.verify_settings()
@@ -197,7 +195,6 @@ if __name__ == "__main__":
         pass
 
     APP = NomnsParse(sys.argv)
-    APP.setStyleSheet(open(resource_path('data/ui/_.css')).read())
     APP.setWindowIcon(QIcon(resource_path('data/ui/icon.png')))
     APP.setQuitOnLastWindowClosed(False)
     APP.setAttribute(Qt.AA_EnableHighDpiScaling)
@@ -206,5 +203,4 @@ if __name__ == "__main__":
     QFontDatabase.addApplicationFont(
         resource_path('data/fonts/NotoSans-Bold.ttf'))
 
-    pygame.init()
     sys.exit(APP.exec())

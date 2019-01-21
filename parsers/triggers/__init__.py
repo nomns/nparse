@@ -1,4 +1,6 @@
-from helpers import config, ParserWindow
+from helpers import config
+from widgets.parser import ParserWindow
+from widgets.ntimer import NTimer
 
 
 class Triggers(ParserWindow):
@@ -8,7 +10,7 @@ class Triggers(ParserWindow):
         self.name = "triggers"
 
     def parse(self, timestamp, text):
-        print(timestamp, text)
+        pass
 
     # pass on regular parser procedures
     def set_flags(self):

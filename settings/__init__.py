@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import (QMessageBox, QInputDialog, QDialog,
-                             QCheckBox, QSpinBox, QColorDialog)
+                             QCheckBox, QSpinBox, QColorDialog, QSlider, QLabel, QFileDialog)
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
 
-from helpers import config, resource_path, set_qcolor, get_rgb
+from helpers import config, resource_path, set_qcolor, get_rgb, sound
 from .triggers import TriggerTree
 from .triggereditor import TriggerEditor
 
@@ -23,7 +23,7 @@ class SettingsWindow(QDialog):
         self.newGroupButton.clicked.connect(self._addGroup)
         self.removeButton.clicked.connect(self._removeItem)
 
-        # color button events
+        # spell color button events
         self.buffTextColorButton.clicked.connect(self._set_buff_text_color)
         self.buffBarColorButton.clicked.connect(self._set_buff_bar_color)
         self.debuffTextColorButton.clicked.connect(self._set_debuff_text_color)
@@ -32,6 +32,20 @@ class SettingsWindow(QDialog):
         self.friendlyColorButton.clicked.connect(self._set_friendly_color)
         self.enemyColorButton.clicked.connect(self._set_enemy_color)
         self.targetTextColorButton.clicked.connect(self._set_target_text_color)
+
+        # spell mp3 events
+        self.spellSoundSelectButton.clicked.connect(self._set_spell_sound)
+        self.spellSoundPlayButton.clicked.connect(self._play_spell_sound)
+
+    def _play_spell_sound(self, _):
+        sound.play(self.spellSoundFileLabel.text())
+
+    def _set_spell_sound(self, _):
+        fd = QFileDialog(self)
+        f = fd.getOpenFileName(filter='*.mp3')
+        if f[0]:
+            self.spellSoundFileLabel.setText(f[0])
+        fd.setParent(None)
 
     def _set_buff_text_color(self, _):
         cd = QColorDialog(parent=self)
@@ -157,10 +171,13 @@ class SettingsWindow(QDialog):
                 wt = type(widget)
                 if wt == QCheckBox:
                     config.data[section][setting] = widget.isChecked()
-                    widget.setChecked(config.data[section][setting])
                 elif wt == QSpinBox:
                     config.data[section][setting] = widget.value()
-                    widget.setValue(config.data[section][setting])
+                elif wt == QSlider:
+                    config.data[section][setting] = widget.value()
+                elif wt == QLabel:
+                    config.data[section][setting] = widget.text()
+
         # spell color bars
         config.data['spells']['buff_text_color'] = get_rgb(self.buffBarLabel, self.buffBarLabel.foregroundRole())
         config.data['spells']['buff_bar_color'] = get_rgb(self.buffBarLabel, self.buffBarLabel.backgroundRole())
@@ -182,9 +199,12 @@ class SettingsWindow(QDialog):
                     widget.setChecked(config.data[section][setting])
                 elif wt == QSpinBox:
                     widget.setValue(config.data[section][setting])
+                elif wt == QSlider:
+                    widget.setValue(config.data[section][setting])
+                elif wt == QLabel:
+                    widget.setText(config.data[section][setting])
 
         # set bar colors for spells
-        # TODO: Finish setting up spells section
 
         # buff bar
         set_qcolor(
@@ -256,6 +276,7 @@ class SettingsWindow(QDialog):
                 'update_check': self.updateCheckCheckBox,
                 'parser_opacity': self.parserOpacitySpinBox,
                 'qt_scale_factor': self.qTScalingSpinBox,
+                'sound_volume': self.soundVolume
             },
             'maps': {
                 'line_width': self.mapLineSizeSpinBox,
@@ -267,7 +288,9 @@ class SettingsWindow(QDialog):
             'spells': {
                 'use_casting_window': self.useCastingWindowCheckBox,
                 'casting_window_buffer': self.castingWindowTimeSpinBox,
-                'use_secondary_all': self.usePVPSpellDurationsCheckBox
+                'use_secondary_all': self.usePVPSpellDurationsCheckBox,
+                'sound_enabled': self.spellSoundEnabledCheckBox,
+                'sound_file': self.spellSoundFileLabel
             }
         }
         return d

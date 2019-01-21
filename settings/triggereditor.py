@@ -3,11 +3,9 @@ from PyQt5 import uic
 from PyQt5.QtGui import QColor
 
 from gtts import gTTS
-import pygame
 import os
 
-from parsers.spells.helpers import get_spell_icon
-from helpers import resource_path
+from helpers import get_spell_icon, resource_path, sound
 
 
 class TriggerEditor(QDialog):
@@ -30,36 +28,12 @@ class TriggerEditor(QDialog):
         self.textColorButton.clicked.connect(self._choose_text_text_color)
         self.soundFileButton.clicked.connect(self._choose_sound_file)
         self.soundPlayButton.clicked.connect(self._play_sound_file)
-        self.ttsCreateButton.clicked.connect(self._create_tts_file)
-        self.ttsPlayButton.clicked.connect(self._play_tts_file)
 
         self._set_values()
 
-    def _create_tts_file(self, _):
-        # ensure data/tts directory exists, otherwise create
-        if not os.path.exists('data/tts'):
-            os.makedirs('data/tts')
-
-        try:
-            text = self.ttsTextLineEdit.text()
-            text_save_location = 'data/tts/{}.mp3'.format(text)
-            if text:
-                gTTS(text).save(text_save_location)
-                self.ttsFileLabel.setText(text_save_location)
-        except:
-            pass
-
-    def _play_tts_file(self, _):
-        try:
-            pygame.mixer.music.load(self.ttsFileLabel.text())
-            pygame.mixer.music.play()
-        except:
-            pass
-
     def _play_sound_file(self, _):
         try:
-            pygame.mixer.music.load(self.soundFileLabel.text())
-            pygame.mixer.music.play()
+            sound.play(self.soundFileLabel.text())
         except:
             pass
 
@@ -159,9 +133,6 @@ class TriggerEditor(QDialog):
             if a.get('sound', None):
                 self.soundCheckBox.setChecked(True)
                 self.soundFileLabel.setText(a['sound'])
-            if a.get('tts', None):
-                self.ttsCheckBox.setChecked(True)
-                self.ttsTextLineEdit.setText(a['tts'])
         except:
             pass
 
@@ -197,8 +168,6 @@ class TriggerEditor(QDialog):
             a['text']['color'] = tc[0:-1]
         if self.soundCheckBox.isChecked():
             a['sound'] = self.soundFileLabel.text()
-        if self.ttsCheckBox.isChecked():
-            a['tts'] = self.ttsTextLineEdit.text()
 
         data['trigger'] = t
         data['action'] = a

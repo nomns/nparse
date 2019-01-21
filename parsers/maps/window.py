@@ -2,7 +2,8 @@
 
 from PyQt5.QtWidgets import QHBoxLayout, QPushButton
 
-from helpers import config, to_real_xy, ParserWindow
+from helpers import config, to_real_xy
+from widgets.parser import ParserWindow
 
 from .mapcanvas import MapCanvas
 from .mapclasses import MapPoint

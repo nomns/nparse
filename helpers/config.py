@@ -87,6 +87,10 @@ def verify_settings():
         data['general'].get('update_check', True),
         True
     )
+    data['general']['sound_volume'] = get_setting(
+        data['general'].get('sound_volume', 50),
+        50
+    )
 
     # maps
     data['maps'] = data.get('maps', {})
@@ -283,6 +287,15 @@ def verify_settings():
             isinstance(x[1], int) and
             isinstance(x[2], int)
         )
+    )
+
+    data['spells']['sound_file'] = get_setting(
+        data['spells'].get('sound_file', 'data/mp3/ding.mp3'),
+        'data/mp3/alert.mp3'
+    )
+    data['spells']['sound_enabled'] = get_setting(
+        data['spells'].get('sound_enabled', True),
+        True
     )
 
     # triggers

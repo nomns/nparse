@@ -1,34 +1,66 @@
 from PyQt5.QtWidgets import QFrame, QVBoxLayout
 
 from .spelltarget import SpellTarget
+from widgets.ntimer import NTimer
+from .spell import get_spell_duration
+from helpers import config
+from settings import styles
 
 
 class SpellContainer(QFrame):
 
     def __init__(self):
         super().__init__()
+        self.setObjectName('Container')
         self.setLayout(QVBoxLayout())
-        self.setObjectName('SpellContainer')
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().addStretch(1)
 
-    def add_spell(self, spell, timestamp, target='__you__'):
+    def add_timer(self, spell, timestamp, target):
         spell_target = None
-        new = False
+        new_target = False
         for st in self.findChildren(SpellTarget):
             if st.name == target:
                 spell_target = st
         if not spell_target:
-            new = True
-            spell_target = SpellTarget(target=target)
+            new_target = True
+            spell_target = SpellTarget(
+                target=target,
+                order=0 if target[0] == '_' else (
+                    1 if spell.type else 2
+                )
+            )
+            if target[0] != '_':
+                spell_target.setStyleSheet(
+                    styles.friendly_target() if spell.type else styles.enemy_target()
+                )
+            else:
+                spell_target.setStyleSheet(styles.you_target())
             self.layout().addWidget(spell_target, 0)
 
-        spell_target.add_spell(spell, timestamp)
+        if new_target:
+            self._sort()
 
-        if new:
-            for x, widget in enumerate(sorted(self.findChildren(SpellTarget),
-                                              key=lambda x: (int(x.target_label.property('TargetType')), x.name))):
-                self.layout().insertWidget(x, widget, 0)  # + 1 - skip target label
+        # Add or update timer within SpellTarget
+        ntimers = spell_target.findChildren(NTimer)
+        for nt in ntimers:
+            if nt.title == spell.name:
+                nt.recalculate(timestamp)
+        else:
+            # Create timer
+            nt = NTimer(
+                title=spell.name,
+                timestamp=timestamp,
+                duration=get_spell_duration(spell, config.data['spells']['level']) * 6,
+                icon=spell.spell_icon,
+                style=(styles.good_spell() if spell.type else styles.debuff_spell()),
+                sound=config.data['spells']['sound_file'] if config.data['spells']['sound_enabled'] else None
+            )
+            spell_target.add_timer(nt)
+
+    def _sort(self):
+        for x, st in enumerate(sorted(self.findChildren(SpellTarget), key=lambda x: (x.order, x.name))):
+            self.layout().insertWidget(x, st, 0)
 
     def spell_targets(self):
         """Returns a list of all SpellTargets."""

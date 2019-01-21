@@ -5,9 +5,9 @@ import requests
 import json
 from datetime import datetime, timedelta
 
-from PyQt5.QtGui import QColor
-
-from .parser import ParserWindow  # noqa: F401
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtGui import QColor, QPixmap
+from PyQt5.QtCore import QRect, Qt
 
 
 def get_version():
@@ -55,7 +55,7 @@ def to_range(number, min_number, max_number):
 
 def within_range(number, min_number, max_number):
     """ Returns true/false if number is within min/max. """
-    return (number >= min_number and number <= max_number)
+    return min_number <= number <= max_number
 
 
 def to_real_xy(x, y):
@@ -116,3 +116,21 @@ def set_qcolor(widget, foreground=None, background=None):
 def get_rgb(widget, role):
     p = widget.palette()
     return p.color(role).getRgb()
+
+
+def get_spell_icon(icon_index):
+    # Spell Icons are 40x40 pixels
+    file_number = math.ceil(icon_index / 36)
+    file_name = 'data/spells/spells0' + str(file_number) + '.png'
+    spell_number = icon_index % 36
+    file_row = math.floor((spell_number + 6) / 6)
+    file_col = spell_number % 6 + 1
+    x = (file_col - 1) * 40
+    y = (file_row - 1) * 40
+    icon_image = QPixmap(file_name)
+    scaled_icon_image = icon_image.copy(QRect(x, y, 40, 40)).scaled(
+        15, 15, transformMode=Qt.SmoothTransformation)
+    label = QLabel()
+    label.setPixmap(scaled_icon_image)
+    label.setFixedSize(15, 15)
+    return label
