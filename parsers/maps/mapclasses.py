@@ -66,7 +66,7 @@ class Player(QGraphicsItemGroup):
 
     def __init__(self, **kwargs):
         super().__init__()
-        self.name = ''
+        self.name = 'placeholder'
         self.location = MapPoint()
         self.previous_location = MapPoint()
         self.timestamp = None  # datetime
@@ -80,8 +80,10 @@ class Player(QGraphicsItemGroup):
         )
         self.directional.setOffset(-15, -15)
         self.directional.setVisible(False)
+        self.nametag = QGraphicsTextItem()
         self.addToGroup(self.icon)
         self.addToGroup(self.directional)
+        self.addToGroup(self.nametag)
         self.setZValue(10)
         self.z_level = 0
 
@@ -97,6 +99,15 @@ class Player(QGraphicsItemGroup):
             self.setPos(self.location.x, self.location.y)
             self.directional.setVisible(True)
         self.setPos(self.location.x, self.location.y)
+        self.nametag.setHtml(
+            "<font color='{}' size='{}'>{}</font>".format(
+                "red" if self.name != "__you__" else "purple",
+                5,
+                self.name if self.name != "__you__" else "You"
+            )
+        )
+        # self.nametag.setZValue(2)
+        self.nametag.setPos(10, -15)
 
 
 class SpawnPoint(QGraphicsItemGroup):

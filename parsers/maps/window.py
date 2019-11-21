@@ -1,8 +1,9 @@
 """Map parser for nparse."""
-
+import datetime
 from PyQt5.QtWidgets import QHBoxLayout, QPushButton
+from PyQt5.QtCore import QThreadPool
 
-from helpers import config, to_real_xy, ParserWindow
+from helpers import config, to_real_xy, ParserWindow, location_service
 
 from .mapcanvas import MapCanvas
 from .mapclasses import MapPoint
@@ -56,18 +57,55 @@ class Maps(ParserWindow):
 
         if config.data['maps']['last_zone']:
             self._map.load_map(config.data['maps']['last_zone'])
+            self.zone_name = config.data['maps']['last_zone']
         else:
             self._map.load_map('west freeport')
+            self.zone_name = 'west freeport'
+        self.last_update = datetime.datetime.min
+        self._locserver_conn = location_service.LocationServiceConnection(self)
+        self._locserver_conn.signals.locs_recieved.connect(self.update_locs)
+        self.threadpool = QThreadPool()
+        self.threadpool.start(self._locserver_conn)
 
     def parse(self, timestamp, text):
         if text[:23] == 'LOADING, PLEASE WAIT...':
             pass
         if text[:16] == 'You have entered':
-            self._map.load_map(text[17:-1])
+            self.zone_name = text[17:-1]
+            self._map.load_map(self.zone_name)
         if text[:16] == 'Your Location is':
             x, y, z = [float(value) for value in text[17:].strip().split(',')]
             x, y = to_real_xy(x, y)
             self._map.add_player('__you__', timestamp, MapPoint(x=x, y=y, z=z))
+
+            share_payload = {
+                'x': x,
+                'y': y,
+                'z': z,
+                'zone': self.zone_name,
+                'player': config.data['locserver']['player_name'],
+                'timestamp': timestamp.isoformat()
+            }
+            # if self.last_update < timestamp - datetime.timedelta(seconds=1):
+            #     self.last_update = timestamp
+            self._locserver_conn.signals.send_loc.emit(share_payload)
+
+    def update_locs(self, locations):
+        # locations = self._locserver_conn.player_locations
+        for zone in locations:
+            if zone != self.zone_name.lower():
+                continue
+            for player in locations[zone]:
+                print("player found: %s" % player)
+                if player == config.data['locserver']['player_name']:
+                    print("player is self")
+                    # continue
+                p_data = locations[zone][player]
+                p_timestamp = datetime.datetime.fromisoformat(
+                    p_data.get('timestamp'))
+                p_point = MapPoint(
+                    x=p_data['x'], y=p_data['y'], z=p_data['z'])
+                self._map.add_player(player, p_timestamp, p_point)
 
     # events
     def _toggle_show_poi(self, _):
