@@ -61,8 +61,7 @@ class Maps(ParserWindow):
         else:
             self._map.load_map('west freeport')
             self.zone_name = 'west freeport'
-        self.last_update = datetime.datetime.min
-        self._locserver_conn = location_service.LocationServiceConnection(self)
+        self._locserver_conn = location_service.LocationServiceConnection()
         self._locserver_conn.signals.locs_recieved.connect(self.update_locs)
         self.threadpool = QThreadPool()
         self.threadpool.start(self._locserver_conn)
@@ -86,20 +85,19 @@ class Maps(ParserWindow):
                 'player': config.data['locserver']['player_name'],
                 'timestamp': timestamp.isoformat()
             }
-            # if self.last_update < timestamp - datetime.timedelta(seconds=1):
-            #     self.last_update = timestamp
             self._locserver_conn.signals.send_loc.emit(share_payload)
 
     def update_locs(self, locations):
-        # locations = self._locserver_conn.player_locations
+        # TODO: remove players from zones they have left
         for zone in locations:
+            # TODO: check which *map is loaded*, not character zone
             if zone != self.zone_name.lower():
                 continue
             for player in locations[zone]:
                 print("player found: %s" % player)
                 if player == config.data['locserver']['player_name']:
                     print("player is self")
-                    # continue
+                    continue
                 p_data = locations[zone][player]
                 p_timestamp = datetime.datetime.fromisoformat(
                     p_data.get('timestamp'))

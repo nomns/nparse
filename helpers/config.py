@@ -64,6 +64,23 @@ def verify_settings():
         True
     )
 
+    # locserver
+    data['locserver'] = data.get('locserver', {})
+    data['locserver']['player_name'] = get_setting(
+        data['locserver'].get('player_name', "ConfigureMe"),
+        "ConfigureMe"
+    )
+    data['locserver']['url'] = get_setting(
+        data['locserver'].get('url', "ws://localhost:8424"),
+        "ws://localhost:8424",
+        lambda x: x.startswith('ws://')
+    )
+    data['locserver']['reconnect_delay'] = get_setting(
+        data['locserver'].get('reconnect_delay', 5),
+        5,
+        lambda x: (type(x) == int and x >= 1)
+    )
+
     # maps
     data['maps'] = data.get('maps', {})
     data['maps']['auto_follow'] = get_setting(

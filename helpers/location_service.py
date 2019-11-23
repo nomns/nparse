@@ -1,10 +1,9 @@
-import datetime
-import websocket
-import ssl
 import json
+import ssl
+import time
 
-from threading import Thread
 from PyQt5.QtCore import QObject, QRunnable, pyqtSignal, pyqtSlot
+import websocket
 
 from helpers import config
 
@@ -17,7 +16,7 @@ class LocationSignals(QObject):
 class LocationServiceConnection(QRunnable):
     _socket = None
 
-    def __init__(self, window):
+    def __init__(self):
         super(LocationServiceConnection, self).__init__()
         self.host = config.data.get('locserver', {}).get('url')
         if self.host:
@@ -30,17 +29,20 @@ class LocationServiceConnection(QRunnable):
 
     @pyqtSlot()
     def run(self):
+        print("Starting connection to locserver host...")
         self._socket.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
 
     def send_loc(self, loc):
         message = {'type': "location",
                    'location': loc}
-        self._socket.send(json.dumps(message))
+        try:
+            self._socket.send(json.dumps(message))
+        except:
+            print("Unable to send location to server.")
 
     def _on_message(self, ws, message):
         message = json.loads(message)
         if message['type'] == "state":
-            # self.player_locations = message['locations']
             self.signals.locs_recieved.emit(message['locations'])
 
     def _on_error(self, ws, error):
@@ -50,5 +52,7 @@ class LocationServiceConnection(QRunnable):
         print("Connection opened.")
 
     def _on_close(self, ws):
-        print("Closed connection.")
-
+        print("Closed connection. Waiting to reconnect...")
+        time.sleep(5)
+        self._socket.sock = None
+        self.run()
