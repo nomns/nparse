@@ -88,8 +88,8 @@ def verify_settings():
         True
     )
     data['general']['sound_volume'] = get_setting(
-        data['general'].get('sound_volume', 50),
-        50
+        data['general'].get('sound_volume', 25),
+        25
     )
 
     # maps

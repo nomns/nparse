@@ -9,6 +9,18 @@ from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtCore import QRect, Qt
 
+from gtts import gTTS
+
+
+def create_tts_mp3(text):
+    try:
+        tts = gTTS(text)
+        filename = "data/mp3/{}.mp3".format(text)
+        tts.save(filename)
+        return filename
+    except:
+        return None
+
 
 def get_version():
     version = None

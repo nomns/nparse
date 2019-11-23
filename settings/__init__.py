@@ -3,7 +3,10 @@ from PyQt5.QtWidgets import (QMessageBox, QInputDialog, QDialog,
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
 
-from helpers import config, resource_path, set_qcolor, get_rgb, sound
+import os
+from glob import glob
+
+from helpers import config, resource_path, set_qcolor, get_rgb, sound, create_tts_mp3
 from .triggers import TriggerTree
 from .triggereditor import TriggerEditor
 
@@ -36,6 +39,36 @@ class SettingsWindow(QDialog):
         # spell mp3 events
         self.spellSoundSelectButton.clicked.connect(self._set_spell_sound)
         self.spellSoundPlayButton.clicked.connect(self._play_spell_sound)
+
+        # tts events
+        self.ttsCreateButton.clicked.connect(self._create_tts)
+        self.ttsPlayButton.clicked.connect(self._play_tts)
+        self.ttsFileRefreshButton.clicked.connect(self._fill_tts_files)
+        self.ttsDeleteButton.clicked.connect(self._remove_tts_file)
+        self._fill_tts_files(None)
+
+    def _remove_tts_file(self, _):
+        try:
+            if self.ttsFileCombo.currentText():
+                os.remove(self.ttsFileCombo.currentText())
+                self._fill_tts_files(None)
+        except:
+            pass
+
+    def _create_tts(self, _):
+        if self.ttsTextLineEdit.text():
+            created_file = create_tts_mp3(self.ttsTextLineEdit.text())
+            if created_file:
+                self.ttsFileCombo.addItem(created_file)
+                self.ttsFileCombo.setCurrentIndex(self.ttsFileCombo.count() - 1)
+        self.ttsTextLineEdit.setText("")
+
+    def _fill_tts_files(self, _):
+        self.ttsFileCombo.clear()
+        self.ttsFileCombo.addItems(glob("data/mp3/*.mp3"))
+
+    def _play_tts(self, _):
+        sound.play(self.ttsFileCombo.currentText())
 
     def _play_spell_sound(self, _):
         sound.play(self.spellSoundFileLabel.text())

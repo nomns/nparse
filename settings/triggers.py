@@ -137,3 +137,4 @@ class TriggerItem(QTreeWidgetItem):
         self.setText(0, trigger_name)
         self.value = trigger_data
         self.setFlags(self.flags() | Qt.ItemIsDragEnabled | Qt.ItemIsUserCheckable)
+        self.setFlags(self.flags() ^ Qt.ItemIsDropEnabled)

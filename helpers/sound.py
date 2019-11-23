@@ -8,6 +8,9 @@ player = QMediaPlayer()
 
 
 def play(filename):
-    player.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
-    player.setVolume(config.data['general']['sound_volume'])
-    player.play()
+    try:
+        player.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
+        player.setVolume(config.data['general']['sound_volume'])
+        player.play()
+    except:
+        pass
