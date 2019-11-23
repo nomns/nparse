@@ -63,3 +63,6 @@ class SpellTarget(QFrame):
             self.layout().addWidget(ntimer)
 
         self._sort()
+
+    def timers(self):
+        return self.findChildren(NTimer)

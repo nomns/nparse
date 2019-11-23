@@ -83,14 +83,15 @@ class Spells(ParserWindow):
             spell_target = self._spell_container.get_spell_target_by_name(
                 '__you__')
             if spell_target:
-                for spell_widget in spell_target.spell_widgets():
+                for spell_widget in spell_target.timers():
                     spell_widget.pause()
         elif self._zoning and text[:16] == 'You have entered':
             delay = (timestamp - self._zoning).total_seconds()
+            self._zoning = None
             spell_target = self._spell_container.get_spell_target_by_name(
                 '__you__')
             if spell_target:
-                for spell_widget in spell_target.spell_widgets():
+                for spell_widget in spell_target.timers():
                     spell_widget.elongate(delay)
                     spell_widget.resume()
 
