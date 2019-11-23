@@ -15,7 +15,7 @@ from gtts import gTTS
 def create_tts_mp3(text):
     try:
         tts = gTTS(text)
-        filename = "data/mp3/{}.mp3".format(text)
+        filename = "data/tts/{}.mp3".format(text)
         tts.save(filename)
         return filename
     except:

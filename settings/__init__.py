@@ -65,7 +65,7 @@ class SettingsWindow(QDialog):
 
     def _fill_tts_files(self, _):
         self.ttsFileCombo.clear()
-        self.ttsFileCombo.addItems(glob("data/mp3/*.mp3"))
+        self.ttsFileCombo.addItems(glob("data/tts/*.mp3"))
 
     def _play_tts(self, _):
         sound.play(self.ttsFileCombo.currentText())
