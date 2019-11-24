@@ -289,7 +289,8 @@ class MapCanvas(QGraphicsView):
         QGraphicsView.keyPressEvent(self, event)
 
     def resizeEvent(self, event):
-        self.center()
+        # self.center()
+        print("resize event", event)
         QGraphicsView.resizeEvent(self, event)
 
     def contextMenuEvent(self, event):
