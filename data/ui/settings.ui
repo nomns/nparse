@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>425</width>
-    <height>629</height>
+    <height>461</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,7 +29,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -332,6 +332,18 @@
       <layout class="QVBoxLayout" name="verticalLayout_9">
        <item>
         <widget class="QScrollArea" name="scrollArea">
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
@@ -340,7 +352,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>364</width>
+            <width>366</width>
             <height>568</height>
            </rect>
           </property>
@@ -578,8 +590,17 @@
                 <layout class="QHBoxLayout" name="horizontalLayout_9">
                  <item>
                   <widget class="QLabel" name="spellSoundFileLabel">
+                   <property name="maximumSize">
+                    <size>
+                     <width>200</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string/>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>
@@ -706,7 +727,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Creates mp3 files in data/mp3/ so you can link them to triggers.</string>
+          <string>Creates TTS mp3 files in data/tts/ so you can link them to triggers.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

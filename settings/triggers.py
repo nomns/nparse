@@ -15,7 +15,6 @@ class TriggerTree(QTreeWidget):
         self.setDragEnabled(True)
         self.setDragDropMode(QTreeWidget.InternalMove)
         self.root = self.invisibleRootItem()
-        self.root.setFlags(self.root.flags() ^ Qt.ItemIsDropEnabled)
 
         # Events
         self.doubleClicked.connect(self._double_click)

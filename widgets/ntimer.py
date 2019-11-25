@@ -66,7 +66,6 @@ class NTimer(QFrame):
     def recalculate(self, timestamp):
         self._calculate(timestamp)
         self.setStyleSheet(self._style)
-        self._alert = False
 
     def _update(self):
         if self._active:
@@ -76,8 +75,10 @@ class NTimer(QFrame):
             if remaining_seconds <= 30:
                 self.setStyleSheet(self.styleSheet() + styles.spell_warning())
                 if not self._alert:
-                    sound.play(self._sound)
                     self._alert = True
+                    sound.play(self._sound)
+            else:
+                self._alert = False
             if remaining_seconds <= 0:
                 self._remove()
             self._time_label.setText(format_time(remaining))

@@ -14,7 +14,8 @@ class Triggers(ParserWindow):
         self.setAttribute(Qt.WA_TranslucentBackground, True)
 
     def parse(self, timestamp, text):
-        print(timestamp, text)
+        # print(timestamp, text)
+        pass
 
     # pass on regular parser procedures
     def set_flags(self):
