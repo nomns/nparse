@@ -88,11 +88,11 @@ class Maps(ParserWindow):
             self._locserver_conn.signals.send_loc.emit(share_payload)
 
     def update_locs(self, locations):
-        # TODO: remove players from zones they have left
         for zone in locations:
-            # TODO: check which *map is loaded*, not character zone
-            if zone != self.zone_name.lower():
+            # Check which *map is loaded*, not character zone
+            if zone != self._map._data.zone.lower():
                 continue
+            # Add players in the zone
             for player in locations[zone]:
                 print("player found: %s" % player)
                 if player == config.data['locserver']['player_name']:
@@ -104,6 +104,10 @@ class Maps(ParserWindow):
                 p_point = MapPoint(
                     x=p_data['x'], y=p_data['y'], z=p_data['z'])
                 self._map.add_player(player, p_timestamp, p_point)
+            # Remove players that aren't in the zone
+            for player in self._map._data.players:
+                if player not in locations[zone] and player != '__you__':
+                    self._map.remove_player(player)
 
     # events
     def _toggle_show_poi(self, _):

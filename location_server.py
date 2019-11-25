@@ -11,7 +11,7 @@ LOG = logging.getLogger(__name__)
 BIND_HOST = "0.0.0.0"
 BIND_PORT = 8424
 
-PLAYERS = set()
+PLAYERS = {}
 PLAYER_LOCS = {}
 
 
@@ -55,16 +55,38 @@ async def notify_users(websocket):
                             if user != websocket])
 
 
-async def register(websocket):
-    PLAYERS.add(websocket)
+async def register(websocket, player_name=None):
+    PLAYERS[websocket] = player_name
     logging.warning("Registering player: %s" % websocket.remote_address[0])
     await notify_users(websocket)
 
 
 async def unregister(websocket):
-    PLAYERS.remove(websocket)
+    player_name = PLAYERS.pop(websocket)
+    if player_name:
+        await remove_player_from_zones(player_name)
     logging.warning("Deregistering player: %s" % websocket.remote_address[0])
     await notify_users(websocket)
+
+
+async def update_data_for_player(websocket, data):
+    zone_name = data.pop('zone').lower()
+    player_name = data.pop('player').capitalize()
+    if zone_name not in PLAYER_LOCS:
+        PLAYER_LOCS[zone_name] = {}
+    await remove_player_from_zones(player_name, except_zone=zone_name)
+    PLAYERS[websocket] = player_name
+    PLAYER_LOCS[zone_name][player_name] = data
+
+
+async def remove_player_from_zones(name, except_zone=None):
+    for zone in list(PLAYER_LOCS):
+        if zone == except_zone:
+            continue
+        if name in PLAYER_LOCS[zone]:
+            PLAYER_LOCS[zone].pop(name)
+            if len(PLAYER_LOCS[zone]) == 0:
+                PLAYER_LOCS.pop(zone)
 
 
 async def update_loc(websocket, path):
@@ -75,26 +97,13 @@ async def update_loc(websocket, path):
             data = json.loads(message)
             if data['type'] == "location":
                 data = data['location']
-                zone_name = data.pop('zone').lower()
-                player_name = data.pop('player').capitalize()
-            if zone_name not in PLAYER_LOCS:
-                PLAYER_LOCS[zone_name] = {}
-            remove_player_from_zones(player_name, except_zone=zone_name)
-            PLAYER_LOCS[zone_name][player_name] = data
-            await notify_location(websocket)
+                await update_data_for_player(websocket, data)
+                await notify_location(websocket)
     except websockets.exceptions.ConnectionClosedError:
         logging.warning(
             "Player disconnected: %s" % websocket.remote_address[0])
     finally:
         await unregister(websocket)
-
-
-def remove_player_from_zones(name, except_zone=None):
-    for zone in PLAYER_LOCS:
-        if zone == except_zone:
-            continue
-        if name in PLAYER_LOCS[zone]:
-            PLAYER_LOCS[zone].pop(name)
 
 
 if __name__ == "__main__":

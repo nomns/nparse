@@ -203,8 +203,13 @@ class MapCanvas(QGraphicsView):
                 player.location.y
             )
 
+    def remove_player(self, name):
+        player = self._data.players.pop(name)
+        if player:
+            self._scene.removeItem(player)
+
     def add_player(self, name, timestamp, location):
-        if name not in self._data.players.keys():
+        if name not in self._data.players:
             self._data.players[name] = Player(
                 name=name,
                 location=location,
