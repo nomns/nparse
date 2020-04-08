@@ -1,3 +1,3 @@
-nParse
 PyQt5>=5.5.0
 gtts>=2.0.1
+pyInstaller

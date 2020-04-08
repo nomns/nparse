@@ -13,7 +13,7 @@ class NTimer(QFrame):
 
     def __init__(
         self,
-        title="Test",
+        title="base",
         timestamp=None,
         duration=6,
         icon=1,
