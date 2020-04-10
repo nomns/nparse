@@ -54,7 +54,7 @@ class NomnsParse(QApplication):
         # Version Check
         if self.new_version_available():
             self._system_tray.showMessage(
-                "nParse Update".format(ONLINE_VERSION),
+                "nParse Update",
                 "New version available!\ncurrent: {}\nonline: {}".format(
                     CURRENT_VERSION,
                     ONLINE_VERSION
@@ -194,10 +194,10 @@ if __name__ == "__main__":
     except:
         pass
 
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     APP = NomnsParse(sys.argv)
     APP.setWindowIcon(QIcon(resource_path('data/ui/icon.png')))
     APP.setQuitOnLastWindowClosed(False)
-    APP.setAttribute(Qt.AA_EnableHighDpiScaling)
     QFontDatabase.addApplicationFont(
         resource_path('data/fonts/NotoSans-Regular.ttf'))
     QFontDatabase.addApplicationFont(
