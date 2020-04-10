@@ -15,6 +15,8 @@ from gtts import gTTS
 def create_tts_mp3(text):
     try:
         tts = gTTS(text)
+        if not os.path.exists('data/tts'):
+            os.mkdir('data/tts')
         filename = "data/tts/{}.mp3".format(text)
         tts.save(filename)
         return filename
@@ -54,7 +56,7 @@ def resource_path(relative_path):
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS  # pylint: disable=E1101
-    except Exception:
+    except:
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
