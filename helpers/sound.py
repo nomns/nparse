@@ -12,5 +12,5 @@ def play(filename):
         player.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
         player.setVolume(config.data['general']['sound_volume'])
         player.play()
-    except:
-        pass
+    except Exception as e:
+        print(e)

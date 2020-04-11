@@ -75,6 +75,7 @@ class SettingsWindow(QDialog):
 
     def _set_spell_sound(self, _):
         fd = QFileDialog(self)
+        fd.setDirectory('./data/mp3')
         f = fd.getOpenFileName(filter='*.mp3')
         if f[0]:
             self.spellSoundFileLabel.setText(f[0])

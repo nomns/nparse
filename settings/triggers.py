@@ -14,7 +14,10 @@ class TriggerTree(QTreeWidget):
         self.setHeaderHidden(True)
         self.setDragEnabled(True)
         self.setDragDropMode(QTreeWidget.InternalMove)
+
         self.root = self.invisibleRootItem()
+        # do not allow drag and drop to root by default
+        self.root.setFlags(self.root.flags() ^ Qt.ItemIsDropEnabled)
 
         # Events
         self.doubleClicked.connect(self._double_click)
@@ -119,20 +122,27 @@ class TriggerTree(QTreeWidget):
         except:
             pass
 
+    def dropEvent(self, event):
+        self.root.sortChildren(0, Qt.AscendingOrder)
+        QTreeWidget.dropEvent(self, event)
+
 
 class TriggerGroup(QTreeWidgetItem):
 
     def __init__(self, group_name=None):
         super().__init__()
+        self._type = 'group'
         self.setIcon(0, QIcon(resource_path('data/ui/folder.png')))
         self.setText(0, group_name)
         self.setFlags(self.flags() | Qt.ItemIsDropEnabled | Qt.ItemIsUserCheckable | Qt.ItemIsEditable)
+        self.setFlags(self.flags() ^ Qt.ItemIsDragEnabled)
 
 
 class TriggerItem(QTreeWidgetItem):
 
     def __init__(self, trigger_name=None, trigger_data={}):
         super().__init__()
+        self._type = 'item'
         self.setText(0, trigger_name)
         self.value = trigger_data
         self.setFlags(self.flags() | Qt.ItemIsDragEnabled | Qt.ItemIsUserCheckable)

@@ -2,9 +2,6 @@ from PyQt5.QtWidgets import QDialog, QColorDialog, QFileDialog
 from PyQt5 import uic
 from PyQt5.QtGui import QColor
 
-from gtts import gTTS
-import os
-
 from helpers import get_spell_icon, resource_path, sound
 
 
@@ -39,6 +36,7 @@ class TriggerEditor(QDialog):
 
     def _choose_sound_file(self, _):
         fd = QFileDialog(self)
+        fd.setDirectory('./data/tts')
         f = fd.getOpenFileName(filter='*.mp3')
         if f[0]:
             self.soundFileLabel.setText(f[0])
