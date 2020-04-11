@@ -131,7 +131,6 @@ class TriggerGroup(QTreeWidgetItem):
 
     def __init__(self, group_name=None):
         super().__init__()
-        self._type = 'group'
         self.setIcon(0, QIcon(resource_path('data/ui/folder.png')))
         self.setText(0, group_name)
         self.setFlags(self.flags() | Qt.ItemIsDropEnabled | Qt.ItemIsUserCheckable | Qt.ItemIsEditable)
@@ -142,7 +141,6 @@ class TriggerItem(QTreeWidgetItem):
 
     def __init__(self, trigger_name=None, trigger_data={}):
         super().__init__()
-        self._type = 'item'
         self.setText(0, trigger_name)
         self.value = trigger_data
         self.setFlags(self.flags() | Qt.ItemIsDragEnabled | Qt.ItemIsUserCheckable)
