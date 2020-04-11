@@ -16,7 +16,7 @@ class TriggerTree(QTreeWidget):
         self.setDragDropMode(QTreeWidget.InternalMove)
 
         self.root = self.invisibleRootItem()
-        # do not allow drag and drop to root by default
+        # do not allow drag and drop to root
         self.root.setFlags(self.root.flags() ^ Qt.ItemIsDropEnabled)
 
         # Events
@@ -75,6 +75,7 @@ class TriggerTree(QTreeWidget):
         qgroup = TriggerGroup(group_name=group_name)
         qgroup.setCheckState(0, Qt.Checked)
         self.root.addChild(qgroup)
+        self.root.sortChildren(0, Qt.AscendingOrder)
 
     def remove_selected(self):
         try:
