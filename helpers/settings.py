@@ -216,6 +216,34 @@ class SettingsWindow(QDialog):
         map_settings.setLayout(msl)
         stacked_widgets.append(('Maps', map_settings))
 
+        # Sharing Settings
+        sharing_settings = QFrame()
+        shsl = QFormLayout()
+        shsl.addRow(SettingsHeader('general'))
+
+        enable_sharing = QCheckBox()
+        enable_sharing.setWhatsThis(WHATS_THIS_CASTING_WINDOW)
+        enable_sharing.setObjectName('sharing:enabled')
+        shsl.addRow('Enable Location Sharing', enable_sharing)
+
+        sharing_hostname = QLineEdit()
+        sharing_hostname.setObjectName('sharing:url')
+        shsl.addRow(
+            'Share Server Hostname',
+            sharing_hostname
+        )
+
+        msl_closest_z_alpha = QSpinBox()
+        msl_closest_z_alpha.setRange(1, 100)
+        msl_closest_z_alpha.setSingleStep(1)
+        msl_closest_z_alpha.setSuffix('%')
+        msl_closest_z_alpha.setObjectName('maps:closest_z_alpha')
+        msl.addRow('Closest Z Opacity', msl_closest_z_alpha)
+
+        sharing_settings.setLayout(shsl)
+
+        stacked_widgets.append(('Sharing', sharing_settings))
+
         return stacked_widgets
 
     def _get_custom_timers(self):

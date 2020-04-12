@@ -18,7 +18,7 @@ class LocationServiceConnection(QRunnable):
 
     def __init__(self):
         super(LocationServiceConnection, self).__init__()
-        self.host = config.data.get('locserver', {}).get('url')
+        self.host = config.data.get('sharing', {}).get('url')
         if self.host:
             self._socket = websocket.WebSocketApp(
                 self.host, on_message=self._on_message,
@@ -29,7 +29,7 @@ class LocationServiceConnection(QRunnable):
 
     @pyqtSlot()
     def run(self):
-        print("Starting connection to locserver host...")
+        print("Starting connection to sharing host...")
         self._socket.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
 
     def send_loc(self, loc):

@@ -61,10 +61,10 @@ class Maps(ParserWindow):
         else:
             self._map.load_map('west freeport')
             self.zone_name = 'west freeport'
-        self._locserver_conn = location_service.LocationServiceConnection()
-        self._locserver_conn.signals.locs_recieved.connect(self.update_locs)
+        self._sharing_conn = location_service.LocationServiceConnection()
+        self._sharing_conn.signals.locs_recieved.connect(self.update_locs)
         self.threadpool = QThreadPool()
-        self.threadpool.start(self._locserver_conn)
+        self.threadpool.start(self._sharing_conn)
 
     def parse(self, timestamp, text):
         if text[:23] == 'LOADING, PLEASE WAIT...':
@@ -82,10 +82,10 @@ class Maps(ParserWindow):
                 'y': y,
                 'z': z,
                 'zone': self.zone_name,
-                'player': config.data['locserver']['player_name'],
+                'player': config.data['sharing']['player_name'],
                 'timestamp': timestamp.isoformat()
             }
-            self._locserver_conn.signals.send_loc.emit(share_payload)
+            self._sharing_conn.signals.send_loc.emit(share_payload)
 
     def update_locs(self, locations):
         for zone in locations:
@@ -95,7 +95,7 @@ class Maps(ParserWindow):
             # Add players in the zone
             for player in locations[zone]:
                 print("player found: %s" % player)
-                if player == config.data['locserver']['player_name']:
+                if player == config.data['sharing']['player_name']:
                     print("player is self")
                     continue
                 p_data = locations[zone][player]

@@ -52,33 +52,37 @@ def verify_settings():
     data['general']['parser_opacity'] = get_setting(
         data['general'].get('parser_opacity', 80),
         80,
-        lambda x: (x > 0 and x <= 100)
+        lambda x: (0 < x <= 100)
         )
     data['general']['qt_scale_factor'] = get_setting(
         data['general'].get('qt_scale_factor', 100),
         100,
-        lambda x: (x >= 100 and x <= 300)
+        lambda x: (100 <= x <= 300)
         )
     data['general']['update_check'] = get_setting(
         data['general'].get('update_check', True),
         True
     )
 
-    # locserver
-    data['locserver'] = data.get('locserver', {})
-    data['locserver']['player_name'] = get_setting(
-        data['locserver'].get('player_name', "ConfigureMe"),
+    # sharing
+    data['sharing'] = data.get('sharing', {})
+    data['sharing']['player_name'] = get_setting(
+        data['sharing'].get('player_name', "ConfigureMe"),
         "ConfigureMe"
     )
-    data['locserver']['url'] = get_setting(
-        data['locserver'].get('url', "ws://localhost:8424"),
+    data['sharing']['url'] = get_setting(
+        data['sharing'].get('url', "ws://localhost:8424"),
         "ws://localhost:8424",
         lambda x: x.startswith('ws://')
     )
-    data['locserver']['reconnect_delay'] = get_setting(
-        data['locserver'].get('reconnect_delay', 5),
+    data['sharing']['reconnect_delay'] = get_setting(
+        data['sharing'].get('reconnect_delay', 5),
         5,
         lambda x: (type(x) == int and x >= 1)
+    )
+    data['sharing']['enabled'] = get_setting(
+        data['sharing'].get('enabled', True),
+        True
     )
 
     # maps
@@ -90,12 +94,12 @@ def verify_settings():
     data['maps']['closest_z_alpha'] = get_setting(
         data['maps'].get('closest_z_alpha', 20),
         20,
-        lambda x: (x >= 1 and x <= 100)
+        lambda x: (1 <= x <= 100)
         )
     data['maps']['current_z_alpha'] = get_setting(
         data['maps'].get('current_z_alpha', 100),
         100,
-        lambda x: (x >= 1 and x <= 100)
+        lambda x: (1 <= x <= 100)
         )
     data['maps']['geometry'] = get_setting(
         data['maps'].get('geometry', [100, 100, 400, 200]),
@@ -111,7 +115,7 @@ def verify_settings():
     data['maps']['grid_line_width'] = get_setting(
         data['maps'].get('grid_line_width', 1),
         1,
-        lambda x: (x >= 1 and x <= 10)
+        lambda x: (1 <= x <= 10)
         )
     data['maps']['last_zone'] = get_setting(
         data['maps'].get('last_zone', ''),
@@ -120,12 +124,12 @@ def verify_settings():
     data['maps']['line_width'] = get_setting(
         data['maps'].get('line_width', 1),
         1,
-        lambda x: (x >= 1 and x <= 10)
+        lambda x: (1 <= x <= 10)
         )
     data['maps']['other_z_alpha'] = get_setting(
         data['maps'].get('other_z_alpha', 10),
         10,
-        lambda x: (x >= 1 and x <= 100)
+        lambda x: (1 <= x <= 100)
         )
     data['maps']['scale'] = get_setting(
         data['maps'].get('scale', 0.07),
@@ -157,7 +161,7 @@ def verify_settings():
     data['spells']['casting_window_buffer'] = get_setting(
         data['spells'].get('casting_window_buffer', 1000),
         1000,
-        lambda x: (x >= 1 and x <= 4000)
+        lambda x: (1 <= x <= 4000)
         )
     data['spells']['custom_timers'] = get_setting(
         data['spells'].get('custom_timers', [[]]),
@@ -187,7 +191,7 @@ def verify_settings():
     data['spells']['level'] = get_setting(
         data['spells'].get('level', 1),
         1,
-        lambda x: (x >= 1 and x <= 65)
+        lambda x: (1 <= x <= 65)
         )
     data['spells']['toggled'] = get_setting(
         data['spells'].get('toggled', True),
