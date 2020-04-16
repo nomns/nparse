@@ -28,6 +28,7 @@ class ParserWindow(QFrame):
         self._title = QLabel()
         self._title.setObjectName('ParserWindowTitle')
 
+
         button = QPushButton(u'\u2637')
         button.setObjectName('ParserWindowMoveButton')
         self._menu_content.addWidget(button, 0)
@@ -47,6 +48,19 @@ class ParserWindow(QFrame):
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowCloseButtonHint | Qt.WindowMinMaxButtonsHint)
         self.show()
 
+    def load(self):
+        g = config.data.get(self.name, {}).get('geometry', None)
+
+
+        if g:
+            self.setGeometry(g[0], g[1], g[2], g[3])
+        # if parser is toggled, make visible and set flags
+        if config.data.get(self.name, {}).get('toggled', False):
+            self.set_flags()
+            self.show()
+        else:
+            self.hide()
+
     def _toggle_frame(self):
         current_geometry = self.geometry()
         if bool(self.windowFlags() & Qt.FramelessWindowHint):
@@ -59,17 +73,18 @@ class ParserWindow(QFrame):
             self.show()
 
     def set_title(self, title):
+        self.setWindowTitle(title)
         self._title.setText(title)
 
     def toggle(self, _=None):
-        if self.isVisible():
-            self.hide()
-            config.data[self.name]['toggled'] = False
-        else:
+        toggled = not config.data[self.name]['toggled']
+        config.data[self.name]['toggled'] = toggled
+        config.save()
+        if toggled:
             self.set_flags()
             self.show()
-            config.data[self.name]['toggled'] = True
-        config.save()
+        else:
+            self.hide()
 
     def closeEvent(self, _):
         config.data[self.name]['toggled'] = False

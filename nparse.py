@@ -20,7 +20,7 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = '0.5.1'
+CURRENT_VERSION = '0.5.0'
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
@@ -63,17 +63,14 @@ class NomnsParse(QApplication):
             )
 
     def _load_parsers(self):
+        spells_parser = parsers.Spells()
         self._parsers = [
             parsers.Maps(),
-            parsers.Spells(),
-            parsers.Triggers()
+            spells_parser,
+            parsers.Triggers(spells_parser=spells_parser)
         ]
-        for parser in self._parsers:
-            if parser.name in config.data.keys() and 'geometry' in config.data[parser.name].keys():
-                g = config.data[parser.name]['geometry']
-                parser.setGeometry(g[0], g[1], g[2], g[3])
-            if config.data[parser.name]['toggled']:
-                parser.toggle()
+        for p in self._parsers:
+            p.load()
 
     def _toggle(self):
         if not self._toggled:

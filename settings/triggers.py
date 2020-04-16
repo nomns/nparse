@@ -30,19 +30,18 @@ class TriggerTree(QTreeWidget):
             tg = TriggerGroup(group_name=group)
             tg.setCheckState(
                 0,
-                Qt.Checked if config.triggers[group]['__enabled__'] else Qt.Unchecked
+                Qt.Checked if config.triggers[group]['enabled'] else Qt.Unchecked
             )
-            for trig in config.triggers[group].keys():
-                if trig != '__enabled__':
-                    qtrig = TriggerItem(
-                        trigger_name=trig,
-                        trigger_data=config.triggers[group][trig]
-                    )
-                    qtrig.setCheckState(
-                        0,
-                        Qt.Checked if config.triggers[group][trig]['__enabled__'] else Qt.Unchecked
-                    )
-                    tg.addChild(qtrig)
+            for trig in config.triggers[group]['triggers'].keys():
+                qtrig = TriggerItem(
+                    trigger_name=trig,
+                    trigger_data=config.triggers[group]['triggers'][trig]
+                )
+                qtrig.setCheckState(
+                    0,
+                    Qt.Checked if config.triggers[group]['triggers'][trig]['enabled'] else Qt.Unchecked
+                )
+                tg.addChild(qtrig)
             self.root.addChild(tg)
 
     def is_group_selected(self):
@@ -94,12 +93,13 @@ class TriggerTree(QTreeWidget):
         for qgroup in [self.root.child(x) for x in range(self.root.childCount())]:
             group_name = qgroup.text(0)
             d[group_name] = {}
-            d[group_name]['__enabled__'] = True if qgroup.checkState(0) == Qt.Checked else False
+            d[group_name]['enabled'] = True if qgroup.checkState(0) == Qt.Checked else False
+            d[group_name]['triggers'] = {}
             for qtrig in [qgroup.child(i) for i in range(qgroup.childCount())]:
                 trig_name = qtrig.text(0)
-                d[group_name][trig_name] = {}
-                d[group_name][trig_name] = qtrig.value
-                d[group_name][trig_name]['__enabled__'] = True if qtrig.checkState(0) == Qt.Checked else False
+                d[group_name]['triggers'][trig_name] = {}
+                d[group_name]['triggers'][trig_name] = qtrig.value
+                d[group_name]['triggers'][trig_name]['enabled'] = True if qtrig.checkState(0) == Qt.Checked else False
         return d
 
     def trigger_exists(self, trigger_name):
