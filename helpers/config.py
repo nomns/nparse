@@ -199,8 +199,8 @@ def verify_settings():
         True
     )
     data['spells']['use_secondary'] = get_setting(
-        data['spells'].get('use_secondary', ["levitate"]),
-        ["levitate"],
+        data['spells'].get('use_secondary', None),
+        ["levitate", "malise", "malisement"],
         lambda x: isinstance(x, list)
     )
     data['spells']['use_secondary_all'] = get_setting(
