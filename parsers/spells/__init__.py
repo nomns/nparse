@@ -74,7 +74,7 @@ class Spells(ParserWindow):
               text[:26] == 'You try to cast a spell on'):
             self._remove_spell_trigger()
 
-            # Elongate self buff timers by time zoning
+        # Elongate self buff timers by time zoning
         elif text[:23] == 'LOADING, PLEASE WAIT...':
             self._spell_triggered()
             self._remove_spell_trigger()

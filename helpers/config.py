@@ -201,12 +201,15 @@ def verify_settings():
     data['spells']['use_secondary'] = get_setting(
         data['spells'].get('use_secondary', None),
         ["levitate", "malise", "malisement"],
-        lambda x: isinstance(x, list)
+        lambda x: (isinstance(x, list) and all(
+            x in data['spells'].get('use_secondary', []) for x in ["levitate", "malise", "malisement"]
+        ))
     )
     data['spells']['use_secondary_all'] = get_setting(
         data['spells'].get('use_secondary_all', False),
         False
     )
+
     data['spells']['buff_bar_color'] = get_setting(
         data['spells'].get('buff_bar_color', [40, 122, 169]),
         [40, 122, 169],
