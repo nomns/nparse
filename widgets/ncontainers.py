@@ -28,8 +28,7 @@ class NContainer(QFrame):
             self.sort()
 
         # handle timer
-        n_timers = group.findChildren(NTimer)
-        for n_timer in n_timers:
+        for n_timer in group.findChildren(NTimer):
             if n_timer.name == timer.name:
                 n_timer.recalculate(timer.timestamp)
         else:
@@ -40,7 +39,7 @@ class NContainer(QFrame):
             self.layout().insertWidget(x, group, 0)
 
     def groups(self):
-        """Returns a list of all SpellTargets."""
+        """Returns a list of all NGroup."""
         return self.findChildren(NGroup)
 
     def get_group_by_name(self, name):
@@ -64,12 +63,13 @@ class NGroup(QFrame):
         self.setObjectName('Container')
         self.name = group_name
         self.order = order
+        self._hide_title = hide_title
 
         # ui
         self.setLayout(QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
-        if self.name and not hide_title:
+        if self.name and not self._hide_title:
             self.name_label = QLabel(self.name.title())
             self.name_label.setObjectName('GroupLabel')
             self.name_label.setMaximumHeight(20)
@@ -94,11 +94,13 @@ class NGroup(QFrame):
                 self.findChildren(NTimer),
                 key=lambda x: (x.end_time - datetime.datetime.now())
         )):
-            self.layout().insertWidget(x + 1, widget)  # + 1 - skip target label
+            self.layout().insertWidget(
+                x + (0 if self._hide_title else 1),
+                widget)  # +- 1  skip target label if hidden
 
     def add_timer(self, n_timer):
         for nt in self.findChildren(NTimer):
-            if nt.name == n_timer.title:
+            if nt.name == n_timer.name:
                 nt.recalculate(n_timer.timestamp)
                 return
         self.layout().addWidget(n_timer)

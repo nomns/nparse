@@ -22,7 +22,6 @@ class NTimer(QFrame):
     ):
         super().__init__()
         self.name = name
-        self.title = name # TODO: Remove this after making .name
         self.timestamp = timestamp if timestamp else datetime.datetime.now()
         self._duration = duration
         self._icon = icon
@@ -31,17 +30,8 @@ class NTimer(QFrame):
         self._sound = sound
         self._alert = False
         self.progress = QProgressBar()
-        self._setup_ui()
-        self._calculate(self.timestamp)
-        self.setStyleSheet(self._style)
-        self._update()
 
-    def _calculate(self, timestamp):
-        self.end_time = timestamp + datetime.timedelta(seconds=self._duration)
-        self.progress.setMaximum(self._duration)
-
-    def _setup_ui(self):
-        # self
+        # ui
         self.setMaximumHeight(17)
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -57,12 +47,21 @@ class NTimer(QFrame):
         progress_layout = QHBoxLayout(self.progress)
         progress_layout.setContentsMargins(5, 0, 5, 0)
         self._name_label = QLabel(
-            string.capwords(self.title), self.progress)
+            string.capwords(self.name), self.progress)
         progress_layout.addWidget(self._name_label)
         progress_layout.insertStretch(2, 1)
         self._time_label = QLabel('', self.progress)
         progress_layout.addWidget(self._time_label)
         layout.addWidget(self.progress, 1)
+
+        # init
+        self._calculate(self.timestamp)
+        self.setStyleSheet(self._style)
+        self._update()
+
+    def _calculate(self, timestamp):
+        self.end_time = timestamp + datetime.timedelta(seconds=self._duration)
+        self.progress.setMaximum(self._duration)
 
     def recalculate(self, timestamp):
         self._calculate(timestamp)

@@ -53,14 +53,14 @@ class SpellTarget(QFrame):
         )):
             self.layout().insertWidget(x + 1, widget)  # + 1 - skip target label
 
-    def add_timer(self, ntimer):
+    def add_timer(self, n_timer):
         recast = False
         for nt in self.findChildren(NTimer):
-            if nt.title == ntimer.title:
+            if nt.name == n_timer.name:
                 recast = True
-                nt.recalculate(ntimer.timestamp)
+                nt.recalculate(n_timer.timestamp)
         if not recast:
-            self.layout().addWidget(ntimer)
+            self.layout().addWidget(n_timer)
 
         self._sort()
 

@@ -44,7 +44,7 @@ class SpellContainer(QFrame):
         # Add or update timer within SpellTarget
         ntimers = spell_target.findChildren(NTimer)
         for nt in ntimers:
-            if nt.title == spell.name:
+            if nt.name == spell.name:
                 nt.recalculate(timestamp)
         else:
             # Create timer

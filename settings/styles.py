@@ -147,7 +147,7 @@ def enemy_target():
             color: white;
             font-size: 12px;
             background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgb({c}), stop: 0.7 rgb({c}),
+                stop: 0 rgba({c}), stop: 0.7 rgba({c}),
                 stop: 1.0 transparent
             );
         }}
@@ -160,10 +160,10 @@ def enemy_target():
 def friendly_target():
     return """
         #SpellTargetLabel {{
-            color: rgb({f});
+            color: rgba({f});
             font-size: 12px;
             background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgb({c}), stop: 0.7 rgb({c}),
+                stop: 0 rgba({c}), stop: 0.7 rgba({c}),
                 stop: 1.0 transparent
             );
         }}
@@ -176,10 +176,10 @@ def friendly_target():
 def you_target():
     return """
         #SpellTargetLabel {{
-            color: rgb({f});
+            color: rgba({f});
             font-size: 12px;
             background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgb({c}), stop: 0.7 rgb({c}),
+                stop: 0 rgba({c}), stop: 0.7 rgba({c}),
                 stop: 1.0 transparent
             );
         }}
