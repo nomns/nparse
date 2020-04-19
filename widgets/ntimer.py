@@ -13,15 +13,16 @@ class NTimer(QFrame):
 
     def __init__(
         self,
-        title="base",
+        name="base",
         timestamp=None,
         duration=6,
         icon=1,
         style=None,
-        sound=None
+        sound=None,
     ):
         super().__init__()
-        self.title = title
+        self.name = name
+        self.title = name # TODO: Remove this after making .name
         self.timestamp = timestamp if timestamp else datetime.datetime.now()
         self._duration = duration
         self._icon = icon
@@ -76,7 +77,8 @@ class NTimer(QFrame):
                 self.setStyleSheet(self.styleSheet() + styles.spell_warning())
                 if not self._alert:
                     self._alert = True
-                    sound.play(self._sound)
+                    if self._sound:
+                        sound.play(self._sound)
             else:
                 self._alert = False
             if remaining_seconds <= 0:

@@ -29,7 +29,7 @@ class Spells(ParserWindow):
         self._scroll_area = QScrollArea()
         self._scroll_area.setWidgetResizable(True)
         self._scroll_area.setWidget(self._spell_container)
-        self._scroll_area.setObjectName('SpellScrollArea')
+        self._scroll_area.setObjectName('ScrollArea')
         self.content.addWidget(self._scroll_area, 1)
         self._level_widget = QSpinBox()
         self._level_widget.setRange(1, 65)

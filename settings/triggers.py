@@ -55,7 +55,7 @@ class TriggerTree(QTreeWidget):
             return False
 
     def add_new_trigger(self, trigger_name):
-        d = {'__enabled__': False}
+        d = {'enabled': False}
         qtrig = TriggerItem(trigger_name=trigger_name, trigger_data=d)
         qtrig.setCheckState(0, Qt.Unchecked)
         try:
@@ -119,7 +119,7 @@ class TriggerTree(QTreeWidget):
         try:
             item = self.itemFromIndex(args[0])
             if item.parent():
-                item.value['__enabled__'] = True if item.checkState(0) == Qt.Checked else False
+                item.value['enabled'] = True if item.checkState(0) == Qt.Checked else False
         except:
             pass
 

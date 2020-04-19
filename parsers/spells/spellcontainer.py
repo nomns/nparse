@@ -49,7 +49,7 @@ class SpellContainer(QFrame):
         else:
             # Create timer
             nt = NTimer(
-                title=spell.name,
+                name=spell.name,
                 timestamp=timestamp,
                 duration=get_spell_duration(spell, config.data['spells']['level']) * 6,
                 icon=spell.spell_icon,

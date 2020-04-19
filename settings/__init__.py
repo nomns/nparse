@@ -299,7 +299,7 @@ class SettingsWindow(QDialog):
                     item.value = updated['data']
                     item.setCheckState(
                         0,
-                        Qt.Checked if updated['data']['__enabled__'] else Qt.Unchecked
+                        Qt.Checked if updated['data']['enabled'] else Qt.Unchecked
                     )
             except IndexError:
                 pass

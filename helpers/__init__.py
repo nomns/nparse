@@ -3,6 +3,7 @@ import os
 import math
 import requests
 import json
+import re
 from datetime import datetime, timedelta
 
 from PyQt5.QtWidgets import QLabel
@@ -148,3 +149,10 @@ def get_spell_icon(icon_index):
     label.setPixmap(scaled_icon_image)
     label.setFixedSize(15, 15)
     return label
+
+def create_regex_from(text=None, regex=None):
+    if text:
+        return re.compile('^{}$'.format(text), re.IGNORECASE)
+    else:
+        return re.compile(regex)
+

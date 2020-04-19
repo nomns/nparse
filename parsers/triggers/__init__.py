@@ -1,41 +1,74 @@
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QScrollArea
 
-from helpers import config
+from settings import styles
+from helpers import config, sound, text_time_to_seconds
 from widgets.parser import ParserWindow
 from widgets.ntimer import NTimer
-from parsers import Spells
+from widgets.ncontainers import NContainer, NGroup
+
+from .trigger import Trigger
 
 
 class Triggers(ParserWindow):
 
-    def __init__(self, spells_parser: Spells):
+    def __init__(self):
         super().__init__()
         self.name = "triggers"
         self.set_title(self.name.title())
         self.setVisible(False)  # do not show Window
-        self._triggers = self._get_triggers()
+        self._triggers = {}
+        self._set_triggers()
 
-    def _get_triggers(self):
-        print(config.triggers)
+        # ui
+        self.container = NContainer()
+        self.setMinimumWidth(150)
+        self._scroll_area = QScrollArea()
+        self._scroll_area.setWidgetResizable(True)
+        self._scroll_area.setWidget(self.container)
+        self._scroll_area.setObjectName('ScrollArea')
+        self.content.addWidget(self._scroll_area, 1)
+
+    def _set_triggers(self):
         triggers = {}
-        for group_name in config.triggers.keys():
-            group = {
-                'enabled': config.triggers[group_name]['enabled'],
-                'triggers': []
-            }
+        for group_name in config.triggers:
+            if config.triggers[group_name]['enabled']:
+                for trigger_name in config.triggers[group_name]['triggers']:
+                    if config.triggers[group_name]['triggers'][trigger_name]['enabled']:
+                        t = Trigger(
+                            trigger_name,
+                            config.triggers[group_name]['triggers'][trigger_name]
+                        )
+                        t.triggered.connect(self._triggered)
 
+                        triggers[trigger_name] = t
+        self._triggers = triggers
 
+    def _triggered(self, trigger_name, timestamp):
+        print('Triggered: {}'.format(trigger_name))
 
-
-
-        return triggers
-
-
+        action = self._triggers[trigger_name].action
+        if action.sound:
+            sound.play(action.sound)
+        if action.timer:
+            self.container.add_timer(
+                'triggers',
+                NTimer(
+                    name=trigger_name,
+                    style=styles.trigger(
+                        action.timer['bar_color'],
+                        action.timer['text_color']
+                    ),
+                    duration=text_time_to_seconds(
+                        action.timer['time']
+                    ),
+                    icon=action.timer['icon'],
+                    timestamp=timestamp
+                )
+            )
 
     def parse(self, timestamp, text):
-        print(timestamp, text)
-
-    # pass on regular parser procedures
+        for t in self._triggers.values():
+            t.parse(timestamp, text)
 
     def settings_updated(self):
-        self._get_triggers()
+        self._set_triggers()

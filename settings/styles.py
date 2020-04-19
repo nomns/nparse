@@ -23,21 +23,21 @@ ParserWindow {
     border: none;
 }
 
-#SpellScrollArea {
+#ScrollArea {
     border: none;
 }
 
-#SpellScrollArea QScrollBar::vertical {
+#ScrollArea QScrollBar::vertical {
     background: #111;
     width: 12px;
     margin: 12px 0 12px 0;
 }
 
-#SpellScrollArea QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+#ScrollArea QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     background: none;
 }
 
-#SpellScrollArea QScrollBar::up-arrow:vertical {
+#ScrollArea QScrollBar::up-arrow:vertical {
     background: #333;
     width: 10px;
     height: 10px;
@@ -46,7 +46,7 @@ ParserWindow {
     border-top-left-radius: 5px;
 }
 
-#SpellScrollArea QScrollBar::down-arrow:vertical {
+#ScrollArea QScrollBar::down-arrow:vertical {
     background: #333;
     width: 10px;
     height: 10px;
@@ -55,21 +55,21 @@ ParserWindow {
     border-bottom-left-radius: 5px;
 }
 
-#SpellScrollArea QScrollBar::add-line:vertical {
+#ScrollArea QScrollBar::add-line:vertical {
     background: none;
     height: 12px;
     subcontrol-position: bottom;
     subcontrol-origin: margin;
 }
 
-#SpellScrollArea QScrollBar::sub-line:vertical {
+#ScrollArea QScrollBar::sub-line:vertical {
     background: none;
     height: 12px;
     subcontrol-position: top;
     subcontrol-origin: margin;
 }
 
-#SpellScrollArea QScrollBar::handle:vertical {
+#ScrollArea QScrollBar::handle:vertical {
     min-height: 10px;
     width: 10px;
     max-width: 10px;
@@ -193,14 +193,14 @@ def good_spell():
     return """
         QProgressBar::chunk {{
             background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgb({c}),
-                stop: 0.5 rgb({c}),
+                stop: 0 rgba({c}),
+                stop: 0.5 rgba({c}),
                 stop: 1 transparent
             );
             border-right: 1px solid rgb(100, 100, 100);
         }}
         QLabel {{
-            color: rgb({f});
+            color: rgba({f});
             font-size: 12px;
         }}
     """.format(
@@ -212,8 +212,8 @@ def good_spell():
 def spell_warning():
     return """
         QProgressBar {
-            border-top: 2px solid rgb(255, 0, 0, 70%);
-            border-bottom: 2px solid rgb(255, 0, 0, 70%);
+            border-top: 2px solid rgba(255, 0, 0, 70%);
+            border-bottom: 2px solid rgba(255, 0, 0, 70%);
         }
         QLabel {
             font-weight: bold;
@@ -226,16 +226,35 @@ def debuff_spell():
         QProgressBar::chunk {{
             font-size: 12px;
             background: qlineargradient(y0: 0, y1: 1,
+                stop: 0 rgba({c}),
+                stop: 0.5 rgba({c}),
+                stop: 1 transparent
+            );
+        }}
+        QLabel {{
+            color: rgba({f});
+            font-size: 12px;
+        }}
+    """.format(
+        c=','.join(map(str, config.data['spells']['debuff_bar_color'])),
+        f=','.join(map(str, config.data['spells']['debuff_text_color']))
+    )
+
+def trigger(bar_color, text_color):
+    return """
+        QProgressBar::chunk {{
+            background: qlineargradient(y0: 0, y1: 1,
                 stop: 0 rgb({c}),
                 stop: 0.5 rgb({c}),
                 stop: 1 transparent
             );
+            border-right: 1px solid rgb(100, 100, 100);
         }}
         QLabel {{
             color: rgb({f});
             font-size: 12px;
         }}
     """.format(
-        c=','.join(map(str, config.data['spells']['debuff_bar_color'])),
-        f=','.join(map(str, config.data['spells']['debuff_text_color']))
+        c=','.join(map(str, bar_color)),
+        f=','.join(map(str, text_color))
     )

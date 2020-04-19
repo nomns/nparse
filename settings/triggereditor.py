@@ -29,10 +29,7 @@ class TriggerEditor(QDialog):
         self._set_values()
 
     def _play_sound_file(self, _):
-        try:
-            sound.play(self.soundFileLabel.text())
-        except:
-            pass
+        sound.play(self.soundFileLabel.text())
 
     def _choose_sound_file(self, _):
         fd = QFileDialog(self)
@@ -91,7 +88,7 @@ class TriggerEditor(QDialog):
 
         # general
         self.nameLineEdit.setText(v['name'])
-        self.enabledCheckBox.setChecked(d['__enabled__'])
+        self.enabledCheckBox.setChecked(d['enabled'])
 
         # trigger
         try:
@@ -139,7 +136,7 @@ class TriggerEditor(QDialog):
         d['name'] = self.nameLineEdit.text()
 
         data = {}
-        data['__enabled__'] = self.enabledCheckBox.isChecked()
+        data['enabled'] = self.enabledCheckBox.isChecked()
 
         t = {}
         if self.triggerTextRadio.isChecked():

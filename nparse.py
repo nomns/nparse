@@ -63,11 +63,10 @@ class NomnsParse(QApplication):
             )
 
     def _load_parsers(self):
-        spells_parser = parsers.Spells()
         self._parsers = [
             parsers.Maps(),
-            spells_parser,
-            parsers.Triggers(spells_parser=spells_parser)
+            parsers.Spells(),
+            parsers.Triggers()
         ]
         for p in self._parsers:
             p.load()
