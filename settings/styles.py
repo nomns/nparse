@@ -143,12 +143,14 @@ ParserWindow {
 
 def enemy_target():
     return """
-        #SpellTargetLabel {{
+        #GroupLabel {{
             color: white;
             font-size: 12px;
             background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgba({c}), stop: 0.7 rgba({c}),
-                stop: 1.0 transparent
+                stop: 0 rgba(0, 0, 0, 255),
+                stop: 0.3 rgba({c}),
+                stop: 0.7 rgba({c}),
+                stop: 1.0 rgba(0, 0, 0, 255)
             );
         }}
     """.format(
@@ -159,12 +161,14 @@ def enemy_target():
 
 def friendly_target():
     return """
-        #SpellTargetLabel {{
+        #GroupLabel {{
             color: rgba({f});
             font-size: 12px;
             background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgba({c}), stop: 0.7 rgba({c}),
-                stop: 1.0 transparent
+                stop: 0 rgba(0, 0, 0, 255),
+                stop: 0.3 rgba({c}),
+                stop: 0.7 rgba({c}),
+                stop: 1.0 rgba(0, 0, 0, 255)
             );
         }}
     """.format(
@@ -175,12 +179,14 @@ def friendly_target():
 
 def you_target():
     return """
-        #SpellTargetLabel {{
+        #GroupLabel {{
             color: rgba({f});
             font-size: 12px;
             background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgba({c}), stop: 0.7 rgba({c}),
-                stop: 1.0 transparent
+                stop: 0 rgba(0, 0, 0, 255),
+                stop: 0.3 rgba({c}),
+                stop: 0.7 rgba({c}),
+                stop: 1.0 rgba(0, 0, 0, 255)
             );
         }}
     """.format(
@@ -191,11 +197,20 @@ def you_target():
 
 def good_spell():
     return """
+        QProgressBar {{
+            background: black;
+            border-top: 1px solid rgba(0, 0, 0, 200);
+            border-bottom: 1px solid rgba(0, 0, 0, 200);
+        }}
+        QProgressBar::horizontal {{
+            background: #999999;
+        }}
         QProgressBar::chunk {{
             background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgba({c}),
-                stop: 0.5 rgba({c}),
-                stop: 1 transparent
+                stop: 0 rgba(0, 0, 0, 200),    
+                stop: 0.1 rgba({c}),
+                stop: 0.9 rgba({c}),
+                stop: 1 rgba(0, 0, 0, 200)
             );
             border-right: 1px solid rgb(100, 100, 100);
         }}
@@ -212,8 +227,8 @@ def good_spell():
 def spell_warning():
     return """
         QProgressBar {
-            border-top: 2px solid rgba(255, 0, 0, 70%);
-            border-bottom: 2px solid rgba(255, 0, 0, 70%);
+            border-top: 1px solid rgba(255, 0, 0, 255);
+            border-bottom: 1px solid rgba(255, 0, 0, 255);
         }
         QLabel {
             font-weight: bold;
@@ -223,13 +238,22 @@ def spell_warning():
 
 def debuff_spell():
     return """
+        QProgressBar {{
+            background: black;
+            border-top: 1px solid rgba(0, 0, 0, 200);
+            border-bottom: 1px solid rgba(0, 0, 0, 200);
+        }}
+        QProgressBar::horizontal {{
+            background: #999999;
+        }}
         QProgressBar::chunk {{
-            font-size: 12px;
             background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgba({c}),
-                stop: 0.5 rgba({c}),
-                stop: 1 transparent
+                stop: 0 rgba(0, 0, 0, 255),    
+                stop: 0.1 rgba({c}),
+                stop: 0.9 rgba({c}),
+                stop: 1 rgba(0, 0, 0, 255)
             );
+            border-right: 1px solid rgb(100, 100, 100);
         }}
         QLabel {{
             color: rgba({f});
@@ -242,16 +266,25 @@ def debuff_spell():
 
 def trigger(bar_color, text_color):
     return """
+        QProgressBar {{
+            background: black;
+            border-top: 1px solid rgba(0, 0, 0, 200);
+            border-bottom: 1px solid rgba(0, 0, 0, 200);
+        }}
+        QProgressBar::horizontal {{
+            background: #999999;
+        }}
         QProgressBar::chunk {{
             background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgb({c}),
-                stop: 0.5 rgb({c}),
-                stop: 1 transparent
+                stop: 0 rgba(0, 0, 0, 255),    
+                stop: 0.1 rgba({c}),
+                stop: 0.9 rgba({c}),
+                stop: 1 rgba(0, 0, 0, 255)
             );
             border-right: 1px solid rgb(100, 100, 100);
         }}
         QLabel {{
-            color: rgb({f});
+            color: rgba({f});
             font-size: 12px;
         }}
     """.format(

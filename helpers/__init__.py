@@ -144,10 +144,10 @@ def get_spell_icon(icon_index):
     y = (file_row - 1) * 40
     icon_image = QPixmap(file_name)
     scaled_icon_image = icon_image.copy(QRect(x, y, 40, 40)).scaled(
-        15, 15, transformMode=Qt.SmoothTransformation)
+        18, 18, transformMode=Qt.SmoothTransformation)
     label = QLabel()
     label.setPixmap(scaled_icon_image)
-    label.setFixedSize(15, 15)
+    label.setFixedSize(18, 18)
     return label
 
 def create_regex_from(text=None, regex=None):

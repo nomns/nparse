@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QDialog, QColorDialog, QFileDialog
 from PyQt5 import uic
 from PyQt5.QtGui import QColor
 
-from helpers import get_spell_icon, resource_path, sound
+from helpers import get_spell_icon, resource_path, sound, get_rgb, set_qcolor
 
 
 class TriggerEditor(QDialog):
@@ -110,21 +110,12 @@ class TriggerEditor(QDialog):
                 self.timerTimeLineEdit.setText(a['timer']['time'])
                 self.timerIconSpinBox.setValue(a['timer']['icon'])
                 w = self.timerExample
-                p = w.palette()
-                bc = a['timer']['bar_color']
-                tc = a['timer']['text_color']
-                p.setColor(w.backgroundRole(), QColor.fromRgb(*bc))
-                p.setColor(w.foregroundRole(), QColor.fromRgb(*tc))
-                w.setPalette(p)
+                set_qcolor(w, a['timer']['text_color'], a['timer']['bar_color'])
             if a.get('text', None):
                 self.textCheckBox.setChecked(True)
                 self.textTextLineEdit.setText(a['text']['text'])
                 self.textSizeSpinBox.setValue(a['text']['text_size'])
-                w = self.textExample
-                p = w.palette()
-                tc = a['text']['color']
-                p.setColor(w.foregroundRole(), QColor.fromRgb(*tc))
-                w.setPalette(p)
+                set_qcolor(a['text']['color'])
             if a.get('sound', None):
                 self.soundCheckBox.setChecked(True)
                 self.soundFileLabel.setText(a['sound'])
@@ -150,17 +141,14 @@ class TriggerEditor(QDialog):
             a['timer']['time'] = self.timerTimeLineEdit.text()
             a['timer']['icon'] = self.timerIconSpinBox.value()
             w = self.timerExample
-            bc = w.palette().color(w.backgroundRole()).getRgb()
-            tc = w.palette().color(w.foregroundRole()).getRgb()
-            a['timer']['bar_color'] = bc[0:-1]
-            a['timer']['text_color'] = tc[0:-1]
+            a['timer']['bar_color'] = get_rgb(w, w.backgroundRole())
+            a['timer']['text_color'] = get_rgb(w, w.foregroundRole())
         if self.textCheckBox.isChecked():
             a['text'] = {}
             a['text']['text'] = self.textTextLineEdit.text()
             a['text']['text_size'] = self.textSizeSpinBox.value()
             w = self.textExample
-            tc = w.palette().color(w.foregroundRole()).getRgb()
-            a['text']['color'] = tc[0:-1]
+            a['text']['color'] = get_rgb(w, w.foregroundRole())
         if self.soundCheckBox.isChecked():
             a['sound'] = self.soundFileLabel.text()
 

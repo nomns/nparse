@@ -16,14 +16,9 @@ class NContainer(QFrame):
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().addStretch(1)
 
-    def add_timer(self, group_name, timer, priority=0):
+    def add_timer(self, group, timer):
         # handle group
-        group = None
-        for g in self.findChildren(NGroup):
-            if g.name == group_name:
-                group = g
-        if not group:
-            group = NGroup(group_name=group_name, order=priority)
+        if group not in self.groups():
             self.layout().addWidget(group, 0)
             self.sort()
 
@@ -35,7 +30,7 @@ class NContainer(QFrame):
             group.add_timer(timer)
 
     def sort(self):
-        for x, group in enumerate(sorted(self.findChildren(NGroup), key=lambda x: (x.order, x.name))):
+        for x, group in enumerate(sorted(self.groups(), key=lambda x: (x.order, x.name))):
             self.layout().insertWidget(x, group, 0)
 
     def groups(self):
@@ -64,6 +59,7 @@ class NGroup(QFrame):
         self.name = group_name
         self.order = order
         self._hide_title = hide_title
+        self.name_label = None
 
         # ui
         self.setLayout(QVBoxLayout())
@@ -76,7 +72,11 @@ class NGroup(QFrame):
             self.name_label.setAlignment(Qt.AlignCenter)
             self.name_label.mouseDoubleClickEvent = self._remove
             self.layout().addWidget(self.name_label, 0)
-        self.layout().addStretch()
+            self.layout().addStretch()
+
+    def set_title(self, title):
+        if self.name_label:
+            self.name_label.setText(title)
 
     def _remove(self, event=None):
         self.setParent(None)

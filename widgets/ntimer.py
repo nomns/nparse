@@ -8,6 +8,8 @@ from PyQt5.QtCore import QTimer
 from helpers import format_time, get_spell_icon, sound
 from settings import styles
 
+from . import NDirection
+
 
 class NTimer(QFrame):
 
@@ -19,6 +21,7 @@ class NTimer(QFrame):
         icon=1,
         style=None,
         sound=None,
+        direction=NDirection.DOWN
     ):
         super().__init__()
         self.name = name
@@ -29,19 +32,21 @@ class NTimer(QFrame):
         self._active = True
         self._sound = sound
         self._alert = False
+        self._direction=direction
         self.progress = QProgressBar()
 
         # ui
-        self.setMaximumHeight(17)
+        self.setMaximumHeight(18)
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(1)
+        layout.setSpacing(0)
         self.setLayout(layout)
         layout.addWidget(get_spell_icon(self._icon), 0)
 
         # progress bar
         self.progress = QProgressBar()
         self.progress.setTextVisible(False)
+        self.progress.setAutoFillBackground(True)
 
         # labels
         progress_layout = QHBoxLayout(self.progress)
@@ -71,7 +76,11 @@ class NTimer(QFrame):
         if self._active:
             remaining = self.end_time - datetime.datetime.now()
             remaining_seconds = remaining.total_seconds()
-            self.progress.setValue(remaining.seconds)
+            self.progress.setValue(
+                remaining.seconds
+                if self._direction == NDirection.DOWN else
+                self.progress.maximum() - remaining_seconds
+            )
             if remaining_seconds <= 30:
                 self.setStyleSheet(self.styleSheet() + styles.spell_warning())
                 if not self._alert:

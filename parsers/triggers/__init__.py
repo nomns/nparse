@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QScrollArea
 
 from settings import styles
 from helpers import config, sound, text_time_to_seconds
+from widgets import NDirection
 from widgets.parser import ParserWindow
 from widgets.ntimer import NTimer
 from widgets.ncontainers import NContainer, NGroup
@@ -15,7 +16,6 @@ class Triggers(ParserWindow):
         super().__init__()
         self.name = "triggers"
         self.set_title(self.name.title())
-        self.setVisible(False)  # do not show Window
         self._triggers = {}
         self._set_triggers()
 
@@ -50,10 +50,20 @@ class Triggers(ParserWindow):
         if action.sound:
             sound.play(action.sound)
         if action.timer:
+            group_name = trigger_name
+            group = None
+            for g in self.container.groups():
+                if g.name == group_name:
+                    group = g
+            if not group:
+                group = NGroup(
+                    group_name=group_name,
+                    hide_title=True
+                )
             self.container.add_timer(
-                'triggers',
+                group,
                 NTimer(
-                    name=trigger_name,
+                    trigger_name,
                     style=styles.trigger(
                         action.timer['bar_color'],
                         action.timer['text_color']
@@ -62,7 +72,8 @@ class Triggers(ParserWindow):
                         action.timer['time']
                     ),
                     icon=action.timer['icon'],
-                    timestamp=timestamp
+                    timestamp=timestamp,
+                    direction=NDirection.UP
                 )
             )
 

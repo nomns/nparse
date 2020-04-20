@@ -32,7 +32,7 @@ class TriggerTree(QTreeWidget):
                 0,
                 Qt.Checked if config.triggers[group]['enabled'] else Qt.Unchecked
             )
-            for trig in config.triggers[group]['triggers'].keys():
+            for trig in config.triggers[group]['triggers']:
                 qtrig = TriggerItem(
                     trigger_name=trig,
                     trigger_data=config.triggers[group]['triggers'][trig]

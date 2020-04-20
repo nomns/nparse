@@ -1,10 +1,14 @@
 from PyQt5.QtWidgets import QScrollArea, QSpinBox
 
 from helpers import config
+from settings import styles
 from widgets.parser import ParserWindow
-from .spellcontainer import SpellContainer
-from .spelltrigger import SpellTrigger
-from .spell import create_spell_book
+from widgets.ncontainers import NContainer, NGroup
+from widgets.ntimer import NTimer
+from widgets import NDirection
+
+from .spell import (create_spell_book, get_spell_duration,
+                    SpellTrigger)
 
 
 class Spells(ParserWindow):
@@ -15,17 +19,9 @@ class Spells(ParserWindow):
         self.name = 'spells'
         self.set_title(self.name.title())
 
-        self._setup_ui()
-
-        self.spell_book = create_spell_book()
-        self._casting = None  # holds Spell when casting
-        self._zoning = None  # holds time of zone or None
-        self._spell_triggers = []  # need a queue because of landing windows
-        self._spell_trigger = None
-
-    def _setup_ui(self):
+        # ui
         self.setMinimumWidth(150)
-        self._spell_container = SpellContainer()
+        self._spell_container = NContainer()
         self._scroll_area = QScrollArea()
         self._scroll_area.setWidgetResizable(True)
         self._scroll_area.setWidget(self._spell_container)
@@ -38,29 +34,76 @@ class Spells(ParserWindow):
         self.menu_area.addWidget(self._level_widget, 0)
         self._level_widget.valueChanged.connect(self._level_change)
 
+        self.spell_book = create_spell_book()
+        self._casting = None  # holds Spell when casting
+        self._zoning = None  # holds time of zone or None
+        self._spell_triggers = []  # need a queue because of landing windows
+        self._spell_trigger = None
+
     def _spell_triggered(self):
         """SpellTrigger spell_triggered event handler. """
         if self._spell_trigger:
             if self._spell_trigger.activated:
+                s = self._spell_trigger.spell
                 for target in self._spell_trigger.targets:
+                    group_name = target[1]
+                    group = None
+                    for g in self._spell_container.groups():
+                        if g.name == group_name:
+                            group = g
+                    if not group:
+                        group = NGroup(group_name=group_name)
+                        if group_name == '__you__':
+                            group.set_title('You')
+                            group.setStyleSheet(styles.you_target())
+                        else:
+                            if s.type:
+                                group.setStyleSheet(styles.friendly_target())
+                                group.order = 1
+                            else:
+                                group.setStyleSheet(styles.enemy_target())
+                                group.order = 2
+
                     self._spell_container.add_timer(
-                        self._spell_trigger.spell, target[0], target[1])
+                        group,
+                        NTimer(
+                            name=s.name,
+                            timestamp=target[0],
+                            duration=get_spell_duration(
+                                s,
+                                config.data['spells']['level']
+                            ) * 6,
+                            icon=s.spell_icon,
+                            style=(
+                                styles.good_spell()
+                                if s.type else
+                                styles.debuff_spell()
+                            ),
+                            sound=(
+                                config.data['spells']['sound_file']
+                                if config.data['spells']['sound_enabled'] else
+                                None
+                            ),
+                            direction=NDirection.DOWN
+                        ),
+                    )
         self._remove_spell_trigger()
 
     def parse(self, timestamp, text):
+
         """Parse casting triggers (casting, failure, success)."""
         if self._spell_trigger:
             self._spell_trigger.parse(timestamp, text)
 
         # Initial Spell Cast and trigger setup
         if text[:17] == 'You begin casting':
-            spell = self.spell_book.get(text[18:-1].lower(), None)
-            if spell and spell.duration_formula != 0:
+            s = self.spell_book.get(text[18:-1].lower(), None)
+            if s and s.duration_formula != 0:
                 self._spell_triggered()  # in case we cut off the cast window, force trigger
                 self._remove_spell_trigger()
 
                 spell_trigger = SpellTrigger(
-                    spell=spell,
+                    spell=s,
                     timestamp=timestamp
                 )
                 spell_trigger.spell_triggered.connect(self._spell_triggered)
@@ -79,7 +122,7 @@ class Spells(ParserWindow):
             self._spell_triggered()
             self._remove_spell_trigger()
             self._zoning = timestamp
-            spell_target = self._spell_container.get_spell_target_by_name(
+            spell_target = self._spell_container.get_group_by_name(
                 '__you__')
             if spell_target:
                 for spell_widget in spell_target.timers():
@@ -87,7 +130,7 @@ class Spells(ParserWindow):
         elif self._zoning and text[:16] == 'You have entered':
             delay = (timestamp - self._zoning).total_seconds()
             self._zoning = None
-            spell_target = self._spell_container.get_spell_target_by_name(
+            spell_target = self._spell_container.get_group_by_name(
                 '__you__')
             if spell_target:
                 for spell_widget in spell_target.timers():

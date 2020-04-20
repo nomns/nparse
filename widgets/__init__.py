@@ -7,5 +7,5 @@ class NGrow(Enum):
 
 
 class NDirection(Enum):
-    RIGHT = 1
-    LEFT = -1
+    UP = 1
+    DOWN = -1
