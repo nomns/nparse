@@ -9,14 +9,14 @@ from settings import styles
 
 class NWindow(QFrame):
 
-    def __init__(self):
+    def __init__(self, transparent=True):
         super().__init__()
         self.name = ''
+        self.transparent = transparent
         self.setObjectName('NWindow')
         self.setStyleSheet(styles.parser_window())
-        # self.setWindowOpacity(config.data['general']['parser_opacity'] / 100)
-        # self.setAutoFillBackground(True)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        if self.transparent:
+            self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.content = QVBoxLayout()
         self.content.setContentsMargins(0, 0, 0, 0)
         self.content.setSpacing(0)
@@ -94,14 +94,17 @@ class NWindow(QFrame):
 
     def enterEvent(self, event):
         self._menu.setVisible(True)
-        self.setAutoFillBackground(True)
-        self.setAttribute(Qt.WA_TranslucentBackground, False)
-        QFrame.enterEvent(self, event)
+        if self.transparent:
+            self.setAttribute(Qt.WA_NoSystemBackground, False)
+            self.setAutoFillBackground(False)
+        super().enterEvent(event)
 
     def leaveEvent(self, event):
         self._menu.setVisible(False)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        QFrame.leaveEvent(self, event)
+        if self.transparent:
+            self.setAttribute(Qt.WA_NoSystemBackground, True)
+            self.setAttribute(Qt.WA_TranslucentBackground, True)
+        super().leaveEvent(event)
 
     def settings_updated(self):
         pass

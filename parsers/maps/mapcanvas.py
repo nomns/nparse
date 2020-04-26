@@ -18,8 +18,6 @@ class MapCanvas(QGraphicsView):
         # UI Init
         super().__init__()
         self.setObjectName('MapCanvas')
-        self.setAutoFillBackground(True)
-        self.setAttribute(Qt.WA_StyledBackground)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setContentsMargins(0, 0, 0, 0)

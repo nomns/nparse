@@ -1,18 +1,8 @@
 from helpers import config
 
 
-def hgradient(rgb):
-    return """
-        ::chunk {{
-            background-color: qlineargradient(y0: 0, y1: 1,
-                stop: 0 transparent, stop: 0.3 rgb({c}),
-                stop: 0.30001 rgb({c}), stop: 0.7 rgb({c}),
-                stop: 0.70001 rgb({c}), stop: 1 transparent);}}
-        """.format(c=','.join(map(str, rgb)))
-
-
 def parser_window(): return """
-NWindow {{
+#NWindow {{
     background: rgba(0, 0, 0, {window_opacity});
     border: none;
     font-family: 'Noto Sans';
@@ -23,7 +13,7 @@ NWindow {{
 }}
 
 #ScrollArea {{
-    background: rgba(0, 0, 0, {window_opacity});
+    background: transparent;
     border: none;
 }}
 
@@ -84,7 +74,6 @@ NWindow {{
 }}
 
 #NWindowMenu {{
-    background: rgba(0, 0, 0, {window_opacity});
     color: white;
 }}
 
@@ -132,68 +121,45 @@ NWindow {{
 }}
 
 #MapCanvas {{
-    background-color: rgba(0, 0, 0, {window_opacity});
-    border:none;
+    background: transparent;
+    border: none;
 }}
 
-#MapAreaLabel {{
-    color: rgba(200, 200, 200, 100);
-    font-size: 12px;
-}}
 """.format(
     window_opacity=config.data['general']['parser_opacity']/100*255
 )
 
 
+group_label = """
+    #GroupLabel {{
+        color: rgba({f});
+        font-size: 12px;
+        background: qlineargradient(x0: 0, x1: 1,
+            stop: 0 transparent,
+            stop: 0.3 rgba({c}),
+            stop: 0.7 rgba({c}),
+            stop: 1.0 transparent
+        );
+    }}
+"""
+
+
 def enemy_target():
-    return """
-        #GroupLabel {{
-            color: white;
-            font-size: 12px;
-            background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgba(0, 0, 0, 255),
-                stop: 0.3 rgba({c}),
-                stop: 0.7 rgba({c}),
-                stop: 1.0 rgba(0, 0, 0, 255)
-            );
-        }}
-    """.format(
+    return group_label.format(
         c=','.join(map(str, config.data['spells']['enemy_target_color'])),
         f=','.join(map(str, config.data['spells']['target_text_color']))
     )
 
 
 def friendly_target():
-    return """
-        #GroupLabel {{
-            color: rgba({f});
-            font-size: 12px;
-            background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgba(0, 0, 0, 255),
-                stop: 0.3 rgba({c}),
-                stop: 0.7 rgba({c}),
-                stop: 1.0 rgba(0, 0, 0, 255)
-            );
-        }}
-    """.format(
+    return group_label.format(
         c=','.join(map(str, config.data['spells']['friendly_target_color'])),
         f=','.join(map(str, config.data['spells']['target_text_color']))
     )
 
 
 def you_target():
-    return """
-        #GroupLabel {{
-            color: rgba({f});
-            font-size: 12px;
-            background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgba(0, 0, 0, 255),
-                stop: 0.3 rgba({c}),
-                stop: 0.7 rgba({c}),
-                stop: 1.0 rgba(0, 0, 0, 255)
-            );
-        }}
-    """.format(
+    return group_label.format(
         c=','.join(map(str, config.data['spells']['you_target_color'])),
         f=','.join(map(str, config.data['spells']['target_text_color']))
     )

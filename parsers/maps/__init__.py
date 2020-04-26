@@ -1,6 +1,7 @@
 from .mapdata import MapData  # noqa: F401
 
 from PyQt5.QtWidgets import QHBoxLayout, QPushButton
+from PyQt5.QtCore import Qt
 
 from helpers import config, to_real_xy
 from widgets.nwindow import NWindow
@@ -12,10 +13,11 @@ from .mapclasses import MapPoint
 class Maps(NWindow):
 
     def __init__(self):
-        super().__init__()
+        super().__init__(transparent=False)
         self.name = 'maps'
         self.set_title(self.name.title())
-
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_NoSystemBackground, False)
         # interface
         self._map = MapCanvas()
         self.content.addWidget(self._map, 1)

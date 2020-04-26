@@ -27,7 +27,6 @@ class Spells(NWindow):
         self._scroll_area.setWidgetResizable(True)
         self._scroll_area.setWidget(self._spell_container)
         self._scroll_area.setObjectName('ScrollArea')
-        self._scroll_area.setAttribute(Qt.WA_TranslucentBackground)
         self.content.addWidget(self._scroll_area, 1)
         self._level_widget = QSpinBox()
         self._level_widget.setRange(1, 65)
