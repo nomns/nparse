@@ -41,9 +41,8 @@ class MapCanvas(QGraphicsView):
             pass
 
         else:
-            # campare size of both maps and adjust ratio appropriately
-            if self._data:
-                print(self._scale)
+            # compare size of both maps and adjust ratio appropriately
+            if self._data: # if _data exists, a zone has already been loaded
                 g = self._data.geometry
                 new_g = map_data.geometry
                 ratio_adjustment = (
@@ -52,9 +51,7 @@ class MapCanvas(QGraphicsView):
                     get_line_length(new_g.lowest_x, new_g.lowest_y, new_g.highest_x, new_g.highest_y)
 
                 )
-                print("{} - {} - {}".format(self._scale, ratio_adjustment, self._scale * ratio_adjustment))
                 self._scale *= ratio_adjustment
-
 
             self._data = map_data
             self._scene.clear()
