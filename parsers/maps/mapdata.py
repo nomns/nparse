@@ -208,7 +208,7 @@ class MapData(dict):
         lightness = color.lightness()
         if lightness == 0:
             return QColor(255, 255, 255)
-        elif (color.red == color.green == color.blue):
+        elif color.red == color.green == color.blue:
             return QColor(255, 255, 255)
         elif lightness < 150:
             return color.lighter(150)

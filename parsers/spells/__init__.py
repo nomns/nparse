@@ -1,8 +1,9 @@
 from PyQt5.QtWidgets import QScrollArea, QSpinBox
+from PyQt5.QtCore import Qt
 
 from helpers import config
 from settings import styles
-from widgets.parser import ParserWindow
+from widgets.nwindow import NWindow
 from widgets.ncontainers import NContainer, NGroup
 from widgets.ntimer import NTimer
 from widgets import NDirection
@@ -11,7 +12,7 @@ from .spell import (create_spell_book, get_spell_duration,
                     SpellTrigger)
 
 
-class Spells(ParserWindow):
+class Spells(NWindow):
     """Tracks spell casting, duration, and targets by name."""
 
     def __init__(self):
@@ -26,6 +27,7 @@ class Spells(ParserWindow):
         self._scroll_area.setWidgetResizable(True)
         self._scroll_area.setWidget(self._spell_container)
         self._scroll_area.setObjectName('ScrollArea')
+        self._scroll_area.setAttribute(Qt.WA_TranslucentBackground)
         self.content.addWidget(self._scroll_area, 1)
         self._level_widget = QSpinBox()
         self._level_widget.setRange(1, 65)

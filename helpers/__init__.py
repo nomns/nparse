@@ -51,6 +51,9 @@ def strip_timestamp(line):
     """
     return line[line.find("]") + 1:].strip()
 
+def get_line_length(x1, y1, x2, y2):
+    return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """

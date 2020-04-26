@@ -1,13 +1,9 @@
-# testing
-import traceback
-
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPainter, QTransform
 from PyQt5.QtWidgets import (QGraphicsScene, QGraphicsView, QInputDialog,
                              QMenu)
 
-from helpers import config, to_range, text_time_to_seconds
+from helpers import config, to_range, text_time_to_seconds, get_line_length
 
 from .mapclasses import MapPoint, WayPoint, Player, SpawnPoint, MouseLocation
 from .mapdata import MapData
@@ -34,15 +30,32 @@ class MapCanvas(QGraphicsView):
         self.setScene(self._scene)
         self._scale = config.data['maps']['scale']
         self._mouse_location = MouseLocation()
+        self._z_index = 0
 
     def load_map(self, map_name):
+
         try:
             map_data = MapData(str(map_name))
 
         except:
-            traceback.print_exc()
+            pass
 
         else:
+            # campare size of both maps and adjust ratio appropriately
+            if self._data:
+                print(self._scale)
+                g = self._data.geometry
+                new_g = map_data.geometry
+                ratio_adjustment = (
+                    get_line_length(g.lowest_x, g.lowest_y, g.highest_x, g.highest_y)
+                    /
+                    get_line_length(new_g.lowest_x, new_g.lowest_y, new_g.highest_x, new_g.highest_y)
+
+                )
+                print("{} - {} - {}".format(self._scale, ratio_adjustment, self._scale * ratio_adjustment))
+                self._scale *= ratio_adjustment
+
+
             self._data = map_data
             self._scene.clear()
             self._z_index = 0

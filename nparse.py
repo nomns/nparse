@@ -145,10 +145,7 @@ class NomnsParse(QApplication):
                 self._settings.save_settings()
                 # Update required settings
                 for parser in self._parsers:
-                    if parser.windowOpacity() != config.data['general']['parser_opacity']:
-                        parser.setWindowOpacity(
-                            config.data['general']['parser_opacity'] / 100)
-                        parser.settings_updated()
+                    parser.settings_updated()
             else:
                 self._settings.set_values()  # revert values
 

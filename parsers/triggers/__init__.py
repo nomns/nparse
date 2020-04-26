@@ -1,16 +1,17 @@
 from PyQt5.QtWidgets import QScrollArea
+from PyQt5.QtCore import Qt
 
 from settings import styles
 from helpers import config, sound, text_time_to_seconds
 from widgets import NDirection
-from widgets.parser import ParserWindow
+from widgets.nwindow import NWindow
 from widgets.ntimer import NTimer
 from widgets.ncontainers import NContainer, NGroup
 
 from .trigger import Trigger
 
 
-class Triggers(ParserWindow):
+class Triggers(NWindow):
 
     def __init__(self):
         super().__init__()
@@ -26,6 +27,7 @@ class Triggers(ParserWindow):
         self._scroll_area.setWidgetResizable(True)
         self._scroll_area.setWidget(self.container)
         self._scroll_area.setObjectName('ScrollArea')
+        self._scroll_area.setAttribute(Qt.WA_TranslucentBackground)
         self.content.addWidget(self._scroll_area, 1)
 
     def _set_triggers(self):
@@ -73,7 +75,7 @@ class Triggers(ParserWindow):
                     ),
                     icon=action.timer['icon'],
                     timestamp=timestamp,
-                    direction=NDirection.UP
+                    direction=NDirection.DOWN
                 )
             )
 

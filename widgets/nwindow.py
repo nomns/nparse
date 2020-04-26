@@ -1,42 +1,45 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel,
                              QPushButton, QVBoxLayout, QWidget)
+from PyQt5.QtGui import QPainter, QPixmap, QBrush, QPen
 
 from helpers import config
 from settings import styles
 
 
-class ParserWindow(QFrame):
+class NWindow(QFrame):
 
     def __init__(self):
         super().__init__()
         self.name = ''
-        self.setObjectName('ParserWindow')
-        self.setStyleSheet(styles.parser_window)
-        self.setWindowOpacity(config.data['general']['parser_opacity'] / 100)
+        self.setObjectName('NWindow')
+        self.setStyleSheet(styles.parser_window())
+        # self.setWindowOpacity(config.data['general']['parser_opacity'] / 100)
+        # self.setAutoFillBackground(True)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.content = QVBoxLayout()
         self.content.setContentsMargins(0, 0, 0, 0)
         self.content.setSpacing(0)
         self.setLayout(self.content)
         self._menu = QWidget()
+        self._menu.setObjectName('NWindowMenu')
         self._menu_content = QHBoxLayout()
         self._menu.setLayout(self._menu_content)
         self._menu_content.setSpacing(5)
-        self._menu_content.setContentsMargins(3, 0, 0, 0)
+        self._menu_content.setContentsMargins(3, 3, 3, 3)
         self.content.addWidget(self._menu, 0)
 
         self._title = QLabel()
-        self._title.setObjectName('ParserWindowTitle')
-
+        self._title.setObjectName('NWindowTitle')
 
         button = QPushButton(u'\u2637')
-        button.setObjectName('ParserWindowMoveButton')
+        button.setObjectName('NWindowMoveButton')
         self._menu_content.addWidget(button, 0)
         self._menu_content.addWidget(self._title, 1)
 
         menu_area = QWidget()
-        menu_area.setObjectName('ParserWindowMenu')
         self.menu_area = QHBoxLayout()
+        self.menu_area.setContentsMargins(0, 0, 0, 0)
         menu_area.setLayout(self.menu_area)
         self._menu_content.addWidget(menu_area, 0)
         self._menu.setVisible(False)
@@ -50,7 +53,6 @@ class ParserWindow(QFrame):
 
     def load(self):
         g = config.data.get(self.name, {}).get('geometry', None)
-
 
         if g:
             self.setGeometry(g[0], g[1], g[2], g[3])
@@ -92,10 +94,13 @@ class ParserWindow(QFrame):
 
     def enterEvent(self, event):
         self._menu.setVisible(True)
+        self.setAutoFillBackground(True)
+        self.setAttribute(Qt.WA_TranslucentBackground, False)
         QFrame.enterEvent(self, event)
 
     def leaveEvent(self, event):
         self._menu.setVisible(False)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
         QFrame.leaveEvent(self, event)
 
     def settings_updated(self):

@@ -11,115 +11,117 @@ def hgradient(rgb):
         """.format(c=','.join(map(str, rgb)))
 
 
-parser_window = """
-ParserWindow {
-    background-color: black;
+def parser_window(): return """
+NWindow {{
+    background: rgba(0, 0, 0, {window_opacity});
     border: none;
     font-family: 'Noto Sans';
-}
+}}
 
-#Container {
-    background-color: black;
+#Container {{
     border: none;
-}
+}}
 
-#ScrollArea {
+#ScrollArea {{
+    background: rgba(0, 0, 0, {window_opacity});
     border: none;
-}
+}}
 
-#ScrollArea QScrollBar::vertical {
+#ScrollArea QScrollBar::vertical {{
     background: #111;
     width: 12px;
     margin: 12px 0 12px 0;
-}
+}}
 
-#ScrollArea QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+#ScrollArea QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{
     background: none;
-}
+}}
 
-#ScrollArea QScrollBar::up-arrow:vertical {
+#ScrollArea QScrollBar::up-arrow:vertical {{
     background: #333;
     width: 10px;
     height: 10px;
     border: none;
     border-top-right-radius: 5px;
     border-top-left-radius: 5px;
-}
+}}
 
-#ScrollArea QScrollBar::down-arrow:vertical {
+#ScrollArea QScrollBar::down-arrow:vertical {{
     background: #333;
     width: 10px;
     height: 10px;
     border: none;
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
-}
+}}
 
-#ScrollArea QScrollBar::add-line:vertical {
+#ScrollArea QScrollBar::add-line:vertical {{
     background: none;
     height: 12px;
     subcontrol-position: bottom;
     subcontrol-origin: margin;
-}
+}}
 
-#ScrollArea QScrollBar::sub-line:vertical {
+#ScrollArea QScrollBar::sub-line:vertical {{
     background: none;
     height: 12px;
     subcontrol-position: top;
     subcontrol-origin: margin;
-}
+}}
 
-#ScrollArea QScrollBar::handle:vertical {
+#ScrollArea QScrollBar::handle:vertical {{
     min-height: 10px;
     width: 10px;
     max-width: 10px;
     background: #333;
     border: 1px solid #111;
-}
+}}
 
-#ParserWindowMoveButton {
-    color:white;
-    background: black;
-    font-size: 18px;
-    padding: 1px;
-    border-radius: 5px;
-    height: 20px;
-    width: 20px;
-}
-
-#ParserWindowTitle {
+#NWindowTitle {{
     color: rgb(200, 200, 200);
     font-weight: bold;
     font-size: 14px;
-}
+}}
 
-#ParserWindowMenu QPushButton {
+#NWindowMenu {{
+    background: rgba(0, 0, 0, {window_opacity});
+    color: white;
+}}
+
+#NWindowMenu QPushButton {{
     color: darkslategray;
-    background: black;
     font-size: 18px;
     padding: 1px;
     border-radius: 5px;
     height: 20px;
     width: 20px;
-}
+}}
 
-#ParserWindowMenu QPushButton:hover {
+#NWindowMenu QPushButton:hover {{
     background: #e5d62d;
     color: black;
-}
+}}
 
-#ParserWindowMenu QPushButton:checked {
+#NWindowMenu QPushButton:checked {{
     color: white;
-}
+}}
 
-#ParserWindowMenu QLabel {
+#NWindowMoveButton {{
+    color: rgba(255, 255, 255, 255);
+    font-size: 18px;
+    padding: 1px;
+    border-radius: 5px;
+    height: 20px;
+    width: 20px;
+}}
 
+#NWindowMenu QLabel {{
     color: rgb(200, 200, 200);
     font-weight: bold;
     font-size: 14px;
-}
+}}
 
-#ParserWindowMenu QSpinBox {
+#NWindowMenu QSpinBox {{
     color:white;
     font-size: 14px;
     font-weight: bold;
@@ -127,18 +129,20 @@ ParserWindow {
     background-color: #050505;
     border: none;
     border-radius: 3px;
-}
+}}
 
-#MapCanvas {
-    background-color: rgb(0, 0, 0);
+#MapCanvas {{
+    background-color: rgba(0, 0, 0, {window_opacity});
     border:none;
-}
+}}
 
-#MapAreaLabel {
-    color: rgb(200, 200, 200);
+#MapAreaLabel {{
+    color: rgba(200, 200, 200, 100);
     font-size: 12px;
-}
-"""
+}}
+""".format(
+    window_opacity=config.data['general']['parser_opacity']/100*255
+)
 
 
 def enemy_target():
@@ -199,18 +203,18 @@ def good_spell():
     return """
         QProgressBar {{
             background: black;
-            border-top: 1px solid rgba(0, 0, 0, 200);
-            border-bottom: 1px solid rgba(0, 0, 0, 200);
+            border-top: 1px solid rgba(0, 0, 0, 255);
+            border-bottom: 1px solid rgba(0, 0, 0, 255);
         }}
         QProgressBar::horizontal {{
             background: #999999;
         }}
         QProgressBar::chunk {{
             background: qlineargradient(y0: 0, y1: 1,
-                stop: 0 rgba(0, 0, 0, 200),    
+                stop: 0 rgba(0, 0, 0, 255),    
                 stop: 0.1 rgba({c}),
                 stop: 0.9 rgba({c}),
-                stop: 1 rgba(0, 0, 0, 200)
+                stop: 1 rgba(0, 0, 0, 255)
             );
             border-right: 1px solid rgb(100, 100, 100);
         }}
@@ -240,8 +244,8 @@ def debuff_spell():
     return """
         QProgressBar {{
             background: black;
-            border-top: 1px solid rgba(0, 0, 0, 200);
-            border-bottom: 1px solid rgba(0, 0, 0, 200);
+            border-top: 1px solid rgba(0, 0, 0, 255);
+            border-bottom: 1px solid rgba(0, 0, 0, 255);
         }}
         QProgressBar::horizontal {{
             background: #999999;
@@ -268,8 +272,8 @@ def trigger(bar_color, text_color):
     return """
         QProgressBar {{
             background: black;
-            border-top: 1px solid rgba(0, 0, 0, 200);
-            border-bottom: 1px solid rgba(0, 0, 0, 200);
+            border-top: 1px solid rgba(0, 0, 0, 255);
+            border-bottom: 1px solid rgba(0, 0, 0, 255);
         }}
         QProgressBar::horizontal {{
             background: #999999;

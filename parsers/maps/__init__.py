@@ -3,13 +3,13 @@ from .mapdata import MapData  # noqa: F401
 from PyQt5.QtWidgets import QHBoxLayout, QPushButton
 
 from helpers import config, to_real_xy
-from widgets.parser import ParserWindow
+from widgets.nwindow import NWindow
 
 from .mapcanvas import MapCanvas
 from .mapclasses import MapPoint
 
 
-class Maps(ParserWindow):
+class Maps(NWindow):
 
     def __init__(self):
         super().__init__()
