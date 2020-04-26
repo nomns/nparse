@@ -107,4 +107,4 @@ class NWindow(QFrame):
         super().leaveEvent(event)
 
     def settings_updated(self):
-        pass
+        self.setStyleSheet(styles.parser_window())

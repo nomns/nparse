@@ -147,3 +147,6 @@ class Spells(NWindow):
     def _level_change(self, _):
         config.data['spells']['level'] = self._level_widget.value()
         config.save()
+
+    def settings_updated(self):
+        super().settings_updated()

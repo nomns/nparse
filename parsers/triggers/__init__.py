@@ -84,4 +84,5 @@ class Triggers(NWindow):
             t.parse(timestamp, text)
 
     def settings_updated(self):
+        super().settings_updated()
         self._set_triggers()
