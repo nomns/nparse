@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QFrame, QVBoxLayout, QLabel
 from PyQt5.QtCore import Qt, QEvent
 
 from .ntimer import NTimer
-from . import NGrow
+from .common import NGrow
 
 
 class NContainer(QFrame):

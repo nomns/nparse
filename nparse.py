@@ -36,6 +36,7 @@ class NomnsParse(QApplication):
         # Updates
         self._toggled = False
         self._log_reader = None
+        self._locked = True
 
         # Load UI
         self._load_parsers()
@@ -111,7 +112,11 @@ class NomnsParse(QApplication):
 
         check_version_action = menu.addAction(new_version_text)
         menu.addSeparator()
+
         get_eq_dir_action = menu.addAction('Select EQ Logs Directory')
+        menu.addSeparator()
+
+        lock_toggle = menu.addAction("Unlock Windows" if self._locked else "Lock Windows")
         menu.addSeparator()
 
         parser_toggles = set()
@@ -168,6 +173,14 @@ class NomnsParse(QApplication):
             parser = [
                 parser for parser in self._parsers if parser.name == action.text().lower()][0]
             parser.toggle()
+
+        elif action == lock_toggle:
+            self._locked = not self._locked
+            for parser in self._parsers:
+                if self._locked:
+                    parser.lock()
+                else:
+                    parser.unlock()
 
     def new_version_available(self):
         # this will only work if numbers go up

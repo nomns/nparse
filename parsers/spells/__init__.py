@@ -3,10 +3,8 @@ from PyQt5.QtCore import Qt
 
 from helpers import config
 from settings import styles
-from widgets.nwindow import NWindow
-from widgets.ncontainers import NContainer, NGroup
-from widgets.ntimer import NTimer
-from widgets import NDirection
+from widgets import (NWindow, NContainer, NGroup,
+                     NTimer, NDirection)
 
 from .spell import (create_spell_book, get_spell_duration,
                     SpellTrigger)
@@ -16,8 +14,7 @@ class Spells(NWindow):
     """Tracks spell casting, duration, and targets by name."""
 
     def __init__(self):
-        super().__init__()
-        self.name = 'spells'
+        super().__init__(name='spells')
         self.set_title(self.name.title())
 
         # ui
@@ -150,3 +147,6 @@ class Spells(NWindow):
 
     def settings_updated(self):
         super().settings_updated()
+
+    def toggle_menu(self, on=True):
+        pass  # do not use menu

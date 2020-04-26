@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QPushButton
 from PyQt5.QtCore import Qt
 
 from helpers import config, to_real_xy
-from widgets.nwindow import NWindow
+from widgets import NWindow
 
 from .mapcanvas import MapCanvas
 from .mapclasses import MapPoint
@@ -13,8 +13,7 @@ from .mapclasses import MapPoint
 class Maps(NWindow):
 
     def __init__(self):
-        super().__init__(transparent=False)
-        self.name = 'maps'
+        super().__init__(name='maps', transparent=False)
         self.set_title(self.name.title())
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_NoSystemBackground, False)

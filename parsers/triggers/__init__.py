@@ -3,10 +3,8 @@ from PyQt5.QtCore import Qt
 
 from settings import styles
 from helpers import config, sound, text_time_to_seconds
-from widgets import NDirection
-from widgets.nwindow import NWindow
-from widgets.ntimer import NTimer
-from widgets.ncontainers import NContainer, NGroup
+from widgets import (NDirection, NWindow, NTimer,
+                     NContainer, NGroup)
 
 from .trigger import Trigger
 
@@ -14,8 +12,7 @@ from .trigger import Trigger
 class Triggers(NWindow):
 
     def __init__(self):
-        super().__init__()
-        self.name = "triggers"
+        super().__init__(name="triggers")
         self.set_title(self.name.title())
         self._triggers = {}
         self._set_triggers()
@@ -86,3 +83,6 @@ class Triggers(NWindow):
     def settings_updated(self):
         super().settings_updated()
         self._set_triggers()
+
+    def toggle_menu(self, on=True):
+        pass  # do not use menu

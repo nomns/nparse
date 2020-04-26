@@ -1,26 +1,46 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel,
-                             QPushButton, QVBoxLayout, QWidget)
-from PyQt5.QtGui import QPainter, QPixmap, QBrush, QPen
+                             QVBoxLayout, QWidget, QStackedWidget)
 
 from helpers import config
 from settings import styles
 
+from .nmover import NMover
+
 
 class NWindow(QFrame):
 
-    def __init__(self, transparent=True):
+    def __init__(self, name=None, transparent=True):
         super().__init__()
-        self.name = ''
+        self.name = name
         self.transparent = transparent
+        self._locked = True
+        self._locked_layout = None
         self.setObjectName('NWindow')
         self.setStyleSheet(styles.parser_window())
         if self.transparent:
             self.setAttribute(Qt.WA_TranslucentBackground, True)
+
+        # Base Layout
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self._stack = QStackedWidget()
+        layout.addWidget(self._stack, 1)
+        self.setLayout(layout)
+
+        # Mover layout
+        self._unlocked_stack = NMover(
+            name=self.name,
+            parent=self
+        )
+
+        # Parser layout in stack
+        self._parser_stack = QWidget()
         self.content = QVBoxLayout()
         self.content.setContentsMargins(0, 0, 0, 0)
         self.content.setSpacing(0)
-        self.setLayout(self.content)
+        self._parser_stack.setLayout(self.content)
         self._menu = QWidget()
         self._menu.setObjectName('NWindowMenu')
         self._menu_content = QHBoxLayout()
@@ -32,9 +52,6 @@ class NWindow(QFrame):
         self._title = QLabel()
         self._title.setObjectName('NWindowTitle')
 
-        button = QPushButton(u'\u2637')
-        button.setObjectName('NWindowMoveButton')
-        self._menu_content.addWidget(button, 0)
         self._menu_content.addWidget(self._title, 1)
 
         menu_area = QWidget()
@@ -44,7 +61,10 @@ class NWindow(QFrame):
         self._menu_content.addWidget(menu_area, 0)
         self._menu.setVisible(False)
 
-        button.clicked.connect(self._toggle_frame)
+        # Add all to stack
+        self._stack.addWidget(self._parser_stack)
+        self._stack.addWidget(self._unlocked_stack)
+        self._stack.setCurrentWidget(self._parser_stack)
 
     def set_flags(self):
         self.setFocus()
@@ -62,17 +82,6 @@ class NWindow(QFrame):
             self.show()
         else:
             self.hide()
-
-    def _toggle_frame(self):
-        current_geometry = self.geometry()
-        if bool(self.windowFlags() & Qt.FramelessWindowHint):
-            self.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowMinMaxButtonsHint)
-            self.setGeometry(current_geometry)
-            self.show()
-        else:
-            self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-            self.setGeometry(current_geometry)
-            self.show()
 
     def set_title(self, title):
         self.setWindowTitle(title)
@@ -93,18 +102,45 @@ class NWindow(QFrame):
         config.save()
 
     def enterEvent(self, event):
-        self._menu.setVisible(True)
-        if self.transparent:
-            self.setAttribute(Qt.WA_NoSystemBackground, False)
-            self.setAutoFillBackground(False)
+        if self._locked:
+            self.toggle_menu(True)
+            self.toggle_transparency(False)
         super().enterEvent(event)
 
     def leaveEvent(self, event):
-        self._menu.setVisible(False)
-        if self.transparent:
-            self.setAttribute(Qt.WA_NoSystemBackground, True)
-            self.setAttribute(Qt.WA_TranslucentBackground, True)
+        if self._locked:
+            self.toggle_menu(False)
+            self.toggle_transparency(True)
         super().leaveEvent(event)
+
+    def toggle_transparency(self, on=True):
+        if self.transparent:
+            if on:
+                if self.transparent:
+                    self.setAttribute(Qt.WA_NoSystemBackground, True)
+                    self.setAttribute(Qt.WA_TranslucentBackground, True)
+            else:
+                self.setAttribute(Qt.WA_NoSystemBackground, False)
+                self.setAutoFillBackground(False)
+
+    def toggle_menu(self, on=True):
+        self._menu.setVisible(True) if on else self._menu.setVisible(False)
+                
+    def unlock(self):
+        self._locked = False
+        self.toggle_transparency(False)
+        self.set_flags()  # ensure it is ontop
+        # swap current layout for move layout
+        self._unlocked_stack.show_grip()
+        self._stack.setCurrentWidget(self._unlocked_stack)
+
+    def lock(self):
+        self._locked = True
+        self.toggle_transparency(True)
+        self.set_flags()
+        # swap to parser stack
+        self._unlocked_stack.clear_grip()
+        self._stack.setCurrentWidget(self._parser_stack)
 
     def settings_updated(self):
         self.setStyleSheet(styles.parser_window())

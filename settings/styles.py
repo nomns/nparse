@@ -125,6 +125,11 @@ def parser_window(): return """
     border: none;
 }}
 
+#NMoverTitle {{
+    color: white;
+    font-size: 16px;
+}}
+
 """.format(
     window_opacity=config.data['general']['parser_opacity']/100*255
 )

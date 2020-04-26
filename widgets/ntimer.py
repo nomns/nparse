@@ -8,7 +8,7 @@ from PyQt5.QtCore import QTimer
 from helpers import format_time, get_spell_icon, sound
 from settings import styles
 
-from . import NDirection
+from .common import NDirection
 
 
 class NTimer(QFrame):
