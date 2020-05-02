@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['nparse.py'],
-             pathex=['D:\\nomns.github.com\\nparse'],
+             pathex=['./'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -17,7 +17,6 @@ a = Analysis(['nparse.py'],
 )
 from glob import glob
 a.datas += [(filename, filename, '.') for filename in glob('data/fonts/*')]
-a.datas += [('data/ui/_.css', 'data/ui/_.css', '.')]
 a.datas += [('data/ui/icon.png', 'data/ui/icon.png', '.')]
 a.datas += [('data/ui/folder.png', 'data/ui/folder.png', '.')]
 a.datas += [('data/ui/settings.ui', 'data/ui/settings.ui', '.')]

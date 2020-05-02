@@ -1,3 +1,4 @@
-from .maps import Maps  # noqa: F401
-from .spells import Spells  # noqa: F401
-from .triggers import Triggers  # noqa: F401
+from .maps import Maps
+from .spells import Spells
+from .triggers import Triggers
+from .text import Text

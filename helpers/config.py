@@ -59,7 +59,16 @@ def get_setting(setting, default, func=None):
                 return default
         return setting
     except:
+        print(default)
         return default
+
+
+def is_color(x):
+    return (len(x) == 4 and
+            isinstance(x[0], int) and
+            isinstance(x[1], int) and
+            isinstance(x[2], int) and
+            isinstance(x[3], int))
 
 
 def verify_settings():
@@ -254,42 +263,22 @@ def verify_settings():
     data['spells']['you_target_color'] = get_setting(
         data['spells'].get('you_target_color', [22, 66, 91]),
         [22, 66, 91],
-        lambda x: (
-            len(x) == 4 and
-            isinstance(x[0], int) and
-            isinstance(x[1], int) and
-            isinstance(x[2], int)
-        )
+        is_color
     )
     data['spells']['friendly_target_color'] = get_setting(
         data['spells'].get('friendly_target_color', [0, 68, 0]),
         [0, 68, 0],
-        lambda x: (
-            len(x) == 4 and
-            isinstance(x[0], int) and
-            isinstance(x[1], int) and
-            isinstance(x[2], int)
-        )
+        is_color
     )
     data['spells']['enemy_target_color'] = get_setting(
         data['spells'].get('enemy_target_color', [68, 0, 0]),
         [68, 0, 0],
-        lambda x: (
-            len(x) == 4 and
-            isinstance(x[0], int) and
-            isinstance(x[1], int) and
-            isinstance(x[2], int)
-        )
+        is_color
     )
     data['spells']['target_text_color'] = get_setting(
         data['spells'].get('target_text_color', [255, 255, 255]),
         [255, 255, 255],
-        lambda x: (
-            len(x) == 4 and
-            isinstance(x[0], int) and
-            isinstance(x[1], int) and
-            isinstance(x[2], int)
-        )
+        is_color
     )
 
     data['spells']['sound_file'] = get_setting(
@@ -306,6 +295,33 @@ def verify_settings():
     data['triggers']['toggled'] = get_setting(
         data['triggers'].get('toggled', True),
         True
+    )
+
+    # text
+    data['text'] = data.get('text', {})
+    data['text']['toggled'] = get_setting(
+        data['text'].get('toggled', True),
+        True
+    )
+    data['text']['fade_seconds'] = get_setting(
+        data['text'].get('fade_seconds', 5),
+        5,
+        lambda x: x > 0
+    )
+    data['text']['pixels_per_second'] = get_setting(
+        data['text'].get('pixels_per_second', 50),
+        50,
+        lambda x: x > 0
+    )
+    data['text']['shadow_color'] = get_setting(
+        data['text'].get('shadow_color', [0, 0, 0, 255]),
+        [0, 0, 0, 255],
+        is_color
+    )
+    data['text']['direction'] = get_setting(
+        data['text'].get('direction', 'down'),
+        'down',
+        lambda x: (x in ['down', 'up'])
     )
 
 

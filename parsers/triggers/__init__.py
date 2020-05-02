@@ -11,11 +11,12 @@ from .trigger import Trigger
 
 class Triggers(NWindow):
 
-    def __init__(self):
+    def __init__(self, text_parser=None):
         super().__init__(name="triggers")
         self.set_title(self.name.title())
         self._triggers = {}
         self._set_triggers()
+        self._text_parser = text_parser
 
         # ui
         self.container = NContainer()
@@ -43,7 +44,6 @@ class Triggers(NWindow):
         self._triggers = triggers
 
     def _triggered(self, trigger_name, timestamp):
-        print('Triggered: {}'.format(trigger_name))
 
         action = self._triggers[trigger_name].action
         if action.sound:
@@ -75,6 +75,11 @@ class Triggers(NWindow):
                     direction=NDirection.DOWN
                 )
             )
+        if action.text:
+            self._text_parser.display(
+                text_action=action.text
+            )
+
 
     def parse(self, timestamp, text):
         for t in self._triggers.values():

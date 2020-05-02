@@ -64,10 +64,12 @@ class NomnsParse(QApplication):
             )
 
     def _load_parsers(self):
+        text_parser  = parsers.Text()
         self._parsers = [
             parsers.Maps(),
             parsers.Spells(),
-            parsers.Triggers()
+            parsers.Triggers(text_parser=text_parser),
+            text_parser
         ]
         for p in self._parsers:
             p.load()

@@ -246,11 +246,11 @@ class MapCanvas(QGraphicsView):
     def enterEvent(self, event):
         if config.data['maps']['show_mouse_location']:
             self._mouse_location.setVisible(True)
-        QGraphicsView.enterEvent(self, event)
+        super().enterEvent(event)
 
     def leaveEvent(self, event):
         self._mouse_location.setVisible(False)
-        QGraphicsView.leaveEvent(self, event)
+        super().leaveEvent(event)
 
     def mouseMoveEvent(self, event):
         self._mouse_location.set_value(

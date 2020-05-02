@@ -66,6 +66,9 @@ class NWindow(QFrame):
         self._stack.addWidget(self._unlocked_stack)
         self._stack.setCurrentWidget(self._parser_stack)
 
+    def parse(self, timestamp, text):
+        pass
+
     def set_flags(self):
         self.setFocus()
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowCloseButtonHint | Qt.WindowMinMaxButtonsHint)

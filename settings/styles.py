@@ -1,7 +1,7 @@
 from helpers import config
 
 
-def parser_window(): return """
+def parser_window() -> str: return """
 #NWindow {{
     background: rgba(0, 0, 0, {window_opacity});
     border: none;
@@ -130,6 +130,11 @@ def parser_window(): return """
     font-size: 16px;
 }}
 
+#TextView {{
+    border: none;
+    background: transparent;
+}}
+
 """.format(
     window_opacity=config.data['general']['parser_opacity']/100*255
 )
@@ -149,28 +154,28 @@ group_label = """
 """
 
 
-def enemy_target():
+def enemy_target() -> str:
     return group_label.format(
         c=','.join(map(str, config.data['spells']['enemy_target_color'])),
         f=','.join(map(str, config.data['spells']['target_text_color']))
     )
 
 
-def friendly_target():
+def friendly_target() -> str:
     return group_label.format(
         c=','.join(map(str, config.data['spells']['friendly_target_color'])),
         f=','.join(map(str, config.data['spells']['target_text_color']))
     )
 
 
-def you_target():
+def you_target() -> str:
     return group_label.format(
         c=','.join(map(str, config.data['spells']['you_target_color'])),
         f=','.join(map(str, config.data['spells']['target_text_color']))
     )
 
 
-def good_spell():
+def good_spell() -> str:
     return """
         QProgressBar {{
             background: black;
@@ -199,7 +204,7 @@ def good_spell():
     )
 
 
-def spell_warning():
+def spell_warning() -> str:
     return """
         QProgressBar {
             border-top: 1px solid rgba(255, 0, 0, 255);
@@ -211,7 +216,7 @@ def spell_warning():
     """
 
 
-def debuff_spell():
+def debuff_spell() -> str:
     return """
         QProgressBar {{
             background: black;
@@ -239,7 +244,8 @@ def debuff_spell():
         f=','.join(map(str, config.data['spells']['debuff_text_color']))
     )
 
-def trigger(bar_color, text_color):
+
+def trigger(bar_color, text_color) -> str:
     return """
         QProgressBar {{
             background: black;

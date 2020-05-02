@@ -39,13 +39,11 @@ class NMover(QWidget):
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self._offset = event.pos()
-            print("press")
         else:
             super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
         self._offset = None
-        print("release")
         super().mouseMoveEvent(event)
 
     def enterEvent(self, event):
