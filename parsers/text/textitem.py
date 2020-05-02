@@ -16,6 +16,7 @@ class TextItem(QGraphicsTextItem):
         self.action = text_action
         self.timestamp = datetime.now()
         self._opacity = self.action.color[-1]/255
+        self._update_frequency = 30
 
         self.setPlainText(text_action.text)
         self.setDefaultTextColor(QColor(*self.action.color))
@@ -29,9 +30,9 @@ class TextItem(QGraphicsTextItem):
         self.setGraphicsEffect(effect)
         self.setOpacity(self._opacity)
 
-        QTimer.singleShot(30, self._update)
+        QTimer.singleShot(self._update_frequency, self._update)
 
-    def _update(self):
+    def _update(self) -> None:
         seconds = (datetime.now() - self.timestamp).total_seconds()
         if seconds > config.data['text']['fade_seconds']:
             self._remove()
@@ -47,8 +48,8 @@ class TextItem(QGraphicsTextItem):
                         * (seconds/config.data['text']['fade_seconds'])
                    )
             )
-            QTimer.singleShot(30, self._update)
+            QTimer.singleShot(self._update_frequency, self._update)
 
-    def _remove(self):
+    def _remove(self) -> None:
         self.setParent(None)
         self.deleteLater()

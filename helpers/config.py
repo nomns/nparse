@@ -64,6 +64,7 @@ def get_setting(setting, default, func=None):
 
 
 def is_color(x):
+    print(x)
     return (len(x) == 4 and
             isinstance(x[0], int) and
             isinstance(x[1], int) and
@@ -220,64 +221,44 @@ def verify_settings():
     )
 
     data['spells']['buff_bar_color'] = get_setting(
-        data['spells'].get('buff_bar_color', [40, 122, 169]),
-        [40, 122, 169],
-        lambda x: (
-            len(x) == 4 and
-            isinstance(x[0], int) and
-            isinstance(x[1], int) and
-            isinstance(x[2], int)
-        )
+        data['spells'].get('buff_bar_color', [40, 122, 169, 255]),
+        [40, 122, 169, 255],
+        is_color
     )
 
     data['spells']['debuff_bar_color'] = get_setting(
-        data['spells'].get('debuff_bar_color', [221, 119, 0]),
-        [221, 119, 0],
-        lambda x: (
-            len(x) == 4 and
-            isinstance(x[0], int) and
-            isinstance(x[1], int) and
-            isinstance(x[2], int)
-        )
+        data['spells'].get('debuff_bar_color', [221, 119, 0, 255]),
+        [221, 119, 0, 255],
+        is_color
     )
     data['spells']['buff_text_color'] = get_setting(
-        data['spells'].get('buff_text_color', [0, 0, 0]),
-        [0, 0, 0],
-        lambda x: (
-            len(x) == 4 and
-            isinstance(x[0], int) and
-            isinstance(x[1], int) and
-            isinstance(x[2], int)
-        )
+        data['spells'].get('buff_text_color', [0, 0, 0, 255]),
+        [0, 0, 0, 255],
+        is_color
     )
     data['spells']['debuff_text_color'] = get_setting(
-        data['spells'].get('debuff_text_color', [0, 0, 0]),
-        [0, 0, 0],
-        lambda x: (
-            len(x) == 4 and
-            isinstance(x[0], int) and
-            isinstance(x[1], int) and
-            isinstance(x[2], int)
-        )
+        data['spells'].get('debuff_text_color', [0, 0, 0, 255]),
+        [0, 0, 0, 255],
+        is_color
     )
     data['spells']['you_target_color'] = get_setting(
-        data['spells'].get('you_target_color', [22, 66, 91]),
-        [22, 66, 91],
+        data['spells'].get('you_target_color', [22, 66, 91, 255]),
+        [22, 66, 91, 255],
         is_color
     )
     data['spells']['friendly_target_color'] = get_setting(
-        data['spells'].get('friendly_target_color', [0, 68, 0]),
-        [0, 68, 0],
+        data['spells'].get('friendly_target_color', [0, 68, 0, 255]),
+        [0, 68, 0, 255],
         is_color
     )
     data['spells']['enemy_target_color'] = get_setting(
-        data['spells'].get('enemy_target_color', [68, 0, 0]),
-        [68, 0, 0],
+        data['spells'].get('enemy_target_color', [68, 0, 0, 255]),
+        [68, 0, 0, 255],
         is_color
     )
     data['spells']['target_text_color'] = get_setting(
-        data['spells'].get('target_text_color', [255, 255, 255]),
-        [255, 255, 255],
+        data['spells'].get('target_text_color', [255, 255, 255, 255]),
+        [255, 255, 255, 255],
         is_color
     )
 

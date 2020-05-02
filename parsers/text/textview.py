@@ -18,7 +18,6 @@ class TextView(QGraphicsView):
         self._scene = QGraphicsScene()
         # need to set Scene size to View size
         self._scene.setSceneRect(QRectF(self.rect()))
-        self._scene.clear()
         self.setScene(self._scene)
 
     def add(self, text_item: TextItem) -> None:
