@@ -17,6 +17,7 @@ class TextItem(QGraphicsTextItem):
         self.timestamp = datetime.now()
         self._opacity = self.action.color[-1]/255
         self._update_frequency = 30
+        self._direction = 1 if config.data['text']['direction'] == 'down' else -1
 
         self.setPlainText(text_action.text)
         self.setDefaultTextColor(QColor(*self.action.color))
@@ -37,10 +38,9 @@ class TextItem(QGraphicsTextItem):
         if seconds > config.data['text']['fade_seconds']:
             self._remove()
         else:
-            direction = 1 if config.data['text']['direction'] == 'down' else -1
             self.moveBy(
                 0,
-                config.data['text']['pixels_per_second']*0.03 * direction
+                config.data['text']['pixels_per_second']*0.03 * self._direction
             )
             self.setOpacity(
                 self._opacity - (

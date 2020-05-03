@@ -64,7 +64,6 @@ def get_setting(setting, default, func=None):
 
 
 def is_color(x):
-    print(x)
     return (len(x) == 4 and
             isinstance(x[0], int) and
             isinstance(x[1], int) and
