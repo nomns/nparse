@@ -6,7 +6,7 @@ from helpers import create_regex_from
 
 class Trigger(QObject):
 
-    triggered = pyqtSignal(str, datetime.datetime)
+    triggered = pyqtSignal(str, datetime.datetime, dict)
 
     def __init__(self, trigger_name, trigger_json):
         super().__init__()
@@ -22,9 +22,10 @@ class Trigger(QObject):
         )
 
     def parse(self, timestamp, text):
-        if self.trigger.search(text):
-            self.triggered.emit(self.name, timestamp)
-
+        results = self.trigger.search(text)
+        if results:
+            re_groups = results.groupdict({})
+            self.triggered.emit(self.name, timestamp, re_groups)
 
 
 class Action:

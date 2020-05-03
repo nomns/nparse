@@ -17,12 +17,14 @@ class Text(NWindow):
         self.container = TextView()
         self.content.addWidget(self.container, 1)
 
-    def display(self, text_action={}):
+    def display(self, text_action: dict = None, re_groups: dict = None):
         # build and display text_action
         text = text_action.get('text', None)
         if text:
+            for k, v in re_groups.items():
+                text = text.replace('<{}>'.format(k), v)
             action = TextAction(
-                color=text_action.get('color', [0, 0, 0]),
+                color=text_action.get('color', [0, 0, 0, 255]),
                 text=text,
                 text_size=text_action.get('text_size', 15)
             )

@@ -43,7 +43,7 @@ class Triggers(NWindow):
                         triggers[trigger_name] = t
         self._triggers = triggers
 
-    def _triggered(self, trigger_name, timestamp):
+    def _triggered(self, trigger_name, timestamp, re_groups: dict = None) -> None:
 
         action = self._triggers[trigger_name].action
         if action.sound:
@@ -77,9 +77,9 @@ class Triggers(NWindow):
             )
         if action.text:
             self._text_parser.display(
-                text_action=action.text
+                text_action=action.text,
+                re_groups=re_groups
             )
-
 
     def parse(self, timestamp, text):
         for t in self._triggers.values():

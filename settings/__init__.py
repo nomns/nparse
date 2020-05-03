@@ -304,7 +304,7 @@ class SettingsWindow(QDialog):
             except IndexError:
                 pass
 
-    def _build_ref(self):
+    def _build_ref(self) -> dict:
         d = {
             'general': {
                 'update_check': self.updateCheckCheckBox,
