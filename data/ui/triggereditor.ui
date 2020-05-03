@@ -160,7 +160,7 @@
             <enum>QTabWidget::Rounded</enum>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <property name="elideMode">
             <enum>Qt::ElideNone</enum>
@@ -288,7 +288,7 @@
                       <item>
                        <widget class="QLabel" name="timerExample">
                         <property name="autoFillBackground">
-                         <bool>false</bool>
+                         <bool>true</bool>
                         </property>
                         <property name="styleSheet">
                          <string notr="true">padding: 5px</string>
@@ -404,6 +404,9 @@
                <layout class="QVBoxLayout" name="verticalLayout_18">
                 <item>
                  <widget class="QLabel" name="textExample">
+                  <property name="autoFillBackground">
+                   <bool>true</bool>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">padding: 5px</string>
                   </property>

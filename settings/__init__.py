@@ -1,10 +1,13 @@
 from PyQt5.QtWidgets import (QMessageBox, QInputDialog, QDialog,
-                             QCheckBox, QSpinBox, QColorDialog, QSlider, QLabel, QFileDialog)
+                             QCheckBox, QSpinBox, QColorDialog,
+                             QSlider, QLabel, QFileDialog, QStackedWidget, QTreeView, )
 from PyQt5 import uic
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QItemSelection, QSize
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 import os
 from glob import glob
+from dataclasses import dataclass
 
 from helpers import config, resource_path, set_qcolor, get_rgb, sound, create_tts_mp3
 from .triggers import TriggerTree
@@ -13,7 +16,7 @@ from .triggereditor import TriggerEditor
 
 class SettingsWindow(QDialog):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         uic.loadUi(resource_path('data/ui/settings.ui'), self)
@@ -21,10 +24,8 @@ class SettingsWindow(QDialog):
         self._ref = {}
         self._ref = self._build_ref()
 
-        # events
-        self.addTriggerButton.clicked.connect(self._addTrigger)
-        self.newGroupButton.clicked.connect(self._addGroup)
-        self.removeButton.clicked.connect(self._removeItem)
+        # general
+        self.selectEqLogDirectory.clicked.connect(self._set_eq_log_directory)
 
         # spell color button events
         self.buffTextColorButton.clicked.connect(self._set_buff_text_color)
@@ -47,8 +48,58 @@ class SettingsWindow(QDialog):
         self.ttsDeleteButton.clicked.connect(self._remove_tts_file)
         self._fill_tts_files(None)
 
+        # section Tree
+        data = {
+            'General': [{'Sound': ['Text to Speech']}],
+            'Profiles': [],
+            'Parsers': [
+                'Maps',
+                {'Spells': ['Appearance']},
+                {'Triggers': ['Defaults']},
+                'Text'
+            ]
+        }
 
-    def _remove_tts_file(self, _):
+        model = QStandardItemModel()
+        model.setColumnCount(1)
+        self._section_indexes: list = []
+        self._add_section_data(data, model)
+        self.settingsSectionTree.setModel(model)
+        self.settingsSectionTree.selectionModel().selectionChanged.connect(self._section_changed)
+        self.settingsSectionTree.expandAll()
+        self.settingsSectionTree.resizeColumnToContents(0)
+        self.settingsSectionTree.setMinimumWidth(150)
+
+    def _set_eq_log_directory(self, event):
+        print(type(event))
+        dir_path = str(QFileDialog.getExistingDirectory(
+            None, 'Select Everquest Logs Directory'))
+        if dir_path:
+            self.eqLogLabel.setText(dir_path)
+
+    def _add_section_data(self, data: dict, item) -> None:
+        for k, i in data.items():
+            k_item = QStandardItem(k)
+            k_item.setSizeHint(QSize(0, 20))
+            item.appendRow(k_item)
+            self._section_indexes.append(k_item)
+            for i2 in i:
+                if type(i2) == str:
+                    i2_item = QStandardItem(i2)
+                    i2_item.setSizeHint(QSize(0, 20))
+                    k_item.appendRow(i2_item)
+                    self._section_indexes.append(i2_item)
+                else:
+                    self._add_section_data(i2, k_item)
+
+    def _section_changed(self, event: QItemSelection) -> None:
+        index = self.settingsSectionTree.selectedIndexes()[0]
+        section: QStandardItem = index.model().itemFromIndex(index)
+        self.settingsStack.setCurrentIndex(
+            self._section_indexes.index(section)
+        )
+
+    def _remove_tts_file(self, _) -> None:
         try:
             if self.ttsFileCombo.currentText():
                 os.remove(self.ttsFileCombo.currentText())
@@ -308,6 +359,7 @@ class SettingsWindow(QDialog):
     def _build_ref(self) -> dict:
         d = {
             'general': {
+                'eq_log_dir': self.eqLogLabel,
                 'update_check': self.updateCheckCheckBox,
                 'parser_opacity': self.parserOpacitySpinBox,
                 'qt_scale_factor': self.qTScalingSpinBox,

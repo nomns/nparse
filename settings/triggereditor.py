@@ -167,7 +167,6 @@ class TriggerEditor(QDialog):
                 create_regex_from(self.triggerRegexLineEdit.text())
                 super().accept()
             except Exception as e:
-                print("asdf")
                 QMessageBox(text='Could not compile regex: {}'.format(e)).exec()
                 return
         super().accept()

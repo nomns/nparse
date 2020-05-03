@@ -63,6 +63,9 @@ class NomnsParse(QApplication):
                 msecs=3000
             )
 
+        self._settings.set_values()
+        self._settings.exec()
+
     def _load_parsers(self):
         text_parser  = parsers.Text()
         self._parsers = [
@@ -138,14 +141,6 @@ class NomnsParse(QApplication):
         if action == check_version_action:
             webbrowser.open('https://github.com/nomns/nparse/releases')
 
-        elif action == get_eq_dir_action:
-            dir_path = str(QFileDialog.getExistingDirectory(
-                None, 'Select Everquest Logs Directory'))
-            if dir_path:
-                config.data['general']['eq_log_dir'] = dir_path
-                config.save()
-                self._toggle()
-
         elif action == settings_action:
             self._settings.set_values()
             if self._settings.exec_():
@@ -153,6 +148,10 @@ class NomnsParse(QApplication):
                 # Update required settings
                 for parser in self._parsers:
                     parser.settings_updated()
+                if self._toggled:
+                    self._toggle()
+                self._toggle()
+
             else:
                 self._settings.set_values()  # revert values
 

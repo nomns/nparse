@@ -14,6 +14,7 @@ class TriggerTree(QTreeWidget):
         self.setHeaderHidden(True)
         self.setDragEnabled(True)
         self.setDragDropMode(QTreeWidget.InternalMove)
+        self.setContentsMargins(0, 0, 0, 0)
 
         self.root = self.invisibleRootItem()
         # do not allow drag and drop to root
