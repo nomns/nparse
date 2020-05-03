@@ -284,8 +284,8 @@ def verify_settings():
         True
     )
     data['text']['fade_seconds'] = get_setting(
-        data['text'].get('fade_seconds', 5),
-        5,
+        data['text'].get('fade_seconds', 10),
+        10,
         lambda x: x > 0
     )
     data['text']['pixels_per_second'] = get_setting(
