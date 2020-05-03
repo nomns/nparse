@@ -1,8 +1,9 @@
-from PyQt5.QtWidgets import QDialog, QColorDialog, QFileDialog
+from PyQt5.QtWidgets import QDialog, QColorDialog, QFileDialog, QMessageBox
+from PyQt5.QtGui import QActionEvent
 from PyQt5 import uic
-from PyQt5.QtGui import QColor
 
-from helpers import get_spell_icon, resource_path, sound, get_rgb, set_qcolor
+from helpers import (get_spell_icon, resource_path, sound,
+                     get_rgb, set_qcolor, create_regex_from)
 
 
 class TriggerEditor(QDialog):
@@ -115,7 +116,7 @@ class TriggerEditor(QDialog):
                 self.textCheckBox.setChecked(True)
                 self.textTextLineEdit.setText(a['text']['text'])
                 self.textSizeSpinBox.setValue(a['text']['text_size'])
-                set_qcolor(a['text']['color'])
+                set_qcolor(self.textExample, a['text']['color'])
             if a.get('sound', None):
                 self.soundCheckBox.setChecked(True)
                 self.soundFileLabel.setText(a['sound'])
@@ -149,10 +150,23 @@ class TriggerEditor(QDialog):
             a['text']['text_size'] = self.textSizeSpinBox.value()
             w = self.textExample
             a['text']['color'] = get_rgb(w, w.foregroundRole())
+
+        print(self.soundCheckBox.isChecked())
         if self.soundCheckBox.isChecked():
+            print(self.soundFileLabel.text())
             a['sound'] = self.soundFileLabel.text()
 
         data['trigger'] = t
         data['action'] = a
         d['data'] = data
         return d
+
+    def accept(self) -> None:
+        if self.triggerRegexRadio.isChecked():
+            try:
+                create_regex_from(self.triggerRegexLineEdit.text())
+                super().accept()
+
+            except Exception as e:
+                QMessageBox('Could not compile regex: {}'.format(e))
+
