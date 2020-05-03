@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QColorDialog, QFileDialog, QMessageBox
-from PyQt5.QtGui import QActionEvent
+from PyQt5.QtWidgets import QDialog, QColorDialog, QFileDialog, QMessageBox, QVBoxLayout
 from PyQt5 import uic
 
 from helpers import (get_spell_icon, resource_path, sound,
@@ -41,10 +40,9 @@ class TriggerEditor(QDialog):
         fd.setParent(None)
 
     def _load_timer_icon(self, icon_index):
-        try:
-            self.timerIconLayout.itemAt(0).widget().setParent(None)
-        except:
-            pass
+        self.timerIconLayout.removeItem(
+            self.timerIconLayout.itemAt(0)
+        )
         self.timerIconLayout.addWidget(get_spell_icon(icon_index))
 
     def _text_size_changed(self, _):
@@ -113,6 +111,8 @@ class TriggerEditor(QDialog):
                 self._load_timer_icon(a['timer']['icon'])
                 w = self.timerExample
                 set_qcolor(w, a['timer']['text_color'], a['timer']['bar_color'])
+            else:
+                self._load_timer_icon(self.timerIconSpinBox.value())
             if a.get('text', None):
                 self.textCheckBox.setChecked(True)
                 self.textTextLineEdit.setText(a['text']['text'])
@@ -122,6 +122,7 @@ class TriggerEditor(QDialog):
                 self.soundCheckBox.setChecked(True)
                 self.soundFileLabel.setText(a['sound'])
         except:
+            print("failure")
             pass
 
     def value(self):

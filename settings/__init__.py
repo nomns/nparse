@@ -47,6 +47,7 @@ class SettingsWindow(QDialog):
         self.ttsDeleteButton.clicked.connect(self._remove_tts_file)
         self._fill_tts_files(None)
 
+
     def _remove_tts_file(self, _):
         try:
             if self.ttsFileCombo.currentText():

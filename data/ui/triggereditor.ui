@@ -229,10 +229,20 @@
                      <property name="maximum">
                       <number>252</number>
                      </property>
+                     <property name="value">
+                      <number>2</number>
+                     </property>
                     </widget>
                    </item>
                    <item>
-                    <layout class="QVBoxLayout" name="timerIconLayout"/>
+                    <layout class="QHBoxLayout" name="timerIconLayout">
+                     <property name="spacing">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                    </layout>
                    </item>
                    <item>
                     <spacer name="horizontalSpacer_2">
@@ -278,7 +288,7 @@
                       <item>
                        <widget class="QLabel" name="timerExample">
                         <property name="autoFillBackground">
-                         <bool>true</bool>
+                         <bool>false</bool>
                         </property>
                         <property name="styleSheet">
                          <string notr="true">padding: 5px</string>

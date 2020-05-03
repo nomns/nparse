@@ -83,14 +83,14 @@ def verify_settings():
         ''
     )
     data['general']['parser_opacity'] = get_setting(
-        data['general'].get('parser_opacity', 80),
-        80,
-        lambda x: (x > 0 and x <= 100)
+        data['general'].get('parser_opacity', 30),
+        30,
+        lambda x: (0 < x <= 100)
     )
     data['general']['qt_scale_factor'] = get_setting(
         data['general'].get('qt_scale_factor', 100),
         100,
-        lambda x: (x >= 100 and x <= 300)
+        lambda x: (100 <= x <= 300)
     )
     data['general']['update_check'] = get_setting(
         data['general'].get('update_check', True),
@@ -110,12 +110,12 @@ def verify_settings():
     data['maps']['closest_z_alpha'] = get_setting(
         data['maps'].get('closest_z_alpha', 20),
         20,
-        lambda x: (x >= 1 and x <= 100)
+        lambda x: (1 <= x <= 100)
     )
     data['maps']['current_z_alpha'] = get_setting(
         data['maps'].get('current_z_alpha', 100),
         100,
-        lambda x: (x >= 1 and x <= 100)
+        lambda x: (1 <= x <= 100)
     )
     data['maps']['geometry'] = get_setting(
         data['maps'].get('geometry', [100, 100, 400, 200]),
@@ -131,7 +131,7 @@ def verify_settings():
     data['maps']['grid_line_width'] = get_setting(
         data['maps'].get('grid_line_width', 1),
         1,
-        lambda x: (x >= 1 and x <= 10)
+        lambda x: (1 <= x <= 10)
     )
     data['maps']['last_zone'] = get_setting(
         data['maps'].get('last_zone', ''),
@@ -140,12 +140,12 @@ def verify_settings():
     data['maps']['line_width'] = get_setting(
         data['maps'].get('line_width', 1),
         1,
-        lambda x: (x >= 1 and x <= 10)
+        lambda x: (1 <= x <= 10)
     )
     data['maps']['other_z_alpha'] = get_setting(
         data['maps'].get('other_z_alpha', 10),
         10,
-        lambda x: (x >= 1 and x <= 100)
+        lambda x: (1 <= x <= 100)
     )
     data['maps']['scale'] = get_setting(
         data['maps'].get('scale', 0.07),
@@ -177,7 +177,7 @@ def verify_settings():
     data['spells']['casting_window_buffer'] = get_setting(
         data['spells'].get('casting_window_buffer', 1000),
         1000,
-        lambda x: (x >= 1 and x <= 4000)
+        lambda x: (1 <= x <= 4000)
     )
     data['spells']['delay_self_buffs_on_zone'] = get_setting(
         data['spells'].get('delay_self_buffs_on_zone', True),
@@ -197,7 +197,7 @@ def verify_settings():
     data['spells']['level'] = get_setting(
         data['spells'].get('level', 1),
         1,
-        lambda x: (x >= 1 and x <= 65)
+        lambda x: (1 <= x <= 65)
     )
     data['spells']['toggled'] = get_setting(
         data['spells'].get('toggled', True),
@@ -230,6 +230,7 @@ def verify_settings():
         [221, 119, 0, 255],
         is_color
     )
+
     data['spells']['buff_text_color'] = get_setting(
         data['spells'].get('buff_text_color', [0, 0, 0, 255]),
         [0, 0, 0, 255],
@@ -289,8 +290,8 @@ def verify_settings():
         lambda x: x > 0
     )
     data['text']['pixels_per_second'] = get_setting(
-        data['text'].get('pixels_per_second', 50),
-        50,
+        data['text'].get('pixels_per_second', 35),
+        35,
         lambda x: x > 0
     )
     data['text']['shadow_color'] = get_setting(
