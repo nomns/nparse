@@ -1,5 +1,3 @@
-from PyQt5.QtWidgets import QGraphicsView
-from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
 from widgets import NWindow
@@ -18,11 +16,11 @@ class Text(NWindow):
         self.content.addWidget(self.container, 1)
 
     def display(self, text_action: dict = None, re_groups: dict = None):
-        # build and display text_action
+        # build and display TextItem
         text = text_action.get('text', None)
         if text:
-            for k, v in re_groups.items():
-                text = text.replace('<{}>'.format(k), v)
+            for k in re_groups:
+                text = text.replace('<{}>'.format(k), re_groups.get(k, ''))
             action = TextAction(
                 color=text_action.get('color', [0, 0, 0, 255]),
                 text=text,

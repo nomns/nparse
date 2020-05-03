@@ -110,6 +110,7 @@ class TriggerEditor(QDialog):
                 self.timerCheckBox.setChecked(True)
                 self.timerTimeLineEdit.setText(a['timer']['time'])
                 self.timerIconSpinBox.setValue(a['timer']['icon'])
+                self._load_timer_icon(a['timer']['icon'])
                 w = self.timerExample
                 set_qcolor(w, a['timer']['text_color'], a['timer']['bar_color'])
             if a.get('text', None):
@@ -151,9 +152,7 @@ class TriggerEditor(QDialog):
             w = self.textExample
             a['text']['color'] = get_rgb(w, w.foregroundRole())
 
-        print(self.soundCheckBox.isChecked())
         if self.soundCheckBox.isChecked():
-            print(self.soundFileLabel.text())
             a['sound'] = self.soundFileLabel.text()
 
         data['trigger'] = t
@@ -166,7 +165,11 @@ class TriggerEditor(QDialog):
             try:
                 create_regex_from(self.triggerRegexLineEdit.text())
                 super().accept()
-
             except Exception as e:
-                QMessageBox('Could not compile regex: {}'.format(e))
+                print("asdf")
+                QMessageBox(text='Could not compile regex: {}'.format(e)).exec()
+                return
+        super().accept()
+
+
 

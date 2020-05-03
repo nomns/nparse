@@ -59,7 +59,7 @@ def get_setting(setting, default, func=None):
                 return default
         return setting
     except:
-        print(default)
+        print(setting, default)
         return default
 
 
