@@ -19,8 +19,11 @@ class Text(NWindow):
         # build and display TextItem
         text = text_action.get('text', None)
         if text:
-            for k in re_groups:
-                text = text.replace('<{}>'.format(k), re_groups.get(k, ''))
+            if re_groups:
+                for k in re_groups:
+                    v = re_groups.get(k, '')
+                    v = v if v else ''
+                    text = text.replace('<{}>'.format(k), v)
             action = TextAction(
                 color=text_action.get('color', [0, 0, 0, 255]),
                 text=text,

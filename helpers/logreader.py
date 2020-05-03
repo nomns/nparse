@@ -34,14 +34,12 @@ class LogReader(QFileSystemWatcher):
     def _get_all_last_read(self) -> dict:
         d = {}
         for file in self._files:
-            print(file)
             with open(file) as log:
                 log.seek(0, os.SEEK_END)
                 d[file] = log.tell()
         return d
 
-    def _file_changed(self, changed_file) -> None:
-        print('changed_file: {}'.format(changed_file))
+    def _file_changed(self, changed_file: str) -> None:
         if changed_file != self._stats.log_file:
             self._files_last_read[self._stats.log_file] = self._stats.last_read
             self._stats.log_file = changed_file
