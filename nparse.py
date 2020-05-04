@@ -20,7 +20,7 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = '0.5.0'
+CURRENT_VERSION = '0.5.1'
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
@@ -88,7 +88,7 @@ class NomnsParse(QApplication):
 
             else:
                 self._log_reader = logreader.LogReader(
-                    config.data['general']['eq_log_dir'])
+                    '{}/Logs'.format(config.data['general']['eq_dir']))
                 self._log_reader.new_line.connect(self._parse)
                 self._toggled = True
         else:

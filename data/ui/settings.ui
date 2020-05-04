@@ -94,7 +94,7 @@
        <item>
         <widget class="QStackedWidget" name="settingsStack">
          <property name="currentIndex">
-          <number>3</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="stackGeneral">
           <layout class="QVBoxLayout" name="verticalLayout_23">
@@ -137,7 +137,7 @@
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,0">
               <item>
-               <widget class="QLabel" name="eqLogLabel">
+               <widget class="QLabel" name="eqDirectoryLabel">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
                   <horstretch>0</horstretch>
@@ -153,9 +153,9 @@
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="selectEqLogDirectory">
+               <widget class="QPushButton" name="selectEQDirectoryButton">
                 <property name="text">
-                 <string>...</string>
+                 <string>Set</string>
                 </property>
                </widget>
               </item>
@@ -283,21 +283,21 @@
                 <item>
                  <widget class="QToolButton" name="ttsPlayButton">
                   <property name="text">
-                   <string>play</string>
+                   <string>Play</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QToolButton" name="ttsFileRefreshButton">
                   <property name="text">
-                   <string>refresh</string>
+                   <string>Refresh</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QToolButton" name="ttsDeleteButton">
                   <property name="text">
-                   <string>delete</string>
+                   <string>Delete</string>
                   </property>
                  </widget>
                 </item>
@@ -321,7 +321,21 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="stackProfiles"/>
+         <widget class="QWidget" name="stackProfiles">
+          <widget class="QLabel" name="label_6">
+           <property name="geometry">
+            <rect>
+             <x>9</x>
+             <y>9</y>
+             <width>65</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Coming soon.</string>
+           </property>
+          </widget>
+         </widget>
          <widget class="QWidget" name="stackParsers">
           <layout class="QVBoxLayout" name="verticalLayout_18">
            <item>
@@ -623,7 +637,7 @@
                 <property name="title">
                  <string>mp3 File</string>
                 </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_9">
+                <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="1,0,0">
                  <item>
                   <widget class="QLabel" name="spellSoundFileLabel">
                    <property name="maximumSize">
@@ -642,15 +656,27 @@
                  </item>
                  <item>
                   <widget class="QToolButton" name="spellSoundSelectButton">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
                    <property name="text">
-                    <string>...</string>
+                    <string>Set</string>
                    </property>
                   </widget>
                  </item>
                  <item>
                   <widget class="QToolButton" name="spellSoundPlayButton">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
                    <property name="text">
-                    <string>play</string>
+                    <string>Play</string>
                    </property>
                   </widget>
                  </item>
@@ -724,7 +750,7 @@
                 <item alignment="Qt::AlignRight">
                  <widget class="QPushButton" name="youColorButton">
                   <property name="text">
-                   <string>Set Color</string>
+                   <string>Set Bar Color</string>
                   </property>
                  </widget>
                 </item>
@@ -748,7 +774,7 @@
                 <item alignment="Qt::AlignRight">
                  <widget class="QPushButton" name="friendlyColorButton">
                   <property name="text">
-                   <string>Set Color</string>
+                   <string>Set Bar Color</string>
                   </property>
                  </widget>
                 </item>
@@ -772,7 +798,7 @@
                 <item alignment="Qt::AlignRight">
                  <widget class="QPushButton" name="enemyColorButton">
                   <property name="text">
-                   <string>Set Color</string>
+                   <string>Set Bar Color</string>
                   </property>
                  </widget>
                 </item>
@@ -781,7 +807,7 @@
               <item>
                <widget class="QPushButton" name="targetTextColorButton">
                 <property name="text">
-                 <string>Set Target Text Color</string>
+                 <string>Set Text Color</string>
                 </property>
                </widget>
               </item>
@@ -812,14 +838,14 @@
                 <item>
                  <widget class="QPushButton" name="buffTextColorButton">
                   <property name="text">
-                   <string>Text Color</string>
+                   <string>Set Text Color</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QPushButton" name="buffBarColorButton">
                   <property name="text">
-                   <string>Bar Color</string>
+                   <string>Set Bar Color</string>
                   </property>
                  </widget>
                 </item>
@@ -843,34 +869,34 @@
                 <item>
                  <widget class="QPushButton" name="debuffTextColorButton">
                   <property name="text">
-                   <string>Text Color</string>
+                   <string>Set Text Color</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QPushButton" name="debuffBarColorButton">
                   <property name="text">
-                   <string>Bar Color</string>
+                   <string>Set Bar Color</string>
                   </property>
                  </widget>
                 </item>
                </layout>
               </item>
-              <item>
-               <spacer name="verticalSpacer_7">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
              </layout>
             </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -900,7 +926,162 @@
            </property>
           </widget>
          </widget>
-         <widget class="QWidget" name="stackParsersText"/>
+         <widget class="QWidget" name="stackParsersText">
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <item>
+            <widget class="QGroupBox" name="groupBox_15">
+             <property name="title">
+              <string>General</string>
+             </property>
+             <layout class="QFormLayout" name="formLayout">
+              <item row="1" column="0">
+               <widget class="QLabel" name="fadeSecondsLabel">
+                <property name="text">
+                 <string>Fade Seconds</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="fadeSecondsSpinBox">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>120</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="textDirectionLabel">
+                <property name="text">
+                 <string>Text Direction</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="textDirectionComboBox">
+                <property name="currentText">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="movePixelsSecondLabel">
+                <property name="text">
+                 <string>Move Pixels/Second</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSpinBox" name="movePixelsSecondSpinBox">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>120</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_16">
+             <property name="title">
+              <string>Appearance</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_12">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0,0">
+                <item>
+                 <widget class="QLabel" name="label_5">
+                  <property name="text">
+                   <string>Text Shadow Color</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="textShadowColorLabel">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="autoFillBackground">
+                   <bool>true</bool>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Plain</enum>
+                  </property>
+                  <property name="lineWidth">
+                   <number>1</number>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="textShadowColorButton">
+                  <property name="text">
+                   <string>Set</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QFormLayout" name="formLayout_7">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="shadowBlurRadiusLabel">
+                  <property name="text">
+                   <string>Shadow Blue Radius</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QSpinBox" name="shadowBlurRadiusSpinBox">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>120</number>
+                  </property>
+                  <property name="value">
+                   <number>20</number>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>
@@ -928,8 +1109,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>273</x>
+     <y>469</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -944,8 +1125,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>273</x>
+     <y>469</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -953,5 +1134,177 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>textShadowColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>textShadowColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>478</x>
+     <y>166</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>youColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>youColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>478</x>
+     <y>55</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>friendlyColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>friendlyColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>478</x>
+     <y>86</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>enemyColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>enemyColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>478</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buffBarColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>buffBarColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>424</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buffTextColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>buffTextColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>236</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>debuffBarColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>debuffBarColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>424</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>debuffTextColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>debuffTextColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>236</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>targetTextColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>targetTextColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>330</x>
+     <y>147</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>selectEQDirectoryButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>selectEQDirectoryButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>479</x>
+     <y>113</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>textShadowColorButtonPress()</slot>
+  <slot>youColorButtonPress()</slot>
+  <slot>friendlyColorButtonPress()</slot>
+  <slot>enemyColorButtonPress()</slot>
+  <slot>targetTextColorButtonPress()</slot>
+  <slot>buffTextColorButtonPress()</slot>
+  <slot>buffBarColorButtonPress()</slot>
+  <slot>debuffTextColorButtonPress()</slot>
+  <slot>debuffBarColorButtonPress()</slot>
+  <slot>selectEQDirectoryButtonPress()</slot>
+ </slots>
 </ui>

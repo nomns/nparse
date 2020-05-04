@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import (QMessageBox, QInputDialog, QDialog,
+from PyQt5.QtWidgets import (QDialog, QComboBox,
                              QCheckBox, QSpinBox, QColorDialog,
-                             QSlider, QLabel, QFileDialog, QStackedWidget, QTreeView, )
+                             QSlider, QLabel, QFileDialog,)
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QItemSelection, QSize
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QColor
 
 import os
 from glob import glob
@@ -23,19 +23,6 @@ class SettingsWindow(QDialog):
 
         self._ref = {}
         self._ref = self._build_ref()
-
-        # general
-        self.selectEqLogDirectory.clicked.connect(self._set_eq_log_directory)
-
-        # spell color button events
-        self.buffTextColorButton.clicked.connect(self._set_buff_text_color)
-        self.buffBarColorButton.clicked.connect(self._set_buff_bar_color)
-        self.debuffTextColorButton.clicked.connect(self._set_debuff_text_color)
-        self.debuffBarColorButton.clicked.connect(self._set_debuff_bar_color)
-        self.youColorButton.clicked.connect(self._set_you_color)
-        self.friendlyColorButton.clicked.connect(self._set_friendly_color)
-        self.enemyColorButton.clicked.connect(self._set_enemy_color)
-        self.targetTextColorButton.clicked.connect(self._set_target_text_color)
 
         # spell mp3 events
         self.spellSoundSelectButton.clicked.connect(self._set_spell_sound)
@@ -70,12 +57,11 @@ class SettingsWindow(QDialog):
         self.settingsSectionTree.resizeColumnToContents(0)
         self.settingsSectionTree.setMinimumWidth(150)
 
-    def _set_eq_log_directory(self, event):
-        print(type(event))
+    def selectEQDirectoryButtonPress(self, _) -> None:
         dir_path = str(QFileDialog.getExistingDirectory(
             None, 'Select Everquest Logs Directory'))
         if dir_path:
-            self.eqLogLabel.setText(dir_path)
+            self.eqDirectoryLabel.setText(dir_path)
 
     def _add_section_data(self, data: dict, item) -> None:
         for k, i in data.items():
@@ -133,85 +119,43 @@ class SettingsWindow(QDialog):
             self.spellSoundFileLabel.setText(f[0])
         fd.setParent(None)
 
-    def _set_buff_text_color(self, _):
-        cd = QColorDialog(parent=self)
-        color = cd.getColor()
-        set_qcolor(
-            self.buffBarLabel,
-            foreground=color.getRgb()
-        )
-        cd.setParent(None)
+    def buffTextColorButtonPress(self, _) -> None:
+        set_qcolor(self.buffBarLabel, foreground=self._get_color())
 
-    def _set_buff_bar_color(self, _):
-        cd = QColorDialog(parent=self)
-        color = cd.getColor()
-        set_qcolor(
-            self.buffBarLabel,
-            background=color.getRgb()
-        )
-        cd.setParent(None)
+    def buffBarColorButtonPress(self, _) -> None:
+        set_qcolor(self.buffBarLabel, background=self._get_color())
 
-    def _set_debuff_text_color(self, _):
-        cd = QColorDialog(parent=self)
-        color = cd.getColor()
-        set_qcolor(
-            self.debuffBarLabel,
-            foreground=color.getRgb()
-        )
-        cd.setParent(None)
+    def debuffTextColorButtonPress(self, _) -> None:
+        set_qcolor(self.debuffBarLabel, foreground=self._get_color())
 
-    def _set_debuff_bar_color(self, _):
-        cd = QColorDialog(parent=self)
-        color = cd.getColor()
-        set_qcolor(
-            self.debuffBarLabel,
-            background=color.getRgb()
-        )
-        cd.setParent(None)
+    def debuffBarColorButtonPress(self, _) -> None:
+        set_qcolor(self.debuffBarLabel, background=self._get_color())
 
-    def _set_you_color(self, _):
-        cd = QColorDialog(parent=self)
-        color = cd.getColor()
-        set_qcolor(
-            self.youTargetLabel,
-            background=color.getRgb()
-        )
-        cd.setParent(None)
+    def youColorButtonPress(self, _) -> None:
+        set_qcolor(self.youTargetLabel, background=self._get_color())
 
-    def _set_friendly_color(self, _):
-        cd = QColorDialog(parent=self)
-        color = cd.getColor()
-        set_qcolor(
-            self.friendlyTargetLabel,
-            background=color.getRgb()
-        )
-        cd.setParent(None)
+    def friendlyColorButtonPress(self, _) -> None:
+        set_qcolor(self.friendlyTargetLabel,background=self._get_color())
 
-    def _set_enemy_color(self, _):
-        cd = QColorDialog(parent=self)
-        color = cd.getColor()
-        set_qcolor(
-            self.enemyTargetLabel,
-            background=color.getRgb()
-        )
-        cd.setParent(None)
+    def enemyColorButtonPress(self, _) -> None:
+        set_qcolor(self.enemyTargetLabel,background=self._get_color())
 
-    def _set_target_text_color(self, _):
-        cd = QColorDialog(parent=self)
-        color = cd.getColor()
-        set_qcolor(
-            self.youTargetLabel,
-            foreground=color.getRgb()
-        )
-        set_qcolor(
-            self.friendlyTargetLabel,
-            foreground=color.getRgb()
-        )
-        set_qcolor(
-            self.enemyTargetLabel,
-            foreground=color.getRgb()
-        )
+    def targetTextColorButtonPress(self, _) -> None:
+        color = self._get_color()
+        set_qcolor(self.youTargetLabel, foreground=color)
+        set_qcolor(self.friendlyTargetLabel, foreground=color)
+        set_qcolor(self.enemyTargetLabel, foreground=color)
+
+    def textShadowColorButtonPress(self, _) -> None:
+        set_qcolor(self.textShadowColorLabel,background=self._get_color())
+
+    def _get_color(self) -> QColor:
+
+        cd = QColorDialog(self)
+        cd.setOption(QColorDialog.ShowAlphaChannel)
+        color = cd.exec()
         cd.setParent(None)
+        return color
 
     def save_settings(self):
         for section, references in self._ref.items():
@@ -225,6 +169,8 @@ class SettingsWindow(QDialog):
                     config.data[section][setting] = widget.value()
                 elif wt == QLabel:
                     config.data[section][setting] = widget.text()
+                elif wt == QComboBox:
+                    config.data[section][setting] = widget.currentText()
 
         # spell color bars
         config.data['spells']['buff_text_color'] = get_rgb(self.buffBarLabel, self.buffBarLabel.foregroundRole())
@@ -236,10 +182,18 @@ class SettingsWindow(QDialog):
         config.data['spells']['enemy_target_color'] = get_rgb(self.enemyTargetLabel, self.enemyTargetLabel.backgroundRole())
         config.data['spells']['target_text_color'] = get_rgb(self.enemyTargetLabel, self.enemyTargetLabel.foregroundRole())
 
+        # text color
+        config.data['text']['shadow_color'] = get_rgb(self.textShadowColorLabel, self.textShadowColorLabel.backgroundRole())
+
         config.triggers = self.triggerTree.get_values()
         config.save()
 
     def set_values(self):
+        # Combo box setups
+        # text
+        self.textDirectionComboBox.clear()
+        self.textDirectionComboBox.addItems(['up', 'down'])
+
         for section, references in self._ref.items():
             for setting, widget in references.items():
                 wt = type(widget)
@@ -251,42 +205,51 @@ class SettingsWindow(QDialog):
                     widget.setValue(config.data[section][setting])
                 elif wt == QLabel:
                     widget.setText(config.data[section][setting])
+                elif wt == QComboBox:
+                    widget.setCurrentText(config.data[section][setting])
+
 
         # set bar colors for spells
 
         # buff bar
         set_qcolor(
             self.buffBarLabel,
-            foreground=config.data['spells']['buff_text_color'],
-            background=config.data['spells']['buff_bar_color']
+            foreground=QColor(*config.data['spells']['buff_text_color']),
+            background=QColor(*config.data['spells']['buff_bar_color'])
         )
 
         # debuff bar
         set_qcolor(
             self.debuffBarLabel,
-            foreground=config.data['spells']['debuff_text_color'],
-            background=config.data['spells']['debuff_bar_color']
+            foreground=QColor(*config.data['spells']['debuff_text_color']),
+            background=QColor(*config.data['spells']['debuff_bar_color'])
         )
 
         # you target
         set_qcolor(
             self.youTargetLabel,
-            foreground=config.data['spells']['target_text_color'],
-            background=config.data['spells']['you_target_color']
+            foreground=QColor(*config.data['spells']['target_text_color']),
+            background=QColor(*config.data['spells']['you_target_color'])
         )
 
         # friendly target
         set_qcolor(
             self.friendlyTargetLabel,
-            foreground=config.data['spells']['target_text_color'],
-            background=config.data['spells']['friendly_target_color']
+            foreground=QColor(*config.data['spells']['target_text_color']),
+            background=QColor(*config.data['spells']['friendly_target_color'])
         )
 
         # enemey target
         set_qcolor(
             self.enemyTargetLabel,
-            foreground=config.data['spells']['target_text_color'],
-            background=config.data['spells']['enemy_target_color']
+            foreground=QColor(*config.data['spells']['target_text_color']),
+            background=QColor(*config.data['spells']['enemy_target_color'])
+        )
+
+        # text shadow color
+        set_qcolor(
+            self.textShadowColorLabel,
+            background=QColor(*config.data['text']['shadow_color'])
         )
 
         # Remove triggertree if it exists and reinsert it
@@ -300,7 +263,7 @@ class SettingsWindow(QDialog):
     def _build_ref(self) -> dict:
         d = {
             'general': {
-                'eq_log_dir': self.eqLogLabel,
+                'eq_dir': self.eqDirectoryLabel,
                 'update_check': self.updateCheckCheckBox,
                 'parser_opacity': self.parserOpacitySpinBox,
                 'qt_scale_factor': self.qTScalingSpinBox,
@@ -319,6 +282,12 @@ class SettingsWindow(QDialog):
                 'use_secondary_all': self.usePVPSpellDurationsCheckBox,
                 'sound_enabled': self.spellSoundEnabledCheckBox,
                 'sound_file': self.spellSoundFileLabel
+            },
+            'text': {
+                'direction': self.textDirectionComboBox,
+                'fade_seconds': self.fadeSecondsSpinBox,
+                'pixels_per_second': self.movePixelsSecondSpinBox,
+                'shadow_radius': self.shadowBlurRadiusSpinBox
             }
         }
         return d

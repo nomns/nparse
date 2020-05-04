@@ -78,8 +78,8 @@ def verify_settings():
 
     # general
     data['general'] = data.get('general', {})
-    data['general']['eq_log_dir'] = get_setting(
-        data['general'].get('eq_log_dir', ''),
+    data['general']['eq_dir'] = get_setting(
+        data['general'].get('eq_dir', ''),
         ''
     )
     data['general']['parser_opacity'] = get_setting(
@@ -304,13 +304,18 @@ def verify_settings():
         'down',
         lambda x: (x in ['down', 'up'])
     )
+    data['text']['shadow_radius'] = get_setting(
+        data['text'].get('shadow_radius', 20),
+        20,
+        lambda x: x > 0
+    )
 
 
 def verify_paths():
     global data
     # verify eq log directory exists
     try:
-        assert(os.path.isdir(os.path.join(data['general']['eq_log_dir'])))
+        assert(os.path.isdir(os.path.join(data['general']['eq_dir'])))
     except:
         raise ValueError(
             'Everquest Log Directory Error',
@@ -318,7 +323,7 @@ def verify_paths():
         )
 
     # verify eq log directory contains log files for reading.
-    log_filter = os.path.join(data['general']['eq_log_dir'], 'eqlog*.*')
+    log_filter = os.path.join(data['general']['eq_dir'], 'Logs', 'eqlog*.*')
     if not glob(log_filter):
         raise ValueError(
             'No Logs Found',

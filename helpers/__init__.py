@@ -122,12 +122,12 @@ def text_time_to_seconds(text_time):
     return timedelta(hours=hours, minutes=minutes, seconds=seconds).total_seconds()
 
 
-def set_qcolor(widget, foreground=None, background=None):
+def set_qcolor(widget, foreground: QColor = None, background: QColor = None) -> None:
     p = widget.palette()
     if foreground:
-        p.setColor(widget.foregroundRole(), QColor.fromRgb(*foreground))
+        p.setColor(widget.foregroundRole(), foreground)
     if background:
-        p.setColor(widget.backgroundRole(), QColor.fromRgb(*background))
+        p.setColor(widget.backgroundRole(), background)
     widget.setPalette(p)
 
 

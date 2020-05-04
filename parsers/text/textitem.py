@@ -25,7 +25,7 @@ class TextItem(QGraphicsTextItem):
             QFont('Arial', self.action.text_size)
         )
         effect = QGraphicsDropShadowEffect()
-        effect.setBlurRadius(10)
+        effect.setBlurRadius(config.data['text']['shadow_radius'])
         effect.setOffset(0, 0)
         effect.setColor(QColor(*config.data['text']['shadow_color']))
         self.setGraphicsEffect(effect)
