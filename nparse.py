@@ -63,6 +63,7 @@ class NomnsParse(QApplication):
                 msecs=3000
             )
 
+        # TESTING
         self._settings.set_values()
         self._settings.exec()
 
@@ -116,9 +117,6 @@ class NomnsParse(QApplication):
             new_version_text = "Version {}".format(CURRENT_VERSION)
 
         check_version_action = menu.addAction(new_version_text)
-        menu.addSeparator()
-
-        get_eq_dir_action = menu.addAction('Select EQ Logs Directory')
         menu.addSeparator()
 
         lock_toggle = menu.addAction("Unlock Windows" if self._locked else "Lock Windows")
