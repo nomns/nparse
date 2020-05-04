@@ -64,8 +64,8 @@ class NomnsParse(QApplication):
             )
 
         # TESTING
-        self._settings.set_values()
-        self._settings.exec()
+        # self._settings.set_values()
+        # self._settings.exec()
 
     def _load_parsers(self):
         text_parser  = parsers.Text()
