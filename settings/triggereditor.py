@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QColorDialog, QFileDialog, QMessageBox, QVBoxLayout
 from PyQt5 import uic
+from PyQt5.QtGui import QColor
 
 from helpers import (get_spell_icon, resource_path, sound,
                      get_rgb, set_qcolor, create_regex_from)
@@ -7,8 +8,8 @@ from helpers import (get_spell_icon, resource_path, sound,
 
 class TriggerEditor(QDialog):
 
-    def __init__(self, trigger_name, trigger_data):
-        super().__init__()
+    def __init__(self, parent=None, trigger_name='', trigger_data: dict = dict):
+        super().__init__(parent)
 
         uic.loadUi(resource_path('data/ui/triggereditor.ui'), self)
         self._value = {
@@ -110,19 +111,18 @@ class TriggerEditor(QDialog):
                 self.timerIconSpinBox.setValue(a['timer']['icon'])
                 self._load_timer_icon(a['timer']['icon'])
                 w = self.timerExample
-                set_qcolor(w, a['timer']['text_color'], a['timer']['bar_color'])
+                set_qcolor(w, QColor(*a['timer']['text_color']), QColor(*a['timer']['bar_color']))
             else:
                 self._load_timer_icon(self.timerIconSpinBox.value())
             if a.get('text', None):
                 self.textCheckBox.setChecked(True)
                 self.textTextLineEdit.setText(a['text']['text'])
                 self.textSizeSpinBox.setValue(a['text']['text_size'])
-                set_qcolor(self.textExample, a['text']['color'])
+                set_qcolor(self.textExample, QColor(*a['text']['color']))
             if a.get('sound', None):
                 self.soundCheckBox.setChecked(True)
                 self.soundFileLabel.setText(a['sound'])
         except:
-            print("failure")
             pass
 
     def value(self):

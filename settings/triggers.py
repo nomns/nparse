@@ -190,8 +190,14 @@ class TriggerTree(QTreeWidget):
         if not self.is_group_selected():
             try:
                 item = self.selectedItems()[0]
-                te = TriggerEditor(item.text(0), item.value)
+                te = TriggerEditor(
+                    self,
+                    trigger_name=item.text(0),
+                    trigger_data=item.value,
+                )
                 r = te.exec()
+                te.setParent(None)
+                te.deleteLater()
                 if r:
                     updated = te.value()
                     if not self.trigger_exists(updated['name']):
