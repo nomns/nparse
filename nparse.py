@@ -9,9 +9,12 @@ from PyQt5.QtWidgets import (QApplication, QFileDialog, QMenu,
                              QSystemTrayIcon)
 
 import parsers
-from helpers import config, logreader, resource_path, get_version
+from helpers import config, logreader, resource_path, get_version, logger
 from settings import SettingsWindow
 
+# create logger
+log = logger.get_logger(__name__)
+# load settings
 config.load()
 # validate settings file
 config.verify_settings()
@@ -68,6 +71,7 @@ class NomnsParse(QApplication):
         # self._settings.exec()
 
     def _load_parsers(self):
+        log.info('loading parsers')
         text_parser  = parsers.Text()
         self._parsers = [
             parsers.Maps(),
@@ -83,6 +87,7 @@ class NomnsParse(QApplication):
             try:
                 config.verify_paths()
             except ValueError as error:
+                log.warning(error, exc_info=True)
                 self._system_tray.showMessage(
                     error.args[0], error.args[1], msecs=3000)
 
@@ -188,6 +193,7 @@ class NomnsParse(QApplication):
                 if int(o) > int(c):
                     return True
         except:
+            log.warning('unable to parse version from online: {} current: {}'.format(o, c), exc_info=True)
             return False
 
 
@@ -196,16 +202,21 @@ if __name__ == "__main__":
         import ctypes
         APPID = 'nomns.nparse'
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APPID)
-    except:
-        pass
+    except Exception as error:
+        log.error(error, exc_info=True)
+    try:
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+        APP = NomnsParse(sys.argv)
+        APP.setWindowIcon(QIcon(resource_path('data/ui/icon.png')))
+        APP.setQuitOnLastWindowClosed(False)
+        QFontDatabase.addApplicationFont(
+            resource_path('data/fonts/NotoSans-Regular.ttf'))
+        QFontDatabase.addApplicationFont(
+            resource_path('data/fonts/NotoSans-Bold.ttf'))
 
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-    APP = NomnsParse(sys.argv)
-    APP.setWindowIcon(QIcon(resource_path('data/ui/icon.png')))
-    APP.setQuitOnLastWindowClosed(False)
-    QFontDatabase.addApplicationFont(
-        resource_path('data/fonts/NotoSans-Regular.ttf'))
-    QFontDatabase.addApplicationFont(
-        resource_path('data/fonts/NotoSans-Bold.ttf'))
+        sys.exit(APP.exec())
+    except Exception as error:
+        log.error(error, exc_info=True)
 
-    sys.exit(APP.exec())
+
+

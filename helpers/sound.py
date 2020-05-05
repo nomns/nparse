@@ -4,7 +4,7 @@ from PyQt5.QtCore import QUrl
 from helpers import config
 
 
-player = QMediaPlayer()
+player = QMediaPlayer(flags=QMediaPlayer.LowLatency)
 
 
 def play(filename):
