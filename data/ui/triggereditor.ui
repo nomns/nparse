@@ -160,7 +160,7 @@
             <enum>QTabWidget::Rounded</enum>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <property name="elideMode">
             <enum>Qt::ElideNone</enum>
@@ -405,7 +405,7 @@
                 <item>
                  <widget class="QLabel" name="textExample">
                   <property name="autoFillBackground">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="styleSheet">
                    <string notr="true">padding: 5px</string>

@@ -6,7 +6,7 @@ import json
 import re
 from datetime import datetime, timedelta
 
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QWidget, QColorDialog
 from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtCore import QRect, Qt
 
@@ -134,6 +134,16 @@ def set_qcolor(widget, foreground: QColor = None, background: QColor = None) -> 
 def get_rgb(widget, role):
     p = widget.palette()
     return p.color(role).getRgb()
+
+
+def get_color(parent: QWidget = None, rgba: list = None) -> QColor:
+    color = QColorDialog.getColor(
+        QColor(*rgba),
+        parent,
+        'Choose a Color',
+        QColorDialog.ShowAlphaChannel
+    )
+    return color if color.isValid() else QColor(*rgba)
 
 
 def get_spell_icon(icon_index):

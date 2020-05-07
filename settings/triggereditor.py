@@ -1,9 +1,11 @@
-from PyQt5.QtWidgets import QDialog, QColorDialog, QFileDialog, QMessageBox, QVBoxLayout
+from PyQt5.QtWidgets import (QDialog, QColorDialog, QFileDialog,
+                             QMessageBox, QVBoxLayout)
 from PyQt5 import uic
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QPalette
 
 from helpers import (get_spell_icon, resource_path, sound,
-                     get_rgb, set_qcolor, create_regex_from)
+                     get_rgb, set_qcolor, create_regex_from,
+                     get_color)
 
 
 class TriggerEditor(QDialog):
@@ -12,10 +14,8 @@ class TriggerEditor(QDialog):
         super().__init__(parent)
 
         uic.loadUi(resource_path('data/ui/triggereditor.ui'), self)
-        self._value = {
-            'name': trigger_name,
-            'data': trigger_data
-        }
+        self._data = trigger_data
+        self._name = trigger_name
 
         self.timerIconSpinBox.valueChanged.connect(self._load_timer_icon)
         self.timerBarColorButton.clicked.connect(self._choose_timer_bar_color)
@@ -58,36 +58,25 @@ class TriggerEditor(QDialog):
         self.timerExample.setText(self.nameLineEdit.text())
 
     def _choose_text_text_color(self, _):
-        cd = QColorDialog(parent=self)
-        color = cd.getColor()
-        w = self.textExample
-        p = w.palette()
-        p.setColor(w.foregroundRole(), color)
-        w.setPalette(p)
+        set_qcolor(self.textExample, foreground=get_color(
+            self, get_rgb(self.textExample, QPalette.Foreground)
+        ))
 
     def _choose_timer_bar_color(self, _):
-        cd = QColorDialog(parent=self)
-        color = cd.getColor()
-        w = self.timerExample
-        p = w.palette()
-        p.setColor(w.backgroundRole(), color)
-        w.setPalette(p)
-        cd.setParent(None)
+        set_qcolor(self.timerExample, background=get_color(
+            self, get_rgb(self.timerExample, QPalette.Background)
+        ))
 
     def _choose_timer_text_color(self, _):
-        cd = QColorDialog(parent=self)
-        color = cd.getColor()
-        w = self.timerExample
-        p = w.palette()
-        p.setColor(w.foregroundRole(), color)
-        w.setPalette(p)
+        set_qcolor(self.timerExample, foreground=get_color(
+            self, get_rgb(self.timerExample, QPalette.Foreground)
+        ))
 
     def _set_values(self):
-        v = self._value
-        d = v['data']
+        d = self._data
 
         # general
-        self.nameLineEdit.setText(v['name'])
+        self.nameLineEdit.setText(self._name)
         self.enabledCheckBox.setChecked(d['enabled'])
 
         # trigger
@@ -109,7 +98,7 @@ class TriggerEditor(QDialog):
                 self.timerCheckBox.setChecked(True)
                 self.timerTimeLineEdit.setText(a['timer']['time'])
                 self.timerIconSpinBox.setValue(a['timer']['icon'])
-                self._load_timer_icon(a['timer']['icon'])
+                # self._load_timer_icon(a['timer']['icon'])
                 w = self.timerExample
                 set_qcolor(w, QColor(*a['timer']['text_color']), QColor(*a['timer']['bar_color']))
             else:
@@ -126,10 +115,10 @@ class TriggerEditor(QDialog):
             pass
 
     def value(self):
-        d = {}
+        d = dict()
         d['name'] = self.nameLineEdit.text()
 
-        data = {}
+        data = dict()
         data['enabled'] = self.enabledCheckBox.isChecked()
 
         t = {}

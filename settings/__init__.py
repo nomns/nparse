@@ -3,14 +3,15 @@ from PyQt5.QtWidgets import (QDialog, QComboBox,
                              QSlider, QLabel, QFileDialog,)
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QItemSelection, QSize
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QColor
+from PyQt5.QtGui import (QStandardItemModel, QStandardItem,
+                         QColor, QPalette)
 
 import os
 from glob import glob
 from dataclasses import dataclass
 
 from helpers import config, resource_path, set_qcolor, get_rgb, sound, create_tts_mp3
-from .triggers import TriggerTree
+from .triggertree import TriggerTree
 from .triggereditor import TriggerEditor
 
 
@@ -52,8 +53,8 @@ class SettingsWindow(QDialog):
         self._section_indexes: list = []
         self._add_section_data(data, model)
         self.settingsSectionTree.setModel(model)
-        self.settingsSectionTree.selectionModel().selectionChanged.connect(self._section_changed)
-        self.settingsSectionTree.expandAll()
+        self.settingsSectionTree.selectionModel()\
+            .selectionChanged.connect(self._section_changed)
         self.settingsSectionTree.resizeColumnToContents(0)
         self.settingsSectionTree.setMinimumWidth(150)
 
@@ -98,7 +99,8 @@ class SettingsWindow(QDialog):
             created_file = create_tts_mp3(self.ttsTextLineEdit.text())
             if created_file:
                 self.ttsFileCombo.addItem(created_file)
-                self.ttsFileCombo.setCurrentIndex(self.ttsFileCombo.count() - 1)
+                self.ttsFileCombo\
+                    .setCurrentIndex(self.ttsFileCombo.count() - 1)
         self.ttsTextLineEdit.setText("")
 
     def _fill_tts_files(self, _):
@@ -120,42 +122,61 @@ class SettingsWindow(QDialog):
         fd.setParent(None)
 
     def buffTextColorButtonPress(self, _) -> None:
-        set_qcolor(self.buffBarLabel, foreground=self._get_color())
+        set_qcolor(self.buffBarLabel, foreground=self._get_color(
+            get_rgb(self.buffBarLabel, QPalette.Foreground)
+        ))
 
     def buffBarColorButtonPress(self, _) -> None:
-        set_qcolor(self.buffBarLabel, background=self._get_color())
+        set_qcolor(self.buffBarLabel, background=self._get_color(
+            get_rgb(self.buffBarLabel, QPalette.Background)
+        ))
 
     def debuffTextColorButtonPress(self, _) -> None:
-        set_qcolor(self.debuffBarLabel, foreground=self._get_color())
+        set_qcolor(self.debuffBarLabel, foreground=self._get_color(
+            get_rgb(self.debuffBarLabel, QPalette.Foreground)
+        ))
 
     def debuffBarColorButtonPress(self, _) -> None:
-        set_qcolor(self.debuffBarLabel, background=self._get_color())
+        set_qcolor(self.debuffBarLabel, background=self._get_color(
+            get_rgb(self.debuffBarLabel, QPalette.Background)
+        ))
 
     def youColorButtonPress(self, _) -> None:
-        set_qcolor(self.youTargetLabel, background=self._get_color())
+        set_qcolor(self.youTargetLabel, background=self._get_color(
+                get_rgb(self.youTargetLabel, QPalette.Background)
+            ))
 
     def friendlyColorButtonPress(self, _) -> None:
-        set_qcolor(self.friendlyTargetLabel,background=self._get_color())
+        set_qcolor(self.friendlyTargetLabel, background=self._get_color(
+                get_rgb(self.friendlyTargetLabel, QPalette.Background)
+            ))
 
     def enemyColorButtonPress(self, _) -> None:
-        set_qcolor(self.enemyTargetLabel,background=self._get_color())
+        set_qcolor(self.enemyTargetLabel, background=self._get_color(
+                get_rgb(self.enemyTargetLabel, QPalette.Background)
+            ))
 
     def targetTextColorButtonPress(self, _) -> None:
-        color = self._get_color()
+        color = self._get_color(
+            get_rgb(self.youTargetLabel, QPalette.Foreground)
+        )
         set_qcolor(self.youTargetLabel, foreground=color)
         set_qcolor(self.friendlyTargetLabel, foreground=color)
         set_qcolor(self.enemyTargetLabel, foreground=color)
 
     def textShadowColorButtonPress(self, _) -> None:
-        set_qcolor(self.textShadowColorLabel,background=self._get_color())
+        set_qcolor(self.textShadowColorLabel, background=self._get_color(
+                get_rgb(self.textShadowColorLabel, QPalette.Background)
+            ))
 
-    def _get_color(self) -> QColor:
-
-        cd = QColorDialog(self)
-        cd.setOption(QColorDialog.ShowAlphaChannel)
-        color = cd.exec()
-        cd.setParent(None)
-        return color
+    def _get_color(self, rgba: list = None) -> QColor:
+        color = QColorDialog.getColor(
+            QColor(*rgba),
+            self,
+            'Choose a Color',
+            QColorDialog.ShowAlphaChannel
+        )
+        return color if color.isValid() else QColor(*rgba)
 
     def save_settings(self):
         for section, references in self._ref.items():

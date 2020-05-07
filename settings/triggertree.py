@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QMenu, QInputDialog, QMessageBox
+from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem,
+                             QMenu, QInputDialog, QMessageBox)
 from PyQt5.QtGui import QIcon, QMouseEvent
 from PyQt5.QtCore import Qt
 
@@ -30,15 +31,15 @@ class TriggerTree(QTreeWidget):
                 Qt.Checked if config.triggers[group]['enabled'] else Qt.Unchecked
             )
             for trig in config.triggers[group]['triggers']:
-                qtrig = TriggerItem(
+                trigger_item = TriggerItem(
                     trigger_name=trig,
                     trigger_data=config.triggers[group]['triggers'][trig]
                 )
-                qtrig.setCheckState(
+                trigger_item.setCheckState(
                     0,
                     Qt.Checked if config.triggers[group]['triggers'][trig]['enabled'] else Qt.Unchecked
                 )
-                tg.addChild(qtrig)
+                tg.addChild(trigger_item)
             self.root.addChild(tg)
 
     def is_group_selected(self):
@@ -53,27 +54,27 @@ class TriggerTree(QTreeWidget):
 
     def add_new_trigger(self, trigger_name: str) -> None:
         d = {'enabled': False}
-        qtrig = TriggerItem(trigger_name=trigger_name, trigger_data=d)
-        qtrig.setCheckState(0, Qt.Unchecked)
+        trigger_item = TriggerItem(trigger_name=trigger_name, trigger_data=d)
+        trigger_item.setCheckState(0, Qt.Unchecked)
         selected_item = None
         try:
             selected_item = self.selectedItems()[0]
             if not selected_item.parent():
-                selected_item.addChild(qtrig)
+                selected_item.addChild(trigger_item)
             else:
                 selected_item = selected_item.parent()
-                selected_item.addChild(qtrig)
+                selected_item.addChild(trigger_item)
         except:
             if self.root.childCount() > 0:
                 selected_item = self.root.child(0)
-                selected_item.addChild(qtrig)
+                selected_item.addChild(trigger_item)
         if selected_item:
             selected_item.sortChildren(0, Qt.AscendingOrder)
 
     def add_new_group(self, group_name):
-        qgroup = TriggerGroup(group_name=group_name)
-        qgroup.setCheckState(0, Qt.Checked)
-        self.root.addChild(qgroup)
+        group = TriggerGroup(group_name=group_name)
+        group.setCheckState(0, Qt.Checked)
+        self.root.addChild(group)
         self.root.sortChildren(0, Qt.AscendingOrder)
 
     def remove_selected(self):
@@ -107,32 +108,31 @@ class TriggerTree(QTreeWidget):
             menu.exec(event.globalPos())
             menu.deleteLater()
 
-
     def get_values(self):
         # Return a dict structure for triggers
         d = {}
-        for qgroup in [self.root.child(x) for x in range(self.root.childCount())]:
-            group_name = qgroup.text(0)
+        for group in [self.root.child(x) for x in range(self.root.childCount())]:
+            group_name = group.text(0)
             d[group_name] = {}
-            d[group_name]['enabled'] = True if qgroup.checkState(0) == Qt.Checked else False
+            d[group_name]['enabled'] = True if group.checkState(0) == Qt.Checked else False
             d[group_name]['triggers'] = {}
-            for qtrig in [qgroup.child(i) for i in range(qgroup.childCount())]:
-                trig_name = qtrig.text(0)
-                d[group_name]['triggers'][trig_name] = {}
-                d[group_name]['triggers'][trig_name] = qtrig.value
-                d[group_name]['triggers'][trig_name]['enabled'] = True if qtrig.checkState(0) == Qt.Checked else False
+            for trigger in [group.child(i) for i in range(group.childCount())]:
+                trigger_name = trigger.text(0)
+                d[group_name]['triggers'][trigger_name] = {}
+                d[group_name]['triggers'][trigger_name] = trigger.value
+                d[group_name]['triggers'][trigger_name]['enabled'] = True if trigger.checkState(0) == Qt.Checked else False
         return d
 
     def trigger_exists(self, trigger_name):
-        for qgroup in [self.root.child(x) for x in range(self.root.childCount())]:
-            for qtrig in [qgroup.child(i) for i in range(qgroup.childCount())]:
-                if trigger_name == qtrig.text(0):
+        for group in [self.root.child(x) for x in range(self.root.childCount())]:
+            for trigger in [group.child(i) for i in range(group.childCount())]:
+                if trigger_name == trigger.text(0):
                     return True
         return False
 
     def group_exists(self, group_name):
-        for qgroup in [self.root.child(x) for x in range(self.root.childCount())]:
-            if qgroup.text(0) == group_name:
+        for group in [self.root.child(x) for x in range(self.root.childCount())]:
+            if group.text(0) == group_name:
                 return True
         return False
 

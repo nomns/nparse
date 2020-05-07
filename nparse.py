@@ -5,8 +5,8 @@ import webbrowser
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor, QFontDatabase, QIcon
-from PyQt5.QtWidgets import (QApplication, QFileDialog, QMenu,
-                             QSystemTrayIcon)
+from PyQt5.QtWidgets import (QApplication, QMenu,
+                             QSystemTrayIcon, QCheckBox, QWidgetAction)
 
 import parsers
 from helpers import config, logreader, resource_path, get_version, logger
@@ -114,6 +114,27 @@ class NomnsParse(QApplication):
         menu = QMenu()
         menu.setAttribute(Qt.WA_DeleteOnClose)
 
+
+        menu.addSeparator()
+
+        parser_toggles = set()
+        parsers = QMenu('Toggles')
+        for parser in self._parsers:
+            toggle = parsers.addAction(parser.name.title())
+            toggle.setCheckable(True)
+            toggle.setChecked(config.data[parser.name]['toggled'])
+            parser_toggles.add(toggle)
+            parsers.addAction(toggle)
+
+        menu.addMenu(parsers)
+
+        menu.addSeparator()
+        settings_action = menu.addAction('Settings')
+
+        lock_toggle = menu.addAction(
+            "Unlock Windows" if self._locked else "Lock Windows"
+        )
+
         # check online for new version
         new_version_text = ""
         if self.new_version_available():
@@ -122,31 +143,17 @@ class NomnsParse(QApplication):
             new_version_text = "Version {}".format(CURRENT_VERSION)
 
         check_version_action = menu.addAction(new_version_text)
-        menu.addSeparator()
 
-        lock_toggle = menu.addAction("Unlock Windows" if self._locked else "Lock Windows")
-        menu.addSeparator()
-
-        parser_toggles = set()
-        for parser in self._parsers:
-            toggle = menu.addAction(parser.name.title())
-            toggle.setCheckable(True)
-            toggle.setChecked(config.data[parser.name]['toggled'])
-            parser_toggles.add(toggle)
-
-        menu.addSeparator()
-        settings_action = menu.addAction('Settings')
         menu.addSeparator()
         quit_action = menu.addAction('Quit')
 
-        action = menu.exec_(QCursor.pos())
-
+        action = menu.exec(QCursor.pos())
         if action == check_version_action:
             webbrowser.open('https://github.com/nomns/nparse/releases')
 
         elif action == settings_action:
             self._settings.set_values()
-            if self._settings.exec_():
+            if self._settings.exec():
                 self._settings.save_settings()
                 # Update required settings
                 for parser in self._parsers:
@@ -193,7 +200,7 @@ class NomnsParse(QApplication):
                 if int(o) > int(c):
                     return True
         except:
-            log.warning('unable to parse version from online: {} current: {}'.format(o, c), exc_info=True)
+            log.warning('unable to parse version from: online {}, current {}'.format(o, c), exc_info=True)
             return False
 
 
@@ -217,6 +224,3 @@ if __name__ == "__main__":
         sys.exit(APP.exec())
     except Exception as error:
         log.error(error, exc_info=True)
-
-
-
