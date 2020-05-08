@@ -13,7 +13,6 @@ class Triggers(NWindow):
 
     def __init__(self, text_parser=None):
         super().__init__(name="triggers")
-        self.set_title(self.name.title())
         self._triggers = {}
         self._set_triggers()
         self._text_parser = text_parser

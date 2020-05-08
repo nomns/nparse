@@ -15,7 +15,6 @@ class Spells(NWindow):
 
     def __init__(self):
         super().__init__(name='spells')
-        self.set_title(self.name.title())
 
         # ui
         self.setMinimumWidth(150)

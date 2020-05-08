@@ -14,7 +14,6 @@ class Maps(NWindow):
 
     def __init__(self):
         super().__init__(name='maps', transparent=False)
-        self.set_title(self.name.title())
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_NoSystemBackground, False)
         # interface

@@ -19,6 +19,7 @@ class TriggerTree(QTreeWidget):
         self.root = self.invisibleRootItem()
         # do not allow drag and drop to root
         self.root.setFlags(self.root.flags() ^ Qt.ItemIsDropEnabled)
+        self.setAnimated(True)
 
         self._fill()
 

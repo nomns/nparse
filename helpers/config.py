@@ -319,7 +319,7 @@ def verify_paths():
     except:
         raise ValueError(
             'Everquest Log Directory Error',
-            'Everquest log directory needs to be set before proceeding.  Use systemtray icon menu to set.'
+            'Everquest log directory needs to be set before proceeding.  Use Settings->General->Everquest Directory to set it.'
         )
 
     # verify eq log directory contains log files for reading.

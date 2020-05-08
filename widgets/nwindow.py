@@ -13,6 +13,7 @@ class NWindow(QFrame):
     def __init__(self, name=None, transparent=True):
         super().__init__()
         self.name = name
+        self.setWindowTitle(self.name.title())
         self.transparent = transparent
         self._locked = True
         self._locked_layout = None
@@ -71,7 +72,7 @@ class NWindow(QFrame):
 
     def set_flags(self):
         self.setFocus()
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowCloseButtonHint | Qt.WindowMinMaxButtonsHint)
+        self.setWindowFlags(Qt.SubWindow | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowCloseButtonHint | Qt.WindowMinMaxButtonsHint)
         self.show()
 
     def load(self):
