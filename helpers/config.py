@@ -11,6 +11,7 @@ CONFIG_FILE = ''
 TRIGGER_FILE = ''
 
 
+
 def load(config_file='nparse.config.json', trigger_file='nparse.triggers.json'):
     """
     Load json from file.
@@ -35,6 +36,12 @@ def load(config_file='nparse.config.json', trigger_file='nparse.triggers.json'):
     except:
         # nparse.triggers.json does not exist, create blank data
         triggers = {}
+
+
+
+    # ensure profile directory exists.  if not
+    if not os.path.exists('./data/profiles'):
+        os.mkdir('./data/profiles')
 
 
 def save(save_data=True, save_triggers=True):

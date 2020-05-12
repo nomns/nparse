@@ -14,6 +14,7 @@ from settings import SettingsWindow
 
 # create logger
 log = logger.get_logger(__name__)
+
 # load settings
 config.load()
 # validate settings file
@@ -23,7 +24,7 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = '0.5.1'
+CURRENT_VERSION = '0.6.dev'
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
@@ -106,14 +107,16 @@ class NomnsParse(QApplication):
         if new_line:
             timestamp, text = new_line  # (datetime, text)
             #  don't send parse to non toggled items, except maps.  always parse maps
-            for parser in [parser for parser in self._parsers if config.data[parser.name]['toggled'] or parser.name == 'maps']:
+            for parser in [parser for parser
+                           in self._parsers
+                           if config.data[parser.name]['toggled']
+                           or parser.name == 'maps']:
                 parser.parse(timestamp, text)
 
     def _menu(self, event):
         """Returns a new QMenu for system tray."""
         menu = QMenu()
         menu.setAttribute(Qt.WA_DeleteOnClose)
-
 
         menu.addSeparator()
 
