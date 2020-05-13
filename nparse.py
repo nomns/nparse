@@ -15,6 +15,10 @@ from settings import SettingsWindow
 # create logger
 log = logger.get_logger(__name__)
 
+# load profiles
+
+
+
 # load settings
 config.load()
 # validate settings file
