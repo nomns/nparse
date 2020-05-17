@@ -1,4 +1,3 @@
-import os
 from dataclasses import dataclass, field
 from typing import List
 import json
@@ -24,6 +23,7 @@ class MapsSetting:
     show_poi: bool = True
     toggled: bool = True
     use_z_mlayers: bool = False
+
 
 @dataclass
 class SpellsSetting:
@@ -67,7 +67,7 @@ class TriggersSetting:
 
 @dataclass
 class Profile:
-    name: str = '__default__'
+    name: str = ''
     log_file: str = ''
     sound_volume: int = 25
     maps: MapsSetting = MapsSetting()
@@ -75,20 +75,12 @@ class Profile:
     text: TextSetting = TextSetting()
     triggers: TriggersSetting = TriggersSetting()
 
-    def save(self):
-        try:
-            open(os.path.join(
-                './data/profiles/',
-                '{}.json'.format(
-                    os.path.basename(self.log_file)
-                )
-            ), 'w').write(
-                json.dumps(self.__dict__)
-            )
-        except:
-            log.warning(
-                'Unable to save profile.',
-                exc_info=True
-            )
-        
-
+    def json(self):
+        return json.dumps(
+            {
+                k: v.__dict__ if type(v) not in [str, int] else v
+                for k, v in self.__dict__.items()
+            },
+            indent=4,
+            sort_keys=True
+        )

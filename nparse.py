@@ -5,8 +5,7 @@ import webbrowser
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor, QFontDatabase, QIcon
-from PyQt5.QtWidgets import (QApplication, QMenu,
-                             QSystemTrayIcon, QCheckBox, QWidgetAction)
+from PyQt5.QtWidgets import (QApplication, QMenu, QSystemTrayIcon)
 
 import parsers
 from helpers import logreader, resource_path, get_version, logger
@@ -25,6 +24,7 @@ profile = profile_manager.get_profile(
 os.environ['QT_SCALE_FACTOR'] = str(
     app_config.qt_scale_factor / 100)
 
+# update check
 CURRENT_VERSION = '0.6.dev'
 if app_config.update_check:
     ONLINE_VERSION = get_version()
@@ -74,7 +74,7 @@ class NomnsParse(QApplication):
 
     def _load_parsers(self):
         log.info('loading parsers')
-        text_parser  = parsers.Text()
+        text_parser = parsers.Text()
         self._parsers = [
             parsers.Maps(),
             parsers.Spells(),
@@ -110,8 +110,9 @@ class NomnsParse(QApplication):
             #  don't send parse to non toggled items, except maps.  always parse maps
             for parser in [parser for parser
                            in self._parsers
-                           if profile.__dict__[parser.name].toggled 
-                           or parser.name == 'maps']:
+                           if profile.__dict__[parser.name].toggled or parser.name == 'maps'
+                           ]:
+
                 parser.parse(timestamp, text)
 
     def _menu(self, event):
@@ -176,17 +177,19 @@ class NomnsParse(QApplication):
             # save parser geometry
             for parser in self._parsers:
                 g = parser.geometry()
-                config.data[parser.name]['geometry'] = [
+                profile_manager.profile.__dict__[parser.name].geometry = [
                     g.x(), g.y(), g.width(), g.height()
                 ]
-                profile.save()
-
+            app_config.save()
+            profile_manager.save()
             self._system_tray.setVisible(False)
             self.quit()
 
         elif action in parser_toggles:
             parser = [
-                parser for parser in self._parsers if parser.name == action.text().lower()][0]
+                parser for parser in self._parsers
+                if parser.name == action.text().lower()
+            ][0]
             parser.toggle()
 
         elif action == lock_toggle:
@@ -204,7 +207,10 @@ class NomnsParse(QApplication):
                 if int(o) > int(c):
                     return True
         except:
-            log.warning('unable to parse version from: online {}, current {}'.format(o, c), exc_info=True)
+            log.warning(
+                f'unable to parse version from: online {o}, current {c}',
+                exc_info=True
+            )
             return False
 
 
