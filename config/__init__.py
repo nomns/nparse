@@ -1,4 +1,5 @@
-from .profile import Profile
+from .profilemanager import ProfileManager
+from .config import Config
 
-
-p = Profile()
+profile_manager = ProfileManager()
+app_config = Config()

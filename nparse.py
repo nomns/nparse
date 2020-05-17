@@ -9,27 +9,24 @@ from PyQt5.QtWidgets import (QApplication, QMenu,
                              QSystemTrayIcon, QCheckBox, QWidgetAction)
 
 import parsers
-from helpers import config, logreader, resource_path, get_version, logger
+from helpers import logreader, resource_path, get_version, logger
 from settings import SettingsWindow
+from config import app_config, profile_manager
 
 # create logger
 log = logger.get_logger(__name__)
 
 # load profiles
+profile = profile_manager.get_profile(
+    app_config.last_profile
+)
 
-
-
-# load settings
-config.load()
-# validate settings file
-config.verify_settings()
-
+# set custom user defined scale factor
 os.environ['QT_SCALE_FACTOR'] = str(
-    config.data['general']['qt_scale_factor'] / 100)
-
+    app_config.qt_scale_factor / 100)
 
 CURRENT_VERSION = '0.6.dev'
-if config.data['general']['update_check']:
+if app_config.update_check:
     ONLINE_VERSION = get_version()
 else:
     ONLINE_VERSION = CURRENT_VERSION
@@ -90,7 +87,7 @@ class NomnsParse(QApplication):
     def _toggle(self):
         if not self._toggled:
             try:
-                config.verify_paths()
+                app_config.verify_paths()
             except ValueError as error:
                 log.warning(error, exc_info=True)
                 self._system_tray.showMessage(
@@ -98,7 +95,7 @@ class NomnsParse(QApplication):
 
             else:
                 self._log_reader = logreader.LogReader(
-                    '{}/Logs'.format(config.data['general']['eq_dir']))
+                    '{}/Logs'.format(app_config.eq_dir))
                 self._log_reader.new_line.connect(self._parse)
                 self._toggled = True
         else:
@@ -113,7 +110,7 @@ class NomnsParse(QApplication):
             #  don't send parse to non toggled items, except maps.  always parse maps
             for parser in [parser for parser
                            in self._parsers
-                           if config.data[parser.name]['toggled']
+                           if profile.__dict__[parser.name].toggled 
                            or parser.name == 'maps']:
                 parser.parse(timestamp, text)
 
@@ -129,7 +126,7 @@ class NomnsParse(QApplication):
         for parser in self._parsers:
             toggle = parsers.addAction(parser.name.title())
             toggle.setCheckable(True)
-            toggle.setChecked(config.data[parser.name]['toggled'])
+            toggle.setCheckable(profile.__dict__[parser.name].toggled)
             parser_toggles.add(toggle)
             parsers.addAction(toggle)
 
@@ -182,7 +179,7 @@ class NomnsParse(QApplication):
                 config.data[parser.name]['geometry'] = [
                     g.x(), g.y(), g.width(), g.height()
                 ]
-                config.save()
+                profile.save()
 
             self._system_tray.setVisible(False)
             self.quit()

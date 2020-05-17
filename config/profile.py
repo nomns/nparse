@@ -1,5 +1,10 @@
+import os
 from dataclasses import dataclass, field
 from typing import List
+import json
+
+from helpers import logger
+log = logger.get_logger(__name__)
 
 
 @dataclass
@@ -64,19 +69,26 @@ class TriggersSetting:
 class Profile:
     name: str = '__default__'
     log_file: str = ''
-    eq_dir: str = ''
-    parser_opacity: int = 30
-    qt_scale_factor: int = 100
     sound_volume: int = 25
-    update_check: bool = True
-    maps: MapsSetting = None
-    spells: SpellsSetting = None
-    text: TextSetting = None
-    triggers: TriggersSetting = None
+    maps: MapsSetting = MapsSetting()
+    spells: SpellsSetting = SpellsSetting()
+    text: TextSetting = TextSetting()
+    triggers: TriggersSetting = TriggersSetting()
 
-    def __post_init__(self):
-        self.maps = self.maps if self.maps else MapsSetting()
-        self.spells = self.spells if self.spells else SpellsSetting()
-        self.text = self.text if self.text else TextSetting()
-        self.triggers = self.triggers if self.triggers else TriggersSetting()
+    def save(self):
+        try:
+            open(os.path.join(
+                './data/profiles/',
+                '{}.json'.format(
+                    os.path.basename(self.log_file)
+                )
+            ), 'w').write(
+                json.dumps(self.__dict__)
+            )
+        except:
+            log.warning(
+                'Unable to save profile.',
+                exc_info=True
+            )
+        
 

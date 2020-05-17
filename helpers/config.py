@@ -316,23 +316,3 @@ def verify_settings():
         20,
         lambda x: x > 0
     )
-
-
-def verify_paths():
-    global data
-    # verify eq log directory exists
-    try:
-        assert(os.path.isdir(os.path.join(data['general']['eq_dir'])))
-    except:
-        raise ValueError(
-            'Everquest Log Directory Error',
-            'Everquest log directory needs to be set before proceeding.  Use Settings->General->Everquest Directory to set it.'
-        )
-
-    # verify eq log directory contains log files for reading.
-    log_filter = os.path.join(data['general']['eq_dir'], 'Logs', 'eqlog*.*')
-    if not glob(log_filter):
-        raise ValueError(
-            'No Logs Found',
-            'No Everquest log files were found.  Ensure both your directory is set and logging is turned on in your Everquest client.'
-        )
