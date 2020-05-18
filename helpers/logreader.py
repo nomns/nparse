@@ -17,6 +17,7 @@ class LogStats:
 class LogReader(QFileSystemWatcher):
 
     new_line = pyqtSignal(object)
+    log_file_change = pyqtSignal(str)
 
     def __init__(self, eq_directory: str) -> None:
         super().__init__()
@@ -43,6 +44,7 @@ class LogReader(QFileSystemWatcher):
         if changed_file != self._stats.log_file:
             self._files_last_read[self._stats.log_file] = self._stats.last_read
             self._stats.log_file = changed_file
+            self.log_file_change.emit(os.path.abspath(changed_file))
             if changed_file in self._files_last_read:
                 self._stats.last_read = self._files_last_read[changed_file]
             else:

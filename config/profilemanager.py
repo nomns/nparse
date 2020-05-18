@@ -1,5 +1,6 @@
 import os
 import glob
+import json
 from typing import Dict
 
 from .config import Config
@@ -25,18 +26,26 @@ class ProfileManager:
             if not os.path.isdir(f):
                 self.profiles[os.path.basename(f)] = os.path.realpath(f)
 
+    def switch(self, log_file: str) -> None:
+        self.save()
+        self.load(log_file)
+
+    def load(self, log_file: str) -> None:
+        try:
+            profile_dict = json.loads(
+                open(os.path.join('./data/profiles', f'{log_file}.json'))
+                .read()
+            )
+            profile = Profile()
+            profile.update(profile_dict)
+            self.profile = profile
+        except:
+            log.error(f'Unable to load profile: {log_file}', exc_info=True)
+
     def save(self) -> None:
         try:
             if self.profile.name:
-                open(
-                    os.path.join(
-                        './data/profiles',
-                        f'{self.profile.log_file}.json'
-                    ),
-                    'w'
-                ).write(self.profile.json())
+                open(os.path.join('./data/profiles', f'{self.profile.log_file}.json'), 'w')\
+                    .write(self.profile.json())
         except:
-            log.warning(
-                'Unable to save profile.',
-                exc_info=True
-            )
+            log.warning(f'Unable to save profile: {self.profile.name}', exc_info=True)

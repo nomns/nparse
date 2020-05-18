@@ -2,6 +2,8 @@
 import os
 import sys
 import webbrowser
+import datetime
+from typing import Tuple
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor, QFontDatabase, QIcon
@@ -16,16 +18,14 @@ from config import app_config, profile_manager
 log = logger.get_logger(__name__)
 
 # load profiles
-profile = profile_manager.get_profile(
-    app_config.last_profile
-)
+profile = profile_manager.profile
 
 # set custom user defined scale factor
 os.environ['QT_SCALE_FACTOR'] = str(
     app_config.qt_scale_factor / 100)
 
 # update check
-CURRENT_VERSION = '0.6.dev'
+CURRENT_VERSION = '0.6.0'
 if app_config.update_check:
     ONLINE_VERSION = get_version()
 else:
@@ -39,16 +39,16 @@ class NomnsParse(QApplication):
         super().__init__(*args)
 
         # Updates
-        self._toggled = False
-        self._log_reader = None
-        self._locked = True
+        self._toggled: bool = False
+        self._log_reader: logreader.LogReader
+        self._locked: bool = True
 
         # Load UI
         self._load_parsers()
-        self._settings = SettingsWindow()
+        self._settings: SettingsWindow = SettingsWindow()
 
         # Tray Icon
-        self._system_tray = QSystemTrayIcon()
+        self._system_tray: QSystemTrayIcon = QSystemTrayIcon()
         self._system_tray.setIcon(QIcon(resource_path('data/ui/icon.png')))
         self._system_tray.setToolTip("nParse")
         self._system_tray.activated.connect(self._menu)
@@ -68,11 +68,7 @@ class NomnsParse(QApplication):
                 msecs=3000
             )
 
-        # TESTING
-        # self._settings.set_values()
-        # self._settings.exec()
-
-    def _load_parsers(self):
+    def _load_parsers(self) -> None:
         log.info('loading parsers')
         text_parser = parsers.Text()
         self._parsers = [
@@ -84,7 +80,7 @@ class NomnsParse(QApplication):
         for p in self._parsers:
             p.load()
 
-    def _toggle(self):
+    def _toggle(self) -> None:
         if not self._toggled:
             try:
                 app_config.verify_paths()
@@ -97,6 +93,7 @@ class NomnsParse(QApplication):
                 self._log_reader = logreader.LogReader(
                     '{}/Logs'.format(app_config.eq_dir))
                 self._log_reader.new_line.connect(self._parse)
+                self._log_reader.log_file_change.connect(self._log_file_changed)
                 self._toggled = True
         else:
             if self._log_reader:
@@ -104,7 +101,7 @@ class NomnsParse(QApplication):
                 self._log_reader = None
             self._toggled = False
 
-    def _parse(self, new_line):
+    def _parse(self, new_line: Tuple[datetime.datetime, str]) -> None:
         if new_line:
             timestamp, text = new_line  # (datetime, text)
             #  don't send parse to non toggled items, except maps.  always parse maps
@@ -112,10 +109,12 @@ class NomnsParse(QApplication):
                            in self._parsers
                            if profile.__dict__[parser.name].toggled or parser.name == 'maps'
                            ]:
-
                 parser.parse(timestamp, text)
 
-    def _menu(self, event):
+    def _log_file_changed(self, log_file: str) -> None:
+        profile_manager.switch(log_file)
+
+    def _menu(self, event) -> None:
         """Returns a new QMenu for system tray."""
         menu = QMenu()
         menu.setAttribute(Qt.WA_DeleteOnClose)
@@ -200,7 +199,7 @@ class NomnsParse(QApplication):
                 else:
                     parser.unlock()
 
-    def new_version_available(self):
+    def new_version_available(self) -> bool:
         # this will only work if numbers go up
         try:
             for (o, c) in zip(ONLINE_VERSION.split('.'), CURRENT_VERSION.split('.')):

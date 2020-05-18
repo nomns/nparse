@@ -19,7 +19,7 @@ class Config:
         try:
             self.__dict__.update(
                 **json.loads(open('./data/nparse.config.json', 'r+').read()).items()
-                )
+            )
         except:
             log.warning('Unable to load ./data/nparse.config.json', exc_info=True)
 

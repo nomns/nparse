@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Dict
 import json
 
 from helpers import logger
@@ -67,7 +67,7 @@ class TriggersSetting:
 
 @dataclass
 class Profile:
-    name: str = ''
+    name: str = ''  # blank name means profile will not save.
     log_file: str = ''
     sound_volume: int = 25
     maps: MapsSetting = MapsSetting()
@@ -84,3 +84,11 @@ class Profile:
             indent=4,
             sort_keys=True
         )
+
+    def update(self, profile_dict: Dict[str, any]):
+        for k, v in profile_dict.items():
+            if type(v) in [str, int]:
+                self.__dict__[k] = v
+            else:
+                for k2, v2 in v.items():
+                    self.__dict__[k].__dict__[k2] = v2
