@@ -5,6 +5,7 @@ import requests
 import json
 import re
 from datetime import datetime, timedelta
+from typing import Dict
 
 from PyQt5.QtWidgets import QLabel, QWidget, QColorDialog
 from PyQt5.QtGui import QColor, QPixmap
@@ -50,6 +51,7 @@ def strip_timestamp(line):
     Strings EQ Timestamp from log entry.
     """
     return line[line.find("]") + 1:].strip()
+
 
 def get_line_length(x1, y1, x2, y2):
     return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
@@ -163,9 +165,21 @@ def get_spell_icon(icon_index):
     label.setFixedSize(18, 18)
     return label
 
+
 def create_regex_from(text=None, regex=None):
     if text:
         return re.compile('^{}$'.format(text), re.IGNORECASE)
     else:
         return re.compile(regex)
 
+
+def clean_dict(dictionary: Dict[str, any]) -> dict:
+    # removes all k,v recursively in a dictionary that have a None value
+    d = {}
+    for k, v in dictionary.items():
+        if v:
+            if isinstance(v, dict):
+                d[k] = clean_dict(v)
+            else:
+                d[k] = v
+    return d

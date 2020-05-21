@@ -1,13 +1,10 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from typing import List, Dict
 import json
 
-from helpers import logger
-log = logger.get_logger(__name__)
-
 
 @dataclass
-class MapsSetting:
+class ProfileMaps:
     auto_follow: bool = True
     parser_opacity: int = 30
     closest_z_alpha: int = 20
@@ -22,18 +19,18 @@ class MapsSetting:
     show_mouse_location: bool = True
     show_poi: bool = True
     toggled: bool = True
-    use_z_mlayers: bool = False
+    use_z_layers: bool = False
 
 
 @dataclass
-class SpellsSetting:
+class ProfileSpells:
     buff_bar_color: List[int] = field(default_factory=lambda: [40, 122, 169, 255])
     buff_text_color: List[int] = field(default_factory=lambda: [0, 0, 0, 255])
     casting_window_buffer: int = 1000
-    debuff_bar_color: List[int] = field(default_factory=lambda: [221, 119, 0, 255])
+    debuff_bar_color: List[int] = field(default_factory=lambda: [168, 61, 61, 255])
     debuff_text_color: List[int] = field(default_factory=lambda: [0, 0, 0, 255])
     delay_self_buffs_on_zone: bool = True
-    enemey_target_color: List[int] = field(default_factory=lambda: [68, 0, 0, 255])
+    enemy_target_color: List[int] = field(default_factory=lambda: [104, 61, 61, 255])
     friendly_target_color: List[int] = field(default_factory=lambda: [0, 68, 0, 255])
     geometry: List[int] = field(default_factory=lambda: [101, 0, 100, 100])
     level: int = 1
@@ -49,7 +46,7 @@ class SpellsSetting:
 
 
 @dataclass
-class TextSetting:
+class ProfileText:
     direction: str = 'down'
     fade_seconds: int = 10
     geometry: List[int] = field(default_factory=lambda: [201, 0, 100, 100])
@@ -60,7 +57,7 @@ class TextSetting:
 
 
 @dataclass
-class TriggersSetting:
+class ProfileTriggers:
     geometry: List[int] = field(default_factory=lambda: [301, 0, 100, 100])
     toggled: bool = True
 
@@ -70,25 +67,20 @@ class Profile:
     name: str = ''  # blank name means profile will not save.
     log_file: str = ''
     sound_volume: int = 25
-    maps: MapsSetting = MapsSetting()
-    spells: SpellsSetting = SpellsSetting()
-    text: TextSetting = TextSetting()
-    triggers: TriggersSetting = TriggersSetting()
+    parser_opacity: int = 30
+    maps: ProfileMaps = ProfileMaps()
+    spells: ProfileSpells = ProfileSpells()
+    text: ProfileText = ProfileText()
+    triggers: ProfileTriggers = ProfileTriggers()
+    trigger_choices: Dict[str, any] = field(default_factory=lambda: {})
 
     def json(self):
-        return json.dumps(
-            {
-                k: v.__dict__ if type(v) not in [str, int] else v
-                for k, v in self.__dict__.items()
-            },
-            indent=4,
-            sort_keys=True
-        )
+        return json.dumps(asdict(self), indent=4, sort_keys=True)
 
-    def update(self, profile_dict: Dict[str, any]):
-        for k, v in profile_dict.items():
-            if type(v) in [str, int]:
-                self.__dict__[k] = v
+    def update(self, dictionary: Dict[str, any], ref: Dict[str, any] = None):
+        ref = self.__dict__ if ref is None else ref
+        for k, v in dictionary.items():
+            if type(ref[k]) in [ProfileMaps, ProfileSpells, ProfileText, ProfileTriggers]:
+                self.update(v, ref[k].__dict__)
             else:
-                for k2, v2 in v.items():
-                    self.__dict__[k].__dict__[k2] = v2
+                ref[k] = v

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from PyQt5.QtCore import QFileSystemWatcher, pyqtSignal
 
-from helpers import strip_timestamp
+from utils import strip_timestamp
 
 
 @dataclass

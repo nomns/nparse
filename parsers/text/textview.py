@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import Qt, QRectF
 
-from helpers import config
+from config import profile_manager
+profile = profile_manager.profile
 
 from .textitem import TextItem
 
@@ -22,17 +23,17 @@ class TextView(QGraphicsView):
 
     def add(self, text_item: TextItem) -> None:
         offset = text_item.boundingRect()
-        if config.data['text']['direction'] == 'down':
+        if profile.text.direction == 'down':
             text_item.setPos(
                 self.mapToScene(
-                    self.width()/2 - offset.width()/2,
+                    self.width() / 2 - offset.width() / 2,
                     0
                 )
             )
         else:
             text_item.setPos(
                 self.mapToScene(
-                    self.width()/2 - offset.width()/2,
+                    self.width() / 2 - offset.width() / 2,
                     self.height() - offset.height()
                 )
             )

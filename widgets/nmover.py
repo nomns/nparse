@@ -54,6 +54,3 @@ class NMover(QWidget):
         if self._offset is not None and event.buttons() == Qt.LeftButton:
             self._parent.move(self._parent.pos() + event.pos() - self._offset)
         super().mouseMoveEvent(event)
-
-
-

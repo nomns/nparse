@@ -5,10 +5,12 @@ from typing import Dict
 
 from .config import Config
 from .profile import Profile
-from helpers import logger
+from utils import logger
 
 app_config = Config()
 log = logger.get_logger(__name__)
+
+PROFILES_LOCATION = './data/profiles'
 
 
 class ProfileManager:
@@ -16,8 +18,8 @@ class ProfileManager:
     def __init__(self) -> None:
         self.profile: Profile = Profile()
         self.profiles: Dict[str, any] = {}
-        if not os.path.exists('./data/profiles'):
-            os.mkdir('./data/profiles')
+        if not os.path.exists(PROFILES_LOCATION):
+            os.mkdir(PROFILES_LOCATION)
         self.scan()
 
     def scan(self) -> None:

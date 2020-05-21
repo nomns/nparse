@@ -5,7 +5,7 @@ import string
 from PyQt5.QtWidgets import QFrame, QHBoxLayout, QProgressBar, QLabel
 from PyQt5.QtCore import QTimer
 
-from helpers import format_time, get_spell_icon, sound
+from utils import format_time, get_spell_icon, sound
 from settings import styles
 
 from .common import NDirection
@@ -32,7 +32,7 @@ class NTimer(QFrame):
         self._active = True
         self._sound = sound
         self._alert = False
-        self._direction=direction
+        self._direction = direction
         self.progress = QProgressBar()
 
         # ui

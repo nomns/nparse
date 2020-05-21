@@ -5,7 +5,7 @@ from PyQt5.QtGui import QPixmap, QPen
 from PyQt5.QtWidgets import (QGraphicsItemGroup, QGraphicsLineItem,
                              QGraphicsPixmapItem, QGraphicsTextItem)
 
-from helpers import format_time, get_degrees_from_line, to_eq_xy
+from utils import format_time, get_degrees_from_line, to_eq_xy
 
 
 class MouseLocation(QGraphicsTextItem):
@@ -148,8 +148,13 @@ class SpawnPoint(QGraphicsItemGroup):
         if scale:
             self.setPos(self.location.x - self.boundingRect().width() / 2 * scale,
                         self.location.y - self.boundingRect().height() / 2 * scale)
-        self.text.setPos(-self.text.boundingRect().width() /
-                         2 + self.pixmap.boundingRect().width() / 2, 15)
+        self.text.setPos(
+            -self.text.boundingRect().width()
+            / 2
+            + self.pixmap.boundingRect().width()
+            / 2,
+            15
+        )
 
     def start(self, _=None, timestamp=None):
         timestamp = timestamp if timestamp else datetime.datetime.now()

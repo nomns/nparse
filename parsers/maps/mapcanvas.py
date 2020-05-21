@@ -3,7 +3,9 @@ from PyQt5.QtGui import QPainter, QTransform
 from PyQt5.QtWidgets import (QGraphicsScene, QGraphicsView, QInputDialog,
                              QMenu)
 
-from helpers import config, to_range, text_time_to_seconds, get_line_length
+from utils import to_range, text_time_to_seconds, get_line_length
+from config import profile_manager
+profile = profile_manager.profile
 
 from .mapclasses import MapPoint, WayPoint, Player, SpawnPoint, MouseLocation
 from .mapdata import MapData
@@ -26,7 +28,7 @@ class MapCanvas(QGraphicsView):
         self.setRenderHint(QPainter.Antialiasing)
         self._scene = QGraphicsScene()
         self.setScene(self._scene)
-        self._scale = config.data['maps']['scale']
+        self._scale = profile.maps.scale
         self._mouse_location = MouseLocation()
         self._z_index = 0
 
@@ -40,14 +42,15 @@ class MapCanvas(QGraphicsView):
 
         else:
             # compare size of both maps and adjust ratio appropriately
-            if self._data: # if _data exists, a zone has already been loaded
+            if self._data:  # if _data exists, a zone has already been loaded
                 g = self._data.geometry
                 new_g = map_data.geometry
                 ratio_adjustment = (
-                    get_line_length(g.lowest_x, g.lowest_y, g.highest_x, g.highest_y)
-                    /
-                    get_line_length(new_g.lowest_x, new_g.lowest_y, new_g.highest_x, new_g.highest_y)
-
+                    get_line_length(
+                        g.lowest_x, g.lowest_y, g.highest_x, g.highest_y
+                    ) / get_line_length(
+                        new_g.lowest_x, new_g.lowest_y, new_g.highest_x, new_g.highest_y
+                    )
                 )
                 self._scale *= ratio_adjustment
 
@@ -68,8 +71,7 @@ class MapCanvas(QGraphicsView):
             )
             self._mouse_location = MouseLocation()
             self._scene.addItem(self._mouse_location)
-            config.data['maps']['last_zone'] = self._data.zone
-            config.save()
+            profile.maps.last_zone = self._data.zone
 
     def _draw(self):
         for z in self._data.keys():
@@ -83,14 +85,14 @@ class MapCanvas(QGraphicsView):
         if not ratio:
             ratio = self._scale
 
-        current_alpha = config.data['maps']['current_z_alpha'] / 100
-        other_alpha = config.data['maps']['other_z_alpha'] / 100
-        closest_alpha = config.data['maps']['closest_z_alpha'] / 100
+        current_alpha = profile.maps.current_z_alpha / 100
+        other_alpha = profile.maps.other_z_alpha / 100
+        closest_alpha = profile.maps.closest_z_alpha / 100
 
         # scene
         self.setTransform(QTransform())  # reset transform object
         self._scale = to_range(ratio, 0.0006, 5.0)
-        config.data['maps']['scale'] = self._scale
+        profile.maps.scale = self._scale
         self.scale(self._scale, self._scale)
 
         # lines and points of interest
@@ -104,7 +106,7 @@ class MapCanvas(QGraphicsView):
 
         for z in self._data.keys():
             alpha = current_alpha
-            if config.data['maps']['use_z_layers']:
+            if profile.maps.use_z_layers:
                 if z == current_z_level:
                     alpha = current_alpha
                 elif z in closest_z_levels:
@@ -112,21 +114,20 @@ class MapCanvas(QGraphicsView):
                 else:
                     alpha = other_alpha
             # lines
-            bolded = 0.5 if config.data['maps']['use_z_layers'] else 0.0
+            bolded = 0.5 if profile.maps.use_z_layers else 0.0
             for path in self._data[z]['paths'].childItems():
-                if z == current_z_level or not config.data['maps']['use_z_layers']:
+                if z == current_z_level or not profile.maps.use_z_layers:
                     pen = path.pen()
                     pen.setWidth(max(
-                        config.data['maps']['line_width'] + bolded,
-                        (config.data['maps']['line_width'] +
-                         bolded) / self._scale
-                    ))
+                        profile.maps.line_width + bolded,
+                        (profile.maps.line_width + bolded) / self._scale)
+                    )
                     path.setPen(pen)
                 else:
                     pen = path.pen()
                     pen.setWidth(max(
-                        config.data['maps']['line_width'] - 0.8,
-                        (config.data['maps']['line_width'] - 0.8) / self._scale
+                        profile.maps.line_width - 0.8,
+                        (profile.maps.line_width - 0.8) / self._scale
                     ))
                     path.setPen(pen)
 
@@ -135,9 +136,9 @@ class MapCanvas(QGraphicsView):
             # points of interest
             for p in self._data[z]['poi']:
                 p.update_(min(5, self.to_scale()))
-                if not config.data['maps']['show_poi']:
+                if not profile.maps.show_poi:
                     p.text.setOpacity(0)
-                elif config.data['maps']['use_z_layers']:
+                elif profile.maps.use_z_layers:
                     if z == current_z_level:
                         p.text.setOpacity(current_alpha)
                     else:
@@ -148,7 +149,7 @@ class MapCanvas(QGraphicsView):
         # players
         for player in self._data.players.values():
             player.update_(self.to_scale())
-            if config.data['maps']['use_z_layers']:
+            if profile.maps.use_z_layers:
                 if player.z_level == current_z_level:
                     player.setOpacity(current_alpha)
                 else:
@@ -159,10 +160,11 @@ class MapCanvas(QGraphicsView):
         # waypoint
         if self._data.way_point:
             self._data.way_point.update_(self.to_scale())
-            if config.data['maps']['use_z_layers']:
+            if profile.maps.use_z_layers:
                 self._data.way_point.pixmap.setOpacity(
-                    current_alpha if (self._data.way_point.location.z ==
-                                      current_z_level) else other_alpha
+                    current_alpha
+                    if (self._data.way_point.location.z == current_z_level)
+                    else other_alpha
                 )
                 player = self._data.players.get('__you__', None)
                 if player and current_z_level in \
@@ -178,20 +180,21 @@ class MapCanvas(QGraphicsView):
         for spawn in self._data.spawns:
             spawn.setScale(self.to_scale())
             spawn.realign(self.to_scale())
-            if config.data['maps']['use_z_layers']:
+            if profile.maps.use_z_layers:
                 spawn.setOpacity(
-                    current_alpha if (spawn.location.z ==
-                                      current_z_level) else other_alpha
+                    current_alpha
+                    if (spawn.location.z == current_z_level)
+                    else other_alpha
                 )
             else:
                 spawn.setOpacity(current_alpha)
 
         # grid lines
-        if config.data['maps']['show_grid']:
+        if profile.maps.show_grid:
             pen = self._data.grid.pen()
             pen.setWidth(max(
-                config.data['maps']['grid_line_width'],
-                self.to_scale(config.data['maps']['grid_line_width'])
+                profile.maps.grid_line_width,
+                self.to_scale(profile.maps.grid_line_width)
             ))
             self._data.grid.setPen(pen)
             self._data.grid.setVisible(True)
@@ -205,7 +208,7 @@ class MapCanvas(QGraphicsView):
         player = None
         if self._data:
             player = self._data.players.get('__you__', None)
-        if config.data['maps']['auto_follow'] and player:
+        if profile.maps.auto_follow and player:
             self.centerOn(
                 player.location.x,
                 player.location.y
@@ -226,7 +229,7 @@ class MapCanvas(QGraphicsView):
             self._data.players[name].location.z
         )
 
-        if name == '__you__' and config.data['maps']['use_z_layers']:
+        if name == '__you__' and profile.maps.use_z_layers:
             self._z_index = self._data.geometry.z_groups.index(
                 self._data.get_closest_z_group(
                     self._data.players['__you__'].location.z
@@ -240,11 +243,11 @@ class MapCanvas(QGraphicsView):
                 location=location
             )
 
-        if name == '__you__' and config.data['maps']['auto_follow']:
+        if name == '__you__' and profile.maps.auto_follow:
             self.center()
 
     def enterEvent(self, event):
-        if config.data['maps']['show_mouse_location']:
+        if profile.maps.show_mouse_location:
             self._mouse_location.setVisible(True)
         super().enterEvent(event)
 

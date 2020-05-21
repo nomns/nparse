@@ -1,8 +1,7 @@
 from PyQt5.QtWidgets import QScrollArea
-from PyQt5.QtCore import Qt
 
 from settings import styles
-from helpers import config, sound, text_time_to_seconds
+from utils import sound, text_time_to_seconds
 from widgets import (NDirection, NWindow, NTimer,
                      NContainer, NGroup)
 

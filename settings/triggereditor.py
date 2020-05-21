@@ -1,11 +1,11 @@
-from PyQt5.QtWidgets import (QDialog, QColorDialog, QFileDialog,
-                             QMessageBox, QVBoxLayout)
+from PyQt5.QtWidgets import (QDialog, QFileDialog,
+                             QMessageBox)
 from PyQt5 import uic
 from PyQt5.QtGui import QColor, QPalette
 
-from helpers import (get_spell_icon, resource_path, sound,
-                     get_rgb, set_qcolor, create_regex_from,
-                     get_color)
+from utils import (get_spell_icon, resource_path, sound,
+                   get_rgb, set_qcolor, create_regex_from,
+                   get_color)
 
 
 class TriggerEditor(QDialog):
@@ -159,6 +159,3 @@ class TriggerEditor(QDialog):
                 QMessageBox(text='Could not compile regex: {}'.format(e)).exec()
                 return
         super().accept()
-
-
-

@@ -2,7 +2,8 @@ import datetime
 
 from PyQt5.QtCore import pyqtSignal, QObject
 
-from helpers import create_regex_from
+from utils import create_regex_from
+
 
 class Trigger(QObject):
 

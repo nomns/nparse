@@ -2,17 +2,18 @@ from PyQt5.QtWidgets import (QDialog, QComboBox,
                              QCheckBox, QSpinBox, QColorDialog,
                              QSlider, QLabel, QFileDialog,)
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, QItemSelection, QSize
+from PyQt5.QtCore import QItemSelection, QSize
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem,
                          QColor, QPalette)
 
 import os
 from glob import glob
-from dataclasses import dataclass
 
-from helpers import config, resource_path, set_qcolor, get_rgb, sound, create_tts_mp3
+from utils import resource_path, set_qcolor, get_rgb, sound, create_tts_mp3
+from config import profile_manager
+profile = profile_manager.profile
+
 from .triggertree import TriggerTree
-from .triggereditor import TriggerEditor
 
 
 class SettingsWindow(QDialog):
@@ -142,19 +143,22 @@ class SettingsWindow(QDialog):
         ))
 
     def youColorButtonPress(self, _) -> None:
-        set_qcolor(self.youTargetLabel, background=self._get_color(
-                get_rgb(self.youTargetLabel, QPalette.Background)
-            ))
+        set_qcolor(
+            self.youTargetLabel,
+            background=self._get_color(get_rgb(self.youTargetLabel, QPalette.Background))
+        )
 
     def friendlyColorButtonPress(self, _) -> None:
-        set_qcolor(self.friendlyTargetLabel, background=self._get_color(
-                get_rgb(self.friendlyTargetLabel, QPalette.Background)
-            ))
+        set_qcolor(
+            self.friendlyTargetLabel,
+            background=self._get_color(get_rgb(self.friendlyTargetLabel, QPalette.Background))
+        )
 
     def enemyColorButtonPress(self, _) -> None:
-        set_qcolor(self.enemyTargetLabel, background=self._get_color(
-                get_rgb(self.enemyTargetLabel, QPalette.Background)
-            ))
+        set_qcolor(
+            self.enemyTargetLabel,
+            background=self._get_color(get_rgb(self.enemyTargetLabel, QPalette.Background))
+        )
 
     def targetTextColorButtonPress(self, _) -> None:
         color = self._get_color(
@@ -165,9 +169,10 @@ class SettingsWindow(QDialog):
         set_qcolor(self.enemyTargetLabel, foreground=color)
 
     def textShadowColorButtonPress(self, _) -> None:
-        set_qcolor(self.textShadowColorLabel, background=self._get_color(
-                get_rgb(self.textShadowColorLabel, QPalette.Background)
-            ))
+        set_qcolor(
+            self.textShadowColorLabel,
+            background=self._get_color(get_rgb(self.textShadowColorLabel, QPalette.Background))
+        )
 
     def _get_color(self, rgba: list = None) -> QColor:
         color = QColorDialog.getColor(
@@ -183,28 +188,38 @@ class SettingsWindow(QDialog):
             for setting, widget in references.items():
                 wt = type(widget)
                 if wt == QCheckBox:
-                    config.data[section][setting] = widget.isChecked()
+                    profile.__dict__[section].__dict__[setting] = widget.isChecked()
+
                 elif wt == QSpinBox:
-                    config.data[section][setting] = widget.value()
+                    profile.__dict__[section].__dict__[setting] = widget.value()
                 elif wt == QSlider:
-                    config.data[section][setting] = widget.value()
+                    profile.__dict__[section].__dict__[setting] = widget.value()
                 elif wt == QLabel:
-                    config.data[section][setting] = widget.text()
+                    profile.__dict__[section].__dict__[setting] = widget.text()
                 elif wt == QComboBox:
-                    config.data[section][setting] = widget.currentText()
+                    profile.__dict__[section].__dict__[setting] = widget.currentText()
 
         # spell color bars
-        config.data['spells']['buff_text_color'] = get_rgb(self.buffBarLabel, self.buffBarLabel.foregroundRole())
-        config.data['spells']['buff_bar_color'] = get_rgb(self.buffBarLabel, self.buffBarLabel.backgroundRole())
-        config.data['spells']['debuff_text_color'] = get_rgb(self.debuffBarLabel, self.debuffBarLabel.foregroundRole())
-        config.data['spells']['debuff_bar_color'] = get_rgb(self.debuffBarLabel, self.debuffBarLabel.backgroundRole())
-        config.data['spells']['you_target_color'] = get_rgb(self.youTargetLabel, self.youTargetLabel.backgroundRole())
-        config.data['spells']['friendly_target_color'] = get_rgb(self.friendlyTargetLabel, self.friendlyTargetLabel.backgroundRole())
-        config.data['spells']['enemy_target_color'] = get_rgb(self.enemyTargetLabel, self.enemyTargetLabel.backgroundRole())
-        config.data['spells']['target_text_color'] = get_rgb(self.enemyTargetLabel, self.enemyTargetLabel.foregroundRole())
+        profile.spells.buff_text_color =\
+            get_rgb(self.buffBarLabel, self.buffBarLabel.foregroundRole())
+        profile.spells.buff_bar_color =\
+            get_rgb(self.buffBarLabel, self.buffBarLabel.backgroundRole())
+        profile.spells.debuff_text_color =\
+            get_rgb(self.debuffBarLabel, self.debuffBarLabel.foregroundRole())
+        profile.spells.debuff_bar_color =\
+            get_rgb(self.debuffBarLabel, self.debuffBarLabel.backgroundRole())
+        profile.spells.you_target_color =\
+            get_rgb(self.youTargetLabel, self.youTargetLabel.backgroundRole())
+        profile.spells.friendly_target_color =\
+            get_rgb(self.friendlyTargetLabel, self.friendlyTargetLabel.backgroundRole())
+        profile.spells.enemy_target_color =\
+            get_rgb(self.enemyTargetLabel, self.enemyTargetLabel.backgroundRole())
+        profile.spells.target_text_color =\
+            get_rgb(self.enemyTargetLabel, self.enemyTargetLabel.foregroundRole())
 
         # text color
-        config.data['text']['shadow_color'] = get_rgb(self.textShadowColorLabel, self.textShadowColorLabel.backgroundRole())
+        profile.text.shadow_color =\
+            get_rgb(self.textShadowColorLabel, self.textShadowColorLabel.backgroundRole())
 
         config.triggers = self.triggerTree.get_values()
         config.save()
@@ -219,58 +234,57 @@ class SettingsWindow(QDialog):
             for setting, widget in references.items():
                 wt = type(widget)
                 if wt == QCheckBox:
-                    widget.setChecked(config.data[section][setting])
+                    widget.setChecked(profile.__dict__[section].__dict__[setting])
                 elif wt == QSpinBox:
-                    widget.setValue(config.data[section][setting])
+                    widget.setValue(profile.__dict__[section].__dict__[setting])
                 elif wt == QSlider:
-                    widget.setValue(config.data[section][setting])
+                    widget.setValue(profile.__dict__[section].__dict__[setting])
                 elif wt == QLabel:
-                    widget.setText(config.data[section][setting])
+                    widget.setText(profile.__dict__[section].__dict__[setting])
                 elif wt == QComboBox:
-                    widget.setCurrentText(config.data[section][setting])
-
+                    widget.setCurrentText(profile.__dict__[section].__dict__[setting])
 
         # set bar colors for spells
 
         # buff bar
         set_qcolor(
             self.buffBarLabel,
-            foreground=QColor(*config.data['spells']['buff_text_color']),
-            background=QColor(*config.data['spells']['buff_bar_color'])
+            foreground=QColor(*profile.spells.buff_text_color),
+            background=QColor(*profile.spells.buff_bar_color)
         )
 
         # debuff bar
         set_qcolor(
             self.debuffBarLabel,
-            foreground=QColor(*config.data['spells']['debuff_text_color']),
-            background=QColor(*config.data['spells']['debuff_bar_color'])
+            foreground=QColor(*profile.spells.debuff_text_color),
+            background=QColor(*profile.spells.debuff_bar_color)
         )
 
         # you target
         set_qcolor(
             self.youTargetLabel,
-            foreground=QColor(*config.data['spells']['target_text_color']),
-            background=QColor(*config.data['spells']['you_target_color'])
+            foreground=QColor(*profile.spells.target_text_color),
+            background=QColor(*profile.spells.you_target_color)
         )
 
         # friendly target
         set_qcolor(
             self.friendlyTargetLabel,
-            foreground=QColor(*config.data['spells']['target_text_color']),
-            background=QColor(*config.data['spells']['friendly_target_color'])
+            foreground=QColor(*profile.spells.target_text_color),
+            background=QColor(*profile.spells.friendly_target_color)
         )
 
         # enemey target
         set_qcolor(
             self.enemyTargetLabel,
-            foreground=QColor(*config.data['spells']['target_text_color']),
-            background=QColor(*config.data['spells']['enemy_target_color'])
+            foreground=QColor(*profile.spells.target_text_color),
+            background=QColor(*profile.spells.enemy_target_color)
         )
 
         # text shadow color
         set_qcolor(
             self.textShadowColorLabel,
-            background=QColor(*config.data['text']['shadow_color'])
+            background=QColor(*profile.text.shadow_color)
         )
 
         # Remove triggertree if it exists and reinsert it
@@ -282,7 +296,7 @@ class SettingsWindow(QDialog):
         self.treeViewLayout.insertWidget(0, self.triggerTree, 1)
 
     def _build_ref(self) -> dict:
-        d = {
+        return {
             'general': {
                 'eq_dir': self.eqDirectoryLabel,
                 'update_check': self.updateCheckCheckBox,
@@ -311,4 +325,3 @@ class SettingsWindow(QDialog):
                 'shadow_radius': self.shadowBlurRadiusSpinBox
             }
         }
-        return d

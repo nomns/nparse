@@ -4,7 +4,8 @@ from PyQt5.QtWidgets import QGraphicsTextItem, QGraphicsDropShadowEffect
 from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import QTimer
 
-from helpers import config
+from config import profile_manager
+profile = profile_manager.profile
 
 from .common import TextAction
 
@@ -15,9 +16,9 @@ class TextItem(QGraphicsTextItem):
         super().__init__()
         self.action = text_action
         self.timestamp = datetime.now()
-        self._opacity = self.action.color[-1]/255
+        self._opacity = self.action.color[-1] / 255
         self._update_frequency = 30
-        self._direction = 1 if config.data['text']['direction'] == 'down' else -1
+        self._direction = 1 if profile.text.direction == 'down' else -1
 
         self.setPlainText(text_action.text)
         self.setDefaultTextColor(QColor(*self.action.color))
@@ -25,9 +26,9 @@ class TextItem(QGraphicsTextItem):
             QFont('Arial', self.action.text_size)
         )
         effect = QGraphicsDropShadowEffect()
-        effect.setBlurRadius(config.data['text']['shadow_radius'])
+        effect.setBlurRadius(profile.text.shadow_blur_radius)
         effect.setOffset(0, 0)
-        effect.setColor(QColor(*config.data['text']['shadow_color']))
+        effect.setColor(QColor(*profile.text.shadow_color))
         self.setGraphicsEffect(effect)
         self.setOpacity(self._opacity)
 
@@ -35,18 +36,15 @@ class TextItem(QGraphicsTextItem):
 
     def _update(self) -> None:
         seconds = (datetime.now() - self.timestamp).total_seconds()
-        if seconds > config.data['text']['fade_seconds']:
+        if seconds > profile.text.fade_seconds:
             self._remove()
         else:
             self.moveBy(
                 0,
-                config.data['text']['pixels_per_second']*0.03 * self._direction
+                profile.text.pixels_per_second * 0.03 * self._direction
             )
             self.setOpacity(
-                self._opacity - (
-                        self._opacity
-                        * (seconds/config.data['text']['fade_seconds'])
-                   )
+                self._opacity - (self._opacity * (seconds / profile.text.fade_seconds))
             )
             QTimer.singleShot(self._update_frequency, self._update)
 

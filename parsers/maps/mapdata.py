@@ -5,7 +5,8 @@ from collections import Counter
 from PyQt5.QtGui import QColor, QPen, QPainterPath
 from PyQt5.QtWidgets import QGraphicsPathItem, QGraphicsItemGroup
 
-from helpers import config
+from config import profile_manager
+profile = profile_manager.profile
 
 from .mapclasses import MapPoint, MapGeometry, MapLine, PointOfInterest
 
@@ -32,8 +33,9 @@ class MapData(dict):
         # Get list of all map files for current zone
         map_file_name = MapData.get_zone_dict()[self.zone.strip().lower()]
         extensions = ['.txt', '_1.txt', '_2.txt', '_3.txt', '_4.txt', '_5.txt']
-        maps = [os.path.join(MAP_FILES_LOCATION, m) for m in [(map_file_name + e)
-                                                              for e in extensions] if os.path.exists(os.path.join(MAP_FILES_LOCATION, m))]
+        maps = [os.path.join(MAP_FILES_LOCATION, m)
+                for m in [(map_file_name + e) for e in extensions]
+                if os.path.exists(os.path.join(MAP_FILES_LOCATION, m))]
 
         all_x, all_y, all_z = [], [], []
 
@@ -82,21 +84,35 @@ class MapData(dict):
                         ))
 
         # Create Grid Lines
-        lowest_x, highest_x, lowest_y, highest_y, lowest_z, highest_z = min(all_x), max(all_x), min(all_y), max(
-            all_y), min(all_z), max(all_z)
+        lowest_x, highest_x, lowest_y, highest_y, lowest_z, highest_z =\
+            min(all_x), max(all_x), min(all_y), max(all_y), min(all_z), max(all_z)
 
-        left, right = int(math.floor(lowest_x / 1000) *
-                          1000), int(math.ceil(highest_x / 1000) * 1000)
-        top, bottom = int(math.floor(lowest_y / 1000) *
-                          1000), int(math.ceil(highest_y / 1000) * 1000)
+        left, right =\
+            int(math.floor(lowest_x / 1000) * 1000), int(math.ceil(highest_x / 1000) * 1000)
+        top, bottom =\
+            int(math.floor(lowest_y / 1000) * 1000), int(math.ceil(highest_y / 1000) * 1000)
 
         for number in range(left, right + 1000, 1000):
             self.raw['grid'].append(MapLine(
-                x1=number, x2=number, y1=top, y2=bottom, z1=0, z2=0, color=QColor(255, 255, 255, 25)))
+                x1=number,
+                x2=number,
+                y1=top,
+                y2=bottom,
+                z1=0,
+                z2=0,
+                color=QColor(255, 255, 255, 25))
+            )
 
         for number in range(top, bottom + 1000, 1000):
             self.raw['grid'].append(MapLine(
-                y1=number, y2=number, x1=left, x2=right, z1=0, z2=0, color=QColor(255, 255, 255, 25)))
+                y1=number,
+                y2=number,
+                x1=left,
+                x2=right,
+                z1=0,
+                z2=0,
+                color=QColor(255, 255, 255, 25))
+            )
 
         self.grid = QGraphicsPathItem()
         line_path = QPainterPath()
@@ -106,7 +122,7 @@ class MapData(dict):
         self.grid.setPath(line_path)
         self.grid.setPen(QPen(
             line.color,
-            config.data['maps']['grid_line_width']
+            profile.maps.grid_line_width
         ))
         self.grid.setZValue(0)
 
@@ -140,20 +156,20 @@ class MapData(dict):
 
         # Create QGraphicsPathItem for lines seperately to retain colors
         temp_dict = {}
-        for l in self.raw['lines']:
-            lz = min(l.z1, l.z2)
+        for line in self.raw['lines']:
+            lz = min(line.z1, line.z2)
             lz = self.get_closest_z_group(lz)
             if not temp_dict.get(lz, None):
                 temp_dict[lz] = {'paths': {}}
-            lc = l.color.getRgb()
+            lc = line.color.getRgb()
             if not temp_dict[lz]['paths'].get(lc, None):
                 path_item = QGraphicsPathItem()
                 path_item.setPen(
-                    QPen(l.color, config.data['maps']['line_width']))
+                    QPen(line.color, profile.maps.line_width))
                 temp_dict[lz]['paths'][lc] = path_item
             path = temp_dict[lz]['paths'][lc].path()
-            path.moveTo(l.x1, l.y1)
-            path.lineTo(l.x2, l.y2)
+            path.moveTo(line.x1, line.y1)
+            path.lineTo(line.x2, line.y2)
             temp_dict[lz]['paths'][lc].setPath(path)
 
         # Group QGraphicsPathItems into QGraphicsItemGroups and update self

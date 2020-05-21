@@ -2,7 +2,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel,
                              QVBoxLayout, QWidget, QStackedWidget)
 
-from helpers import config
+from config import profile_manager
+profile = profile_manager.profile
+
 from settings import styles
 
 from .nmover import NMover
@@ -72,16 +74,21 @@ class NWindow(QFrame):
 
     def set_flags(self):
         self.setFocus()
-        self.setWindowFlags(Qt.SubWindow | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowCloseButtonHint | Qt.WindowMinMaxButtonsHint)
+        self.setWindowFlags(
+            Qt.SubWindow
+            | Qt.FramelessWindowHint
+            | Qt.WindowStaysOnTopHint
+            | Qt.WindowCloseButtonHint
+            | Qt.WindowMinMaxButtonsHint)
         self.show()
 
     def load(self):
-        g = config.data.get(self.name, {}).get('geometry', None)
+        g = profile.__dict__[self.name].geometry
 
         if g:
-            self.setGeometry(g[0], g[1], g[2], g[3])
+            self.setGeometry(*g)
         # if parser is toggled, make visible and set flags
-        if config.data.get(self.name, {}).get('toggled', False):
+        if profile.__dict__[self.name].toggled:
             self.set_flags()
             self.show()
         else:
@@ -92,18 +99,15 @@ class NWindow(QFrame):
         self._title.setText(title)
 
     def toggle(self, _=None):
-        toggled = not config.data[self.name]['toggled']
-        config.data[self.name]['toggled'] = toggled
-        config.save()
-        if toggled:
+        profile.__dict__[self.name].toggled = not profile.__dict__[self.name].toggled
+        if profile.__dict__[self.name].toggled:
             self.set_flags()
             self.show()
         else:
             self.hide()
 
     def closeEvent(self, _):
-        config.data[self.name]['toggled'] = False
-        config.save()
+        profile.__dict__[self.name].toggled = False
 
     def enterEvent(self, event):
         if self._locked:
@@ -129,7 +133,7 @@ class NWindow(QFrame):
 
     def toggle_menu(self, on=True):
         self._menu.setVisible(True) if on else self._menu.setVisible(False)
-                
+
     def unlock(self):
         self._locked = False
         self.toggle_transparency(False)

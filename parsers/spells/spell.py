@@ -3,7 +3,8 @@ import datetime
 
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 
-from helpers import config
+from config import profile_manager
+profile = profile_manager.profile
 
 
 class Spell:
@@ -48,27 +49,29 @@ class SpellTrigger(QObject):
         self._activate_timer.setSingleShot(True)
         self._activate_timer.timeout.connect(self._activate)
 
-        if config.data['spells']['use_casting_window']:
-            #  just in case user set casting window buffer super low, create offset for more accuracy.
-            msec_offset = (datetime.datetime.now() -
-                           self.timestamp).total_seconds() * 1000
+        if profile.spells.use_casting_window:
+            # just in case user set casting window buffer super low,
+            # create offset for more accuracy.
+            msec_offset =\
+                (datetime.datetime.now() - self.timestamp).total_seconds() * 1000
             self._times_up_timer.start(
-                self.spell.cast_time + config.data['spells']['casting_window_buffer'] - msec_offset)
+                self.spell.cast_time + profile.spells.casting_window_buffer - msec_offset)
             self._activate_timer.start(
-                self.spell.cast_time - config.data['spells']['casting_window_buffer'] - msec_offset)
+                self.spell.cast_time - profile.spells.casting_window_buffer - msec_offset)
         else:
             self.activated = True
 
     def parse(self, timestamp, text):
         if self.activated:
-            if self.spell.effect_text_you and text[:len(self.spell.effect_text_you)] == self.spell.effect_text_you:
+            if self.spell.effect_text_you\
+                    and text[:len(self.spell.effect_text_you)] == self.spell.effect_text_you:
                 # cast self
                 self.targets.append((timestamp, '__you__'))
-            elif text[len(text) - len(self.spell.effect_text_other):] == self.spell.effect_text_other and \
-                    len(self.spell.effect_text_other) > 0:
+            elif text[len(text) - len(self.spell.effect_text_other):] ==\
+                    self.spell.effect_text_other and len(self.spell.effect_text_other) > 0:
                 # cast other
-                target = text[:len(text) -
-                              len(self.spell.effect_text_other)].strip()
+                target =\
+                    text[:len(text) - len(self.spell.effect_text_other)].strip()
                 self.targets.append((timestamp, target))
             if self.targets and self.spell.max_targets == 1:
                 self.stop()  # make sure you don't get two triggers
@@ -112,9 +115,9 @@ def create_spell_book():
 
 
 def get_spell_duration(spell, level):
-    if spell.name in config.data['spells']['use_secondary']:
+    if spell.name in profile.spells.use_secondary:
         formula, duration = spell.pvp_duration_formula, spell.pvp_duration
-    elif config.data['spells']['use_secondary_all'] and spell.type == 0:
+    elif profile.spells.use_secondary_all and spell.type == 0:
         formula, duration = spell.pvp_duration_formula, spell.pvp_duration
     else:
         formula, duration = spell.duration_formula, spell.duration

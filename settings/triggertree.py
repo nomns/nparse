@@ -3,7 +3,9 @@ from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem,
 from PyQt5.QtGui import QIcon, QMouseEvent
 from PyQt5.QtCore import Qt
 
-from helpers import config, resource_path
+from utils import resource_path
+from config import profile_manager
+profile = profile_manager.profile
 
 from .triggereditor import TriggerEditor
 
@@ -38,7 +40,9 @@ class TriggerTree(QTreeWidget):
                 )
                 trigger_item.setCheckState(
                     0,
-                    Qt.Checked if config.triggers[group]['triggers'][trig]['enabled'] else Qt.Unchecked
+                    Qt.Checked
+                    if config.triggers[group]['triggers'][trig]['enabled']
+                    else Qt.Unchecked
                 )
                 tg.addChild(trigger_item)
             self.root.addChild(tg)
@@ -121,7 +125,8 @@ class TriggerTree(QTreeWidget):
                 trigger_name = trigger.text(0)
                 d[group_name]['triggers'][trigger_name] = {}
                 d[group_name]['triggers'][trigger_name] = trigger.value
-                d[group_name]['triggers'][trigger_name]['enabled'] = True if trigger.checkState(0) == Qt.Checked else False
+                d[group_name]['triggers'][trigger_name]['enabled'] =\
+                    True if trigger.checkState(0) == Qt.Checked else False
         return d
 
     def trigger_exists(self, trigger_name):
@@ -218,7 +223,12 @@ class TriggerGroup(QTreeWidgetItem):
         super().__init__()
         self.setIcon(0, QIcon(resource_path('data/ui/folder.png')))
         self.setText(0, group_name)
-        self.setFlags(self.flags() | Qt.ItemIsDropEnabled | Qt.ItemIsUserCheckable | Qt.ItemIsEditable)
+        self.setFlags(
+            self.flags()
+            | Qt.ItemIsDropEnabled
+            | Qt.ItemIsUserCheckable
+            | Qt.ItemIsEditable
+        )
         self.setFlags(self.flags() ^ Qt.ItemIsDragEnabled)
 
 

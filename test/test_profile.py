@@ -11,14 +11,16 @@ class TestProfile(unittest.TestCase):
         self.assertIsInstance(profile.Profile().json(), str)
 
     def test_update(self):
-        p = profile.Profile()
-        p.update({
-            'triggers': {
-                'toggled': False
+        test_profile = profile.Profile()
+        test_profile.update(
+            {
+                'triggers': {
+                    'toggled': False
+                }
             }
-        })
-        self.assertIsInstance(p, profile.Profile)
-        self.assertEqual(False, p.triggers.toggled)
+        )
+        self.assertIsInstance(test_profile, profile.Profile)
+        self.assertEqual(False, test_profile.triggers.toggled)
 
 
 if __name__ == '__main__':

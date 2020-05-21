@@ -1,10 +1,10 @@
-from PyQt5.QtWidgets import QScrollArea, QSpinBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QScrollArea
 
-from helpers import config
 from settings import styles
 from widgets import (NWindow, NContainer, NGroup,
                      NTimer, NDirection)
+from config import profile_manager
+profile = profile_manager.profile
 
 from .spell import (create_spell_book, get_spell_duration,
                     SpellTrigger)
@@ -24,12 +24,6 @@ class Spells(NWindow):
         self._scroll_area.setWidget(self._spell_container)
         self._scroll_area.setObjectName('ScrollArea')
         self.content.addWidget(self._scroll_area, 1)
-        self._level_widget = QSpinBox()
-        self._level_widget.setRange(1, 65)
-        self._level_widget.setValue(config.data['spells']['level'])
-        self._level_widget.setPrefix('lvl. ')
-        self.menu_area.addWidget(self._level_widget, 0)
-        self._level_widget.valueChanged.connect(self._level_change)
 
         self.spell_book = create_spell_book()
         self._casting = None  # holds Spell when casting
@@ -68,7 +62,7 @@ class Spells(NWindow):
                             timestamp=target[0],
                             duration=get_spell_duration(
                                 s,
-                                config.data['spells']['level']
+                                profile.spells.level
                             ) * 6,
                             icon=s.spell_icon,
                             style=(
@@ -77,9 +71,9 @@ class Spells(NWindow):
                                 styles.debuff_spell()
                             ),
                             sound=(
-                                config.data['spells']['sound_file']
-                                if config.data['spells']['sound_enabled'] else
-                                None
+                                profile.spells.sound_file
+                                if profile.spells.sound_enabled
+                                else None
                             ),
                             direction=NDirection.DOWN
                         ),
@@ -139,10 +133,6 @@ class Spells(NWindow):
             self._spell_trigger.stop()
             self._spell_trigger.deleteLater()
             self._spell_trigger = None
-
-    def _level_change(self, _):
-        config.data['spells']['level'] = self._level_widget.value()
-        config.save()
 
     def settings_updated(self):
         super().settings_updated()
