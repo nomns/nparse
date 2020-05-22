@@ -2,12 +2,15 @@ from dataclasses import dataclass, field, asdict
 from typing import List, Dict
 import json
 
+from PyQt5.QtCore import QFile, QByteArray
+
 
 @dataclass
 class TriggerTimer:
     enabled: bool = False
     duration: str = '60'
     icon: int = 1
+    text: str = ''
     persistent: bool = False
     bar_color: List[int] = field(default_factory=lambda: [181, 178, 34, 255])
     text_color: List[int] = field(default_factory=lambda: [0, 0, 0, 255])
@@ -24,7 +27,8 @@ class TriggerText:
 @dataclass
 class TriggerSound:
     enabled: bool = False
-    location: str = ''
+    volume: int = 100
+    data: QByteArray = None
 
 
 @dataclass
@@ -53,3 +57,9 @@ class Trigger:
                 self.update(v, ref[k].__dict__)
             else:
                 ref[k] = v
+
+
+@dataclass
+class TriggerContainer:
+    name: str = ''
+    triggers: List[any] = field(default_factory=lambda: [])

@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QFrame, QHBoxLayout, QProgressBar, QLabel
 from PyQt5.QtCore import QTimer
 
 from utils import format_time, get_spell_icon, sound
-from settings import styles
+from config.ui import styles
 
 from .common import NDirection
 

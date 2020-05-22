@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel,
 from config import profile_manager
 profile = profile_manager.profile
 
-from settings import styles
+from config.ui import styles
 
 from .nmover import NMover
 

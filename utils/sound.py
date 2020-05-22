@@ -13,6 +13,7 @@ player = QMediaPlayer(flags=QMediaPlayer.LowLatency)
 
 def play(filename):
     try:
+        player.media
         player.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
         player.setVolume(profile.sound_volume)
         player.play()

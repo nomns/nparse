@@ -11,8 +11,9 @@ from PyQt5.QtWidgets import (QApplication, QMenu, QSystemTrayIcon)
 
 import parsers
 from utils import logreader, resource_path, get_version, logger
-from settings import SettingsWindow
+
 from config import app_config, profile_manager
+from config.ui import SettingsWindow
 
 # create logger
 log = logger.get_logger(__name__)

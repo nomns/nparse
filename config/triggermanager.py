@@ -1,9 +1,13 @@
 import os
 import glob
+from pathlib import Path
+from typing import Dict
 
-from .trigger import Trigger
+from .trigger import Trigger, TriggerContainer
 
 TRIGGERS_LOCATION = './data/triggers'
+
+def dict_to_triggers(dictionary: Dict[str, any]):
 
 
 class TriggerManager:
@@ -16,6 +20,9 @@ class TriggerManager:
 
     def load(self):
         # trigger trees are kept in their own file so they can be distributed
-        for trigger_file in glob.glob(TRIGGERS_LOCATION, '*.json'):
+        for trigger_archive in glob.glob(TRIGGERS_LOCATION, '*.json'):
+            name = Path(trigger_archive).stem
+            container = TriggerContainer(
 
+            )
 

@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QScrollArea
 
-from settings import styles
+from config.ui import styles
 from widgets import (NWindow, NContainer, NGroup,
                      NTimer, NDirection)
 from config import profile_manager
