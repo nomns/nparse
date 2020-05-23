@@ -137,7 +137,7 @@ def parser_window() -> str:
             background: transparent;
         }}
 
-        """.format(window_opacity=profile.parser_opacity / 100 * 255)
+        """.format(window_opacity=profile.maps.opacity / 100 * 255)
 
 
 group_label = """

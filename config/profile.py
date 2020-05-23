@@ -6,7 +6,7 @@ import json
 @dataclass
 class ProfileMaps:
     auto_follow: bool = True
-    parser_opacity: int = 30
+    opacity: int = 30
     closest_z_alpha: int = 20
     current_z_alpha: int = 100
     geometry: List[int] = field(default_factory=lambda: [0, 0, 100, 100])
@@ -36,6 +36,7 @@ class ProfileSpells:
     level: int = 1
     sound_enabled: bool = True
     sound_file: str = 'data/mp3/ding.mp3'
+    sound_volume: int = 100
     target_text_color: List[int] = field(default_factory=lambda: [255, 255, 255, 255])
     toggled: bool = True
     use_casting_window: bool = True
@@ -66,8 +67,6 @@ class ProfileTriggers:
 class Profile:
     name: str = ''  # blank name means profile will not save.
     log_file: str = ''
-    sound_volume: int = 25
-    parser_opacity: int = 30
     maps: ProfileMaps = ProfileMaps()
     spells: ProfileSpells = ProfileSpells()
     text: ProfileText = ProfileText()

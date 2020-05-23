@@ -1,17 +1,49 @@
-from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem,
-                             QMenu, QInputDialog, QMessageBox)
+from typing import List
+
+from PyQt5.QtWidgets import (
+    QTreeWidget,
+    QTreeWidgetItem,
+    QMenu,
+    QInputDialog,
+    QMessageBox,
+)
 from PyQt5.QtGui import QIcon, QMouseEvent
 from PyQt5.QtCore import Qt
 
 from utils import resource_path
-from config import profile_manager
+from config import profile_manager, trigger_manager
+
 profile = profile_manager.profile
+triggers = trigger_manager.triggers
 
 from .triggereditor import TriggerEditor
+from ..trigger import Trigger, TriggerContainer
+
+
+class TriggerGroup(QTreeWidgetItem):
+    def __init__(self, group_name=None):
+        super().__init__()
+        self.setIcon(0, QIcon(resource_path("data/ui/folder.png")))
+        self.setText(0, group_name)
+        self.setFlags(
+            self.flags()
+            | Qt.ItemIsDropEnabled
+            | Qt.ItemIsUserCheckable
+            | Qt.ItemIsEditable
+        )
+        self.setFlags(self.flags() ^ Qt.ItemIsDragEnabled)
+
+
+class TriggerItem(QTreeWidgetItem):
+    def __init__(self, trigger: Trigger):
+        super().__init__()
+        self.setText(0, trigger.name)
+        self.trigger = trigger
+        self.setFlags(self.flags() | Qt.ItemIsDragEnabled | Qt.ItemIsUserCheckable)
+        self.setFlags(self.flags() ^ Qt.ItemIsDropEnabled)
 
 
 class TriggerTree(QTreeWidget):
-
     def __init__(self):
         super().__init__()
         self.setHeaderHidden(True)
@@ -21,44 +53,36 @@ class TriggerTree(QTreeWidget):
         self.root = self.invisibleRootItem()
         # do not allow drag and drop to root
         self.root.setFlags(self.root.flags() ^ Qt.ItemIsDropEnabled)
+
         self.setAnimated(True)
 
-        self._fill()
+        self._fill(triggers)
 
-    def _fill(self):
-
-        for group in config.triggers.keys():
-            tg = TriggerGroup(group_name=group)
-            tg.setCheckState(
-                0,
-                Qt.Checked if config.triggers[group]['enabled'] else Qt.Unchecked
-            )
-            for trig in config.triggers[group]['triggers']:
-                trigger_item = TriggerItem(
-                    trigger_name=trig,
-                    trigger_data=config.triggers[group]['triggers'][trig]
-                )
-                trigger_item.setCheckState(
-                    0,
-                    Qt.Checked
-                    if config.triggers[group]['triggers'][trig]['enabled']
-                    else Qt.Unchecked
-                )
-                tg.addChild(trigger_item)
+    def _fill(self, triggers: List[any]):
+        for container in triggers:
+            tg = TriggerGroup(group_name=container.name)
+            self._fill_trigger_group(container.items, tg)
             self.root.addChild(tg)
+
+    def _fill_trigger_group(
+        self, triggers: List[any] = None, trigger_group: TriggerGroup = None
+    ):
+        for item in triggers:
+            if type(item) == Trigger:
+                trigger_group.addChild(TriggerItem(item))
+            elif type(item) == TriggerContainer:
+                tg = TriggerGroup(group_name=item.name)
+                self._fill_trigger_group(item.items, tg)
+                trigger_group.addChild(tg)
 
     def is_group_selected(self):
         try:
-            return (
-                True
-                if isinstance(self.selectedItems()[0], TriggerGroup)
-                else False
-            )
+            return True if isinstance(self.selectedItems()[0], TriggerGroup) else False
         except IndexError:
             return False
 
     def add_new_trigger(self, trigger_name: str) -> None:
-        d = {'enabled': False}
+        d = {"enabled": False}
         trigger_item = TriggerItem(trigger_name=trigger_name, trigger_data=d)
         trigger_item.setCheckState(0, Qt.Unchecked)
         selected_item = None
@@ -84,9 +108,7 @@ class TriggerTree(QTreeWidget):
 
     def remove_selected(self):
         try:
-            self.root.removeChild(
-                self.selectedItems()[0]
-            )
+            self.root.removeChild(self.selectedItems()[0])
         except IndexError:
             pass
 
@@ -103,13 +125,13 @@ class TriggerTree(QTreeWidget):
             item = self.itemAt(event.pos())
             menu = QMenu()
             if isinstance(item, TriggerGroup):
-                menu.addAction('New Trigger', self._add_new_trigger)
-                menu.addAction('Delete Group', self._delete_item)
+                menu.addAction("New Trigger", self._add_new_trigger)
+                menu.addAction("Delete Group", self._delete_item)
             elif isinstance(item, TriggerItem):
-                menu.addAction('Edit Trigger', self._edit_trigger)
-                menu.addAction('Delete Trigger', self._delete_item)
+                menu.addAction("Edit Trigger", self._edit_trigger)
+                menu.addAction("Delete Trigger", self._delete_item)
             elif isinstance(item, type(None)):
-                menu.addAction('New Group', self._add_new_group)
+                menu.addAction("New Group", self._add_new_group)
             menu.exec(event.globalPos())
             menu.deleteLater()
 
@@ -119,14 +141,17 @@ class TriggerTree(QTreeWidget):
         for group in [self.root.child(x) for x in range(self.root.childCount())]:
             group_name = group.text(0)
             d[group_name] = {}
-            d[group_name]['enabled'] = True if group.checkState(0) == Qt.Checked else False
-            d[group_name]['triggers'] = {}
+            d[group_name]["enabled"] = (
+                True if group.checkState(0) == Qt.Checked else False
+            )
+            d[group_name]["triggers"] = {}
             for trigger in [group.child(i) for i in range(group.childCount())]:
                 trigger_name = trigger.text(0)
-                d[group_name]['triggers'][trigger_name] = {}
-                d[group_name]['triggers'][trigger_name] = trigger.value
-                d[group_name]['triggers'][trigger_name]['enabled'] =\
+                d[group_name]["triggers"][trigger_name] = {}
+                d[group_name]["triggers"][trigger_name] = trigger.value
+                d[group_name]["triggers"][trigger_name]["enabled"] = (
                     True if trigger.checkState(0) == Qt.Checked else False
+                )
         return d
 
     def trigger_exists(self, trigger_name):
@@ -146,7 +171,9 @@ class TriggerTree(QTreeWidget):
         try:
             item = self.itemFromIndex(args[0])
             if item.parent():
-                item.value['enabled'] = True if item.checkState(0) == Qt.Checked else False
+                item.value["enabled"] = (
+                    True if item.checkState(0) == Qt.Checked else False
+                )
         except:
             pass
 
@@ -156,9 +183,7 @@ class TriggerTree(QTreeWidget):
 
     def _add_new_trigger(self) -> None:
         text, response = QInputDialog.getText(
-            self,
-            "New Trigger",
-            "Enter Trigger Name:"
+            self, "New Trigger", "Enter Trigger Name:"
         )
         if response:
             if not self.trigger_exists(text):
@@ -166,9 +191,7 @@ class TriggerTree(QTreeWidget):
 
     def _add_new_group(self) -> None:
         text, response = QInputDialog.getText(
-            self,
-            "New Group",
-            "Enter New Group Name:"
+            self, "New Group", "Enter New Group Name:"
         )
         if response:
             if not self.group_exists(text):
@@ -176,8 +199,9 @@ class TriggerTree(QTreeWidget):
             else:
                 QMessageBox(
                     QMessageBox.Warning,
-                    "Warning", "{} group already exists.".format(text),
-                    QMessageBox.Ok
+                    "Warning",
+                    "{} group already exists.".format(text),
+                    QMessageBox.Ok,
                 ).exec()
                 self._addGroup()
 
@@ -186,7 +210,7 @@ class TriggerTree(QTreeWidget):
             r = QMessageBox.question(
                 self,
                 "Are you sure?",
-                "Selected item is a group.  Remove group and all triggers it contains?"
+                "Selected item is a group.  Remove group and all triggers it contains?",
             )
             if r == QMessageBox.No:
                 return
@@ -197,46 +221,18 @@ class TriggerTree(QTreeWidget):
             try:
                 item = self.selectedItems()[0]
                 te = TriggerEditor(
-                    self,
-                    trigger_name=item.text(0),
-                    trigger_data=item.value,
+                    self, item.trigger
                 )
                 r = te.exec()
                 te.setParent(None)
                 te.deleteLater()
                 if r:
                     updated = te.value()
-                    if not self.trigger_exists(updated['name']):
-                        item.setText(0, updated['name'])
-                    item.value = updated['data']
+                    if not self.trigger_exists(updated["name"]):
+                        item.setText(0, updated["name"])
+                    item.value = updated["data"]
                     item.setCheckState(
-                        0,
-                        Qt.Checked if updated['data']['enabled'] else Qt.Unchecked
+                        0, Qt.Checked if updated["data"]["enabled"] else Qt.Unchecked
                     )
             except IndexError:
                 pass
-
-
-class TriggerGroup(QTreeWidgetItem):
-
-    def __init__(self, group_name=None):
-        super().__init__()
-        self.setIcon(0, QIcon(resource_path('data/ui/folder.png')))
-        self.setText(0, group_name)
-        self.setFlags(
-            self.flags()
-            | Qt.ItemIsDropEnabled
-            | Qt.ItemIsUserCheckable
-            | Qt.ItemIsEditable
-        )
-        self.setFlags(self.flags() ^ Qt.ItemIsDragEnabled)
-
-
-class TriggerItem(QTreeWidgetItem):
-
-    def __init__(self, trigger_name=None, trigger_data={}):
-        super().__init__()
-        self.setText(0, trigger_name)
-        self.value = trigger_data
-        self.setFlags(self.flags() | Qt.ItemIsDragEnabled | Qt.ItemIsUserCheckable)
-        self.setFlags(self.flags() ^ Qt.ItemIsDropEnabled)

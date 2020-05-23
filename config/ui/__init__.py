@@ -1,30 +1,27 @@
-from PyQt5.QtWidgets import (QDialog, QComboBox,
-                             QCheckBox, QSpinBox, QColorDialog,
-                             QSlider, QLabel, QFileDialog,)
+from PyQt5.QtWidgets import (
+    QDialog,
+    QColorDialog,
+    QFileDialog,
+)
 from PyQt5 import uic
 from PyQt5.QtCore import QItemSelection, QSize
-from PyQt5.QtGui import (QStandardItemModel, QStandardItem,
-                         QColor, QPalette)
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QColor, QPalette
 
 import os
 from glob import glob
 
 from utils import resource_path, set_qcolor, get_rgb, sound, create_tts_mp3
-from config import profile_manager
+from config import profile_manager, trigger_manager, app_config
+
 profile = profile_manager.profile
 
 from .triggertree import TriggerTree
 
 
 class SettingsWindow(QDialog):
-
     def __init__(self) -> None:
         super().__init__()
-
-        uic.loadUi(resource_path('data/ui/settings.ui'), self)
-
-        self._ref = {}
-        self._ref = self._build_ref()
+        uic.loadUi(resource_path("data/ui/settings.ui"), self)
 
         # spell mp3 events
         self.spellSoundSelectButton.clicked.connect(self._set_spell_sound)
@@ -37,31 +34,10 @@ class SettingsWindow(QDialog):
         self.ttsDeleteButton.clicked.connect(self._remove_tts_file)
         self._fill_tts_files(None)
 
-        # section Tree
-        data = {
-            'General': [{'Sound': ['Text to Speech']}],
-            'Profiles': [],
-            'Parsers': [
-                'Maps',
-                {'Spells': ['Appearance']},
-                {'Triggers': ['Defaults']},
-                'Text'
-            ]
-        }
-
-        model = QStandardItemModel()
-        model.setColumnCount(1)
-        self._section_indexes: list = []
-        self._add_section_data(data, model)
-        self.settingsSectionTree.setModel(model)
-        self.settingsSectionTree.selectionModel()\
-            .selectionChanged.connect(self._section_changed)
-        self.settingsSectionTree.resizeColumnToContents(0)
-        self.settingsSectionTree.setMinimumWidth(150)
-
-    def selectEQDirectoryButtonPress(self, _) -> None:
-        dir_path = str(QFileDialog.getExistingDirectory(
-            None, 'Select Everquest Logs Directory'))
+    def selectEQDirectoryButtonPress(self) -> None:
+        dir_path = str(
+            QFileDialog.getExistingDirectory(None, "Select Everquest Logs Directory")
+        )
         if dir_path:
             self.eqDirectoryLabel.setText(dir_path)
 
@@ -83,9 +59,7 @@ class SettingsWindow(QDialog):
     def _section_changed(self, event: QItemSelection) -> None:
         index = self.settingsSectionTree.selectedIndexes()[0]
         section: QStandardItem = index.model().itemFromIndex(index)
-        self.settingsStack.setCurrentIndex(
-            self._section_indexes.index(section)
-        )
+        self.settingsStack.setCurrentIndex(self._section_indexes.index(section))
 
     def _remove_tts_file(self, _) -> None:
         try:
@@ -100,8 +74,7 @@ class SettingsWindow(QDialog):
             created_file = create_tts_mp3(self.ttsTextLineEdit.text())
             if created_file:
                 self.ttsFileCombo.addItem(created_file)
-                self.ttsFileCombo\
-                    .setCurrentIndex(self.ttsFileCombo.count() - 1)
+                self.ttsFileCombo.setCurrentIndex(self.ttsFileCombo.count() - 1)
         self.ttsTextLineEdit.setText("")
 
     def _fill_tts_files(self, _):
@@ -116,54 +89,66 @@ class SettingsWindow(QDialog):
 
     def _set_spell_sound(self, _):
         fd = QFileDialog(self)
-        fd.setDirectory('./data/mp3')
-        f = fd.getOpenFileName(filter='*.mp3')
+        fd.setDirectory("./data/mp3")
+        f = fd.getOpenFileName(filter="*.mp3")
         if f[0]:
             self.spellSoundFileLabel.setText(f[0])
         fd.setParent(None)
 
     def buffTextColorButtonPress(self, _) -> None:
-        set_qcolor(self.buffBarLabel, foreground=self._get_color(
-            get_rgb(self.buffBarLabel, QPalette.Foreground)
-        ))
+        set_qcolor(
+            self.buffBarLabel,
+            foreground=self._get_color(get_rgb(self.buffBarLabel, QPalette.Foreground)),
+        )
 
     def buffBarColorButtonPress(self, _) -> None:
-        set_qcolor(self.buffBarLabel, background=self._get_color(
-            get_rgb(self.buffBarLabel, QPalette.Background)
-        ))
+        set_qcolor(
+            self.buffBarLabel,
+            background=self._get_color(get_rgb(self.buffBarLabel, QPalette.Background)),
+        )
 
     def debuffTextColorButtonPress(self, _) -> None:
-        set_qcolor(self.debuffBarLabel, foreground=self._get_color(
-            get_rgb(self.debuffBarLabel, QPalette.Foreground)
-        ))
+        set_qcolor(
+            self.debuffBarLabel,
+            foreground=self._get_color(
+                get_rgb(self.debuffBarLabel, QPalette.Foreground)
+            ),
+        )
 
     def debuffBarColorButtonPress(self, _) -> None:
-        set_qcolor(self.debuffBarLabel, background=self._get_color(
-            get_rgb(self.debuffBarLabel, QPalette.Background)
-        ))
+        set_qcolor(
+            self.debuffBarLabel,
+            background=self._get_color(
+                get_rgb(self.debuffBarLabel, QPalette.Background)
+            ),
+        )
 
     def youColorButtonPress(self, _) -> None:
         set_qcolor(
             self.youTargetLabel,
-            background=self._get_color(get_rgb(self.youTargetLabel, QPalette.Background))
+            background=self._get_color(
+                get_rgb(self.youTargetLabel, QPalette.Background)
+            ),
         )
 
     def friendlyColorButtonPress(self, _) -> None:
         set_qcolor(
             self.friendlyTargetLabel,
-            background=self._get_color(get_rgb(self.friendlyTargetLabel, QPalette.Background))
+            background=self._get_color(
+                get_rgb(self.friendlyTargetLabel, QPalette.Background)
+            ),
         )
 
     def enemyColorButtonPress(self, _) -> None:
         set_qcolor(
             self.enemyTargetLabel,
-            background=self._get_color(get_rgb(self.enemyTargetLabel, QPalette.Background))
+            background=self._get_color(
+                get_rgb(self.enemyTargetLabel, QPalette.Background)
+            ),
         )
 
     def targetTextColorButtonPress(self, _) -> None:
-        color = self._get_color(
-            get_rgb(self.youTargetLabel, QPalette.Foreground)
-        )
+        color = self._get_color(get_rgb(self.youTargetLabel, QPalette.Foreground))
         set_qcolor(self.youTargetLabel, foreground=color)
         set_qcolor(self.friendlyTargetLabel, foreground=color)
         set_qcolor(self.enemyTargetLabel, foreground=color)
@@ -171,120 +156,140 @@ class SettingsWindow(QDialog):
     def textShadowColorButtonPress(self, _) -> None:
         set_qcolor(
             self.textShadowColorLabel,
-            background=self._get_color(get_rgb(self.textShadowColorLabel, QPalette.Background))
+            background=self._get_color(
+                get_rgb(self.textShadowColorLabel, QPalette.Background)
+            ),
         )
 
     def _get_color(self, rgba: list = None) -> QColor:
         color = QColorDialog.getColor(
-            QColor(*rgba),
-            self,
-            'Choose a Color',
-            QColorDialog.ShowAlphaChannel
+            QColor(*rgba), self, "Choose a Color", QColorDialog.ShowAlphaChannel
         )
         return color if color.isValid() else QColor(*rgba)
 
     def save_settings(self):
-        for section, references in self._ref.items():
-            for setting, widget in references.items():
-                wt = type(widget)
-                if wt == QCheckBox:
-                    profile.__dict__[section].__dict__[setting] = widget.isChecked()
+        # General
+        app_config.update_check = self.updateCheckCheckBox.isChecked()
+        app_config.eq_dir = self.eqDirectoryLabel.text()
+        app_config.qt_scale_factor = self.qtScalingSpinBox.value()
 
-                elif wt == QSpinBox:
-                    profile.__dict__[section].__dict__[setting] = widget.value()
-                elif wt == QSlider:
-                    profile.__dict__[section].__dict__[setting] = widget.value()
-                elif wt == QLabel:
-                    profile.__dict__[section].__dict__[setting] = widget.text()
-                elif wt == QComboBox:
-                    profile.__dict__[section].__dict__[setting] = widget.currentText()
+        # Maps
+        profile.maps.opacity = self.mapsOpacitySpinBox.value()
+        profile.maps.line_width = self.mapLineSizeSpinBox.value()
+        profile.maps.grid_line_width = self.mapGridLineSizeSpinBox.value()
+        profile.maps.current_z_alpha = self.mapCurrentLevelSpinBox.value()
+        profile.maps.closest_z_alpha = self.mapClosestLevelSpinBox.value()
+        profile.maps.other_z_alpha = self.mapOtherLevelSpinBox.value()
 
-        # spell color bars
-        profile.spells.buff_text_color =\
-            get_rgb(self.buffBarLabel, self.buffBarLabel.foregroundRole())
-        profile.spells.buff_bar_color =\
-            get_rgb(self.buffBarLabel, self.buffBarLabel.backgroundRole())
-        profile.spells.debuff_text_color =\
-            get_rgb(self.debuffBarLabel, self.debuffBarLabel.foregroundRole())
-        profile.spells.debuff_bar_color =\
-            get_rgb(self.debuffBarLabel, self.debuffBarLabel.backgroundRole())
-        profile.spells.you_target_color =\
-            get_rgb(self.youTargetLabel, self.youTargetLabel.backgroundRole())
-        profile.spells.friendly_target_color =\
-            get_rgb(self.friendlyTargetLabel, self.friendlyTargetLabel.backgroundRole())
-        profile.spells.enemy_target_color =\
-            get_rgb(self.enemyTargetLabel, self.enemyTargetLabel.backgroundRole())
-        profile.spells.target_text_color =\
-            get_rgb(self.enemyTargetLabel, self.enemyTargetLabel.foregroundRole())
+        # Spells
 
-        # text color
-        profile.text.shadow_color =\
-            get_rgb(self.textShadowColorLabel, self.textShadowColorLabel.backgroundRole())
+        profile.spells.use_casting_window = self.spellsUseCastingWindowCheckBox.isChecked()
+        profile.spells.casting_window_buffer = self.spellsCastingWindowTimeSpinBox.value()
+        profile.spells.sound_enabled = self.spellsSoundEnabledCheckBox.isChecked()
+        profile.spells.sound_volume = self.spellsSoundVolumesSlider.value()
+        profile.spells.use_secondary_all = self.spellsUsePVPSpellDurationsCheckBox.isChecked()
 
-        config.triggers = self.triggerTree.get_values()
-        config.save()
+        profile.spells.buff_text_color = get_rgb(
+            self.buffBarLabel, self.buffBarLabel.foregroundRole()
+        )
+        profile.spells.buff_bar_color = get_rgb(
+            self.buffBarLabel, self.buffBarLabel.backgroundRole()
+        )
+        profile.spells.debuff_text_color = get_rgb(
+            self.debuffBarLabel, self.debuffBarLabel.foregroundRole()
+        )
+        profile.spells.debuff_bar_color = get_rgb(
+            self.debuffBarLabel, self.debuffBarLabel.backgroundRole()
+        )
+        profile.spells.you_target_color = get_rgb(
+            self.youTargetLabel, self.youTargetLabel.backgroundRole()
+        )
+        profile.spells.friendly_target_color = get_rgb(
+            self.friendlyTargetLabel, self.friendlyTargetLabel.backgroundRole()
+        )
+        profile.spells.enemy_target_color = get_rgb(
+            self.enemyTargetLabel, self.enemyTargetLabel.backgroundRole()
+        )
+        profile.spells.target_text_color = get_rgb(
+            self.enemyTargetLabel, self.enemyTargetLabel.foregroundRole()
+        )
+
+        # Text
+
+        profile.text.direction = self.textDirectionComboBox.currentText()
+        profile.text.fade_seconds = self.textFadeSecondsSpinBox.value()
+        profile.text.pixels_per_second = self.textPixelsPerSecondSpinBox.value()
+        profile.text.shadow_blur_radius = self.textShadowBlurRadiusSpinBox.value()
+
+        profile.text.shadow_color = get_rgb(
+            self.textShadowColorLabel, self.textShadowColorLabel.backgroundRole()
+        )
+
+        app_config.save()
+        profile_manager.save()
+        trigger_manager.update(self.triggerTree.get_values())
+        trigger_manager.save()
 
     def set_values(self):
-        # Combo box setups
-        # text
-        self.textDirectionComboBox.clear()
-        self.textDirectionComboBox.addItems(['up', 'down'])
 
-        for section, references in self._ref.items():
-            for setting, widget in references.items():
-                wt = type(widget)
-                if wt == QCheckBox:
-                    widget.setChecked(profile.__dict__[section].__dict__[setting])
-                elif wt == QSpinBox:
-                    widget.setValue(profile.__dict__[section].__dict__[setting])
-                elif wt == QSlider:
-                    widget.setValue(profile.__dict__[section].__dict__[setting])
-                elif wt == QLabel:
-                    widget.setText(profile.__dict__[section].__dict__[setting])
-                elif wt == QComboBox:
-                    widget.setCurrentText(profile.__dict__[section].__dict__[setting])
+        # General
+        self.updateCheckCheckBox.setChecked(app_config.update_check)
+        self.eqDirectoryLabel.setText(app_config.eq_dir)
+        self.qtScalingSpinBox.setValue(app_config.qt_scale_factor)
 
-        # set bar colors for spells
+        # Maps
+        self.mapOpacitySpinBox.setValue(profile.maps.opacity)
+        self.mapLineSizeSpinBox.setValue(profile.maps.line_width)
+        self.mapGridLineSizeSpinBox.setValue(profile.maps.grid_line_width)
+        self.mapCurrentLevelSpinBox.setValue(profile.maps.current_z_alpha)
+        self.mapClosestLevelSpinBox.setValue(profile.maps.closest_z_alpha)
+        self.mapOtherLevelSpinBox.setValue(profile.maps.other_z_alpha)
 
-        # buff bar
+        # Spells
+        self.spellsUseCastingWindowCheckBox.setChecked(profile.spells.use_casting_window)
+        self.spellsCastingWindowTimeSpinBox.setValue(profile.spells.casting_window_buffer)
+        self.spellsSoundEnabledCheckBox.setChecked(profile.spells.sound_enabled)
+        self.spellsSoundVolumeSlider.setValue(profile.spells.sound_volume)
+        self.spellsUsePVPSpellDurationsCheckBox.setChecked(profile.spells.use_secondary_all)
+
         set_qcolor(
-            self.buffBarLabel,
+            self.spellsBuffBarLabel,
             foreground=QColor(*profile.spells.buff_text_color),
-            background=QColor(*profile.spells.buff_bar_color)
+            background=QColor(*profile.spells.buff_bar_color),
         )
-
-        # debuff bar
         set_qcolor(
-            self.debuffBarLabel,
+            self.spellsDebuffBarLabel,
             foreground=QColor(*profile.spells.debuff_text_color),
-            background=QColor(*profile.spells.debuff_bar_color)
+            background=QColor(*profile.spells.debuff_bar_color),
         )
-
-        # you target
         set_qcolor(
-            self.youTargetLabel,
+            self.spellsYouTargetLabel,
             foreground=QColor(*profile.spells.target_text_color),
-            background=QColor(*profile.spells.you_target_color)
+            background=QColor(*profile.spells.you_target_color),
         )
-
-        # friendly target
         set_qcolor(
-            self.friendlyTargetLabel,
+            self.spellsFriendlyTargetLabel,
             foreground=QColor(*profile.spells.target_text_color),
-            background=QColor(*profile.spells.friendly_target_color)
+            background=QColor(*profile.spells.friendly_target_color),
         )
-
-        # enemey target
         set_qcolor(
-            self.enemyTargetLabel,
+            self.spellsEnemyTargetLabel,
             foreground=QColor(*profile.spells.target_text_color),
-            background=QColor(*profile.spells.enemy_target_color)
+            background=QColor(*profile.spells.enemy_target_color),
         )
 
-        # text shadow color
+        # Text
+
+        self.textDirectionComboBox.clear()
+        self.textDirectionComboBox.addItems(["up", "down"])
+
+        self.textDirectionComboBox.setCurrentText(profile.text.direction)
+        self.textFadeSecondsSpinBox.setValue(profile.text.fade_seconds)
+        self.textPixelsPerSecondSpinBox.setValue(profile.text.pixels_per_second)
+        self.textShadowBlurRadiusSpinBox.setValue(profile.text.shadow_blur_radius)
+
         set_qcolor(
-            self.textShadowColorLabel,
-            background=QColor(*profile.text.shadow_color)
+            self.textShadowColorLabel, background=QColor(*profile.text.shadow_color)
         )
 
         # Remove triggertree if it exists and reinsert it
@@ -294,34 +299,3 @@ class SettingsWindow(QDialog):
             pass
         self.triggerTree = TriggerTree()
         self.treeViewLayout.insertWidget(0, self.triggerTree, 1)
-
-    def _build_ref(self) -> dict:
-        return {
-            'general': {
-                'eq_dir': self.eqDirectoryLabel,
-                'update_check': self.updateCheckCheckBox,
-                'parser_opacity': self.parserOpacitySpinBox,
-                'qt_scale_factor': self.qTScalingSpinBox,
-                'sound_volume': self.soundVolume
-            },
-            'maps': {
-                'line_width': self.mapLineSizeSpinBox,
-                'grid_line_width': self.gridLineSizeSpinBox,
-                'current_z_alpha': self.currentLevelSpinBox,
-                'closest_z_alpha': self.closestLevelSpinBox,
-                'other_z_alpha': self.otherLevelsSpinBox
-            },
-            'spells': {
-                'use_casting_window': self.useCastingWindowCheckBox,
-                'casting_window_buffer': self.castingWindowTimeSpinBox,
-                'use_secondary_all': self.usePVPSpellDurationsCheckBox,
-                'sound_enabled': self.spellSoundEnabledCheckBox,
-                'sound_file': self.spellSoundFileLabel
-            },
-            'text': {
-                'direction': self.textDirectionComboBox,
-                'fade_seconds': self.fadeSecondsSpinBox,
-                'pixels_per_second': self.movePixelsSecondSpinBox,
-                'shadow_radius': self.shadowBlurRadiusSpinBox
-            }
-        }

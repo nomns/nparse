@@ -172,7 +172,7 @@
              <enum>QTabWidget::Rounded</enum>
             </property>
             <property name="currentIndex">
-             <number>2</number>
+             <number>0</number>
             </property>
             <property name="elideMode">
              <enum>Qt::ElideNone</enum>
@@ -308,7 +308,7 @@
                      <item>
                       <widget class="QLabel" name="startTimerExample">
                        <property name="autoFillBackground">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="styleSheet">
                         <string notr="true">padding: 5px</string>
@@ -426,7 +426,7 @@
                  <item>
                   <widget class="QLabel" name="startTextExample">
                    <property name="autoFillBackground">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="styleSheet">
                     <string notr="true">padding: 5px</string>
@@ -476,7 +476,7 @@
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_14">
                  <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_5">
+                  <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,0,0">
                    <item>
                     <widget class="QLabel" name="startSoundFileLabel">
                      <property name="text">
@@ -485,9 +485,16 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QToolButton" name="startSoundFileButton">
+                    <widget class="QPushButton" name="startSoundFileButton">
                      <property name="text">
-                      <string>...</string>
+                      <string>Set</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="startSoundPlayButton">
+                     <property name="text">
+                      <string>Play</string>
                      </property>
                     </widget>
                    </item>
@@ -549,13 +556,6 @@
                </layout>
               </item>
               <item>
-               <widget class="QPushButton" name="startSoundPlayButton">
-                <property name="text">
-                 <string>Play</string>
-                </property>
-               </widget>
-              </item>
-              <item>
                <spacer name="verticalSpacer">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
@@ -594,7 +594,7 @@
              <enum>QTabWidget::Rounded</enum>
             </property>
             <property name="currentIndex">
-             <number>2</number>
+             <number>0</number>
             </property>
             <property name="elideMode">
              <enum>Qt::ElideNone</enum>
@@ -727,7 +727,7 @@
                      <item>
                       <widget class="QLabel" name="endTimerExample">
                        <property name="autoFillBackground">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="styleSheet">
                         <string notr="true">padding: 5px</string>
@@ -845,7 +845,7 @@
                  <item>
                   <widget class="QLabel" name="endTextExample">
                    <property name="autoFillBackground">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="styleSheet">
                     <string notr="true">padding: 5px</string>
@@ -895,7 +895,7 @@
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_21">
                  <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_14">
+                  <layout class="QHBoxLayout" name="horizontalLayout_14" stretch="1,0,0">
                    <item>
                     <widget class="QLabel" name="endSoundFileLabel">
                      <property name="text">
@@ -904,9 +904,16 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QToolButton" name="endSoundFileButton">
+                    <widget class="QPushButton" name="endSoundFileButton">
                      <property name="text">
-                      <string>...</string>
+                      <string>Select</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="endSoundPlayButton">
+                     <property name="text">
+                      <string>Play</string>
                      </property>
                     </widget>
                    </item>
@@ -966,13 +973,6 @@
                  </widget>
                 </item>
                </layout>
-              </item>
-              <item>
-               <widget class="QPushButton" name="endSoundPlayButton">
-                <property name="text">
-                 <string>Play</string>
-                </property>
-               </widget>
               </item>
               <item>
                <spacer name="verticalSpacer_2">
@@ -1157,22 +1157,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>startSoundFileButton</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>startSoundFileButtonClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>364</x>
-     <y>274</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>211</x>
-     <y>269</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>startSoundPlayButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
@@ -1309,22 +1293,6 @@
     <hint type="sourcelabel">
      <x>400</x>
      <y>312</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>211</x>
-     <y>269</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>endSoundFileButton</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>endSoundFileButtonClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>746</x>
-     <y>274</y>
     </hint>
     <hint type="destinationlabel">
      <x>211</x>

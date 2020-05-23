@@ -2,15 +2,15 @@ from dataclasses import dataclass, field, asdict
 from typing import List, Dict
 import json
 
-from PyQt5.QtCore import QFile, QByteArray
+from PyQt5.QtCore import QByteArray
 
 
 @dataclass
 class TriggerTimer:
     enabled: bool = False
-    duration: str = '60'
+    duration: str = "60"
     icon: int = 1
-    text: str = ''
+    text: str = ""
     persistent: bool = False
     bar_color: List[int] = field(default_factory=lambda: [181, 178, 34, 255])
     text_color: List[int] = field(default_factory=lambda: [0, 0, 0, 255])
@@ -19,7 +19,7 @@ class TriggerTimer:
 @dataclass
 class TriggerText:
     enabled: bool = False
-    text: str = ''
+    text: str = ""
     text_size: int = 20
     color: List[int] = field(default_factory=lambda: [101, 184, 50, 255])
 
@@ -28,6 +28,7 @@ class TriggerText:
 class TriggerSound:
     enabled: bool = False
     volume: int = 100
+    name: str = ""
     data: QByteArray = None
 
 
@@ -40,10 +41,11 @@ class TriggerAction:
 
 @dataclass
 class Trigger:
-    name: str = ''
-    text: str = ''
-    regex: str = ''
-    duration: str = '60'
+    name: str = ""
+    type_: str = "trigger"
+    text: str = ""
+    regex: str = ""
+    duration: str = "60"
     start_action: TriggerAction = TriggerAction()
     end_action: TriggerAction = TriggerAction()
 
@@ -61,5 +63,6 @@ class Trigger:
 
 @dataclass
 class TriggerContainer:
-    name: str = ''
-    triggers: List[any] = field(default_factory=lambda: [])
+    name: str = ""
+    type_: str = "container"
+    items: List[any] = field(default_factory=lambda: [])

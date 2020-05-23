@@ -3,11 +3,11 @@ import os
 import sys
 import webbrowser
 import datetime
-from typing import Tuple
+from typing import Tuple, List
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor, QFontDatabase, QIcon
-from PyQt5.QtWidgets import (QApplication, QMenu, QSystemTrayIcon)
+from PyQt5.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
 import parsers
 from utils import logreader, resource_path, get_version, logger
@@ -22,13 +22,12 @@ log = logger.get_logger(__name__)
 profile = profile_manager.profile
 
 # set custom user defined scale factor
-os.environ['QT_SCALE_FACTOR'] = str(
-    app_config.qt_scale_factor / 100)
+os.environ["QT_SCALE_FACTOR"] = str(app_config.qt_scale_factor / 100)
 
 # update check
-CURRENT_VERSION = '0.6.0'
+CURRENT_VERSION: str = "0.9.0"
 if app_config.update_check:
-    ONLINE_VERSION = get_version()
+    ONLINE_VERSION: str = get_version()
 else:
     ONLINE_VERSION = CURRENT_VERSION
 
@@ -36,8 +35,8 @@ else:
 class NomnsParse(QApplication):
     """Application Control."""
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, *arg: List[str]) -> None:
+        super().__init__(*arg)
 
         # Updates
         self._toggled: bool = False
@@ -50,7 +49,7 @@ class NomnsParse(QApplication):
 
         # Tray Icon
         self._system_tray: QSystemTrayIcon = QSystemTrayIcon()
-        self._system_tray.setIcon(QIcon(resource_path('data/ui/icon.png')))
+        self._system_tray.setIcon(QIcon(resource_path("data/ui/icon.png")))
         self._system_tray.setToolTip("nParse")
         self._system_tray.activated.connect(self._menu)
         self._system_tray.show()
@@ -62,21 +61,17 @@ class NomnsParse(QApplication):
         if self.new_version_available():
             self._system_tray.showMessage(
                 "nParse Update",
-                "New version available!\ncurrent: {}\nonline: {}".format(
-                    CURRENT_VERSION,
-                    ONLINE_VERSION
-                ),
-                msecs=3000
+                f"New version available!\ncurrent: {CURRENT_VERSION}\nonline: {ONLINE_VERSION}",
+                msecs=3000,
             )
 
     def _load_parsers(self) -> None:
-        log.info('loading parsers')
         text_parser = parsers.Text()
         self._parsers = [
             parsers.Maps(),
             parsers.Spells(),
             parsers.Triggers(text_parser=text_parser),
-            text_parser
+            text_parser,
         ]
         for p in self._parsers:
             p.load()
@@ -87,12 +82,11 @@ class NomnsParse(QApplication):
                 app_config.verify_paths()
             except ValueError as error:
                 log.warning(error, exc_info=True)
-                self._system_tray.showMessage(
-                    error.args[0], error.args[1], msecs=3000)
-
+                self._system_tray.showMessage(error.args[0], error.args[1], msecs=3000)
             else:
                 self._log_reader = logreader.LogReader(
-                    '{}/Logs'.format(app_config.eq_dir))
+                    "{}/Logs".format(app_config.eq_dir)
+                )
                 self._log_reader.new_line.connect(self._parse)
                 self._log_reader.log_file_change.connect(self._log_file_changed)
                 self._toggled = True
@@ -103,13 +97,15 @@ class NomnsParse(QApplication):
             self._toggled = False
 
     def _parse(self, new_line: Tuple[datetime.datetime, str]) -> None:
+        datetime.datetime
         if new_line:
             timestamp, text = new_line  # (datetime, text)
             #  don't send parse to non toggled items, except maps.  always parse maps
-            for parser in [parser for parser
-                           in self._parsers
-                           if profile.__dict__[parser.name].toggled or parser.name == 'maps'
-                           ]:
+            for parser in [
+                parser
+                for parser in self._parsers
+                if profile.__dict__[parser.name].toggled or parser.name == "maps"
+            ]:
                 parser.parse(timestamp, text)
 
     def _log_file_changed(self, log_file: str) -> None:
@@ -123,7 +119,7 @@ class NomnsParse(QApplication):
         menu.addSeparator()
 
         parser_toggles = set()
-        parsers = QMenu('Toggles')
+        parsers = QMenu("Toggles")
         for parser in self._parsers:
             toggle = parsers.addAction(parser.name.title())
             toggle.setCheckable(True)
@@ -134,7 +130,7 @@ class NomnsParse(QApplication):
         menu.addMenu(parsers)
 
         menu.addSeparator()
-        settings_action = menu.addAction('Settings')
+        settings_action = menu.addAction("Settings")
 
         lock_toggle = menu.addAction(
             "Unlock Windows" if self._locked else "Lock Windows"
@@ -150,11 +146,11 @@ class NomnsParse(QApplication):
         check_version_action = menu.addAction(new_version_text)
 
         menu.addSeparator()
-        quit_action = menu.addAction('Quit')
+        quit_action = menu.addAction("Quit")
 
         action = menu.exec(QCursor.pos())
         if action == check_version_action:
-            webbrowser.open('https://github.com/nomns/nparse/releases')
+            webbrowser.open("https://github.com/nomns/nparse/releases")
 
         elif action == settings_action:
             self._settings.set_values()
@@ -178,7 +174,10 @@ class NomnsParse(QApplication):
             for parser in self._parsers:
                 g = parser.geometry()
                 profile_manager.profile.__dict__[parser.name].geometry = [
-                    g.x(), g.y(), g.width(), g.height()
+                    g.x(),
+                    g.y(),
+                    g.width(),
+                    g.height(),
                 ]
             app_config.save()
             profile_manager.save()
@@ -187,7 +186,8 @@ class NomnsParse(QApplication):
 
         elif action in parser_toggles:
             parser = [
-                parser for parser in self._parsers
+                parser
+                for parser in self._parsers
                 if parser.name == action.text().lower()
             ][0]
             parser.toggle()
@@ -203,13 +203,12 @@ class NomnsParse(QApplication):
     def new_version_available(self) -> bool:
         # this will only work if numbers go up
         try:
-            for (o, c) in zip(ONLINE_VERSION.split('.'), CURRENT_VERSION.split('.')):
+            for (o, c) in zip(ONLINE_VERSION.split("."), CURRENT_VERSION.split(".")):
                 if int(o) > int(c):
                     return True
         except:
             log.warning(
-                f'unable to parse version from: online {o}, current {c}',
-                exc_info=True
+                f"unable to parse version from: online {o}, current {c}", exc_info=True
             )
             return False
 
@@ -217,20 +216,19 @@ class NomnsParse(QApplication):
 if __name__ == "__main__":
     try:
         import ctypes
-        APPID = 'nomns.nparse'
+        APPID = "nomns.nparse"
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APPID)
     except Exception as error:
         log.error(error, exc_info=True)
     try:
         QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
         APP = NomnsParse(sys.argv)
-        APP.setWindowIcon(QIcon(resource_path('data/ui/icon.png')))
+        APP.setWindowIcon(QIcon(resource_path("data/ui/icon.png")))
         APP.setQuitOnLastWindowClosed(False)
         QFontDatabase.addApplicationFont(
-            resource_path('data/fonts/NotoSans-Regular.ttf'))
-        QFontDatabase.addApplicationFont(
-            resource_path('data/fonts/NotoSans-Bold.ttf'))
-
+            resource_path("data/fonts/NotoSans-Regular.ttf")
+        )
+        QFontDatabase.addApplicationFont(resource_path("data/fonts/NotoSans-Bold.ttf"))
         sys.exit(APP.exec())
     except Exception as error:
         log.error(error, exc_info=True)

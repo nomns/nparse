@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>547</width>
-    <height>490</height>
+    <width>498</width>
+    <height>565</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,550 +22,493 @@
   <property name="windowTitle">
    <string>Settings</string>
   </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
+  </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
+  <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="0,0">
-     <item>
-      <widget class="QTreeView" name="settingsSectionTree">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
-       </property>
-       <property name="sizeAdjustPolicy">
-        <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
-       </property>
-       <property name="editTriggers">
-        <set>QAbstractItemView::NoEditTriggers</set>
-       </property>
-       <property name="selectionBehavior">
-        <enum>QAbstractItemView::SelectRows</enum>
-       </property>
-       <property name="indentation">
-        <number>15</number>
-       </property>
-       <property name="rootIsDecorated">
-        <bool>true</bool>
-       </property>
-       <property name="itemsExpandable">
-        <bool>true</bool>
-       </property>
-       <property name="animated">
-        <bool>true</bool>
-       </property>
-       <property name="headerHidden">
-        <bool>true</bool>
-       </property>
-       <property name="expandsOnDoubleClick">
-        <bool>true</bool>
-       </property>
-       <attribute name="headerDefaultSectionSize">
-        <number>39</number>
-       </attribute>
-       <attribute name="headerStretchLastSection">
-        <bool>true</bool>
-       </attribute>
-      </widget>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_22">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="autoFillBackground">
+      <bool>true</bool>
+     </property>
+     <property name="tabPosition">
+      <enum>QTabWidget::North</enum>
+     </property>
+     <property name="tabShape">
+      <enum>QTabWidget::Rounded</enum>
+     </property>
+     <property name="currentIndex">
+      <number>3</number>
+     </property>
+     <property name="documentMode">
+      <bool>false</bool>
+     </property>
+     <widget class="QWidget" name="tab">
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <attribute name="title">
+       <string>General</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_21">
        <item>
-        <widget class="QStackedWidget" name="settingsStack">
-         <property name="currentIndex">
-          <number>0</number>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Updates</string>
          </property>
-         <widget class="QWidget" name="stackGeneral">
-          <layout class="QVBoxLayout" name="verticalLayout_23">
-           <item>
-            <widget class="QGroupBox" name="groupBox">
-             <property name="title">
-              <string>Updates</string>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout">
-              <item>
-               <widget class="QLabel" name="checkForUpdatesLabel">
-                <property name="text">
-                 <string>Check for Updates</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="updateCheckCheckBox"/>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox_14">
-             <property name="title">
-              <string>Everquest Directory</string>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,0">
-              <item>
-               <widget class="QLabel" name="eqDirectoryLabel">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="selectEQDirectoryButton">
-                <property name="text">
-                 <string>Set</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer_4">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="stackGeneralSound">
-          <layout class="QVBoxLayout" name="verticalLayout_24">
-           <item>
-            <widget class="QGroupBox" name="groupBox_11">
-             <property name="title">
-              <string/>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_17">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_10">
-                <item>
-                 <widget class="QLabel" name="label">
-                  <property name="text">
-                   <string>Volume </string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QSlider" name="soundVolume">
-                  <property name="maximum">
-                   <number>100</number>
-                  </property>
-                  <property name="sliderPosition">
-                   <number>14</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="stackGeneralSoundTextToSpeach">
-          <layout class="QVBoxLayout" name="verticalLayout_15">
-           <item>
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Creates TTS mp3 files in data/tts/ so you can link them to triggers.</string>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox_12">
-             <property name="title">
-              <string>Create</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_19">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_11">
-                <item>
-                 <widget class="QLabel" name="label_3">
-                  <property name="text">
-                   <string>Text </string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="ttsTextLineEdit"/>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <widget class="QPushButton" name="ttsCreateButton">
-                <property name="text">
-                 <string>Create</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox_13">
-             <property name="title">
-              <string>Manage</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_20">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_12">
-                <item>
-                 <widget class="QComboBox" name="ttsFileCombo"/>
-                </item>
-                <item>
-                 <widget class="QToolButton" name="ttsPlayButton">
-                  <property name="text">
-                   <string>Play</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QToolButton" name="ttsFileRefreshButton">
-                  <property name="text">
-                   <string>Refresh</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QToolButton" name="ttsDeleteButton">
-                  <property name="text">
-                   <string>Delete</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="stackProfiles">
-          <widget class="QLabel" name="label_6">
-           <property name="geometry">
-            <rect>
-             <x>9</x>
-             <y>9</y>
-             <width>65</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Coming soon.</string>
-           </property>
-          </widget>
-         </widget>
-         <widget class="QWidget" name="stackParsers">
-          <layout class="QVBoxLayout" name="verticalLayout_18">
-           <item>
-            <widget class="QGroupBox" name="groupBox_2">
-             <property name="title">
-              <string>Parser Windows</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_3">
-              <item>
-               <layout class="QFormLayout" name="formLayout_2">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="windowOpacityLabel">
-                  <property name="text">
-                   <string>Window Opacity</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QSpinBox" name="parserOpacitySpinBox">
-                  <property name="suffix">
-                   <string>%</string>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>100</number>
-                  </property>
-                  <property name="singleStep">
-                   <number>5</number>
-                  </property>
-                  <property name="value">
-                   <number>80</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="qTScalingLabel">
-                  <property name="text">
-                   <string>QT Scaling</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QSpinBox" name="qTScalingSpinBox">
-                  <property name="suffix">
-                   <string>%</string>
-                  </property>
-                  <property name="minimum">
-                   <number>100</number>
-                  </property>
-                  <property name="maximum">
-                   <number>300</number>
-                  </property>
-                  <property name="singleStep">
-                   <number>5</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer_8">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>331</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="stackParsersMaps">
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <widget class="QGroupBox" name="groupBox_3">
-             <property name="title">
-              <string>Lines</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_7">
-              <item>
-               <layout class="QFormLayout" name="formLayout_3">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="mapLineSizeLabel">
-                  <property name="text">
-                   <string>Map Line Size</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QSpinBox" name="mapLineSizeSpinBox">
-                  <property name="suffix">
-                   <string> pixels</string>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>10</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="gridLineSizeLabel">
-                  <property name="text">
-                   <string>Grid Line Size</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QSpinBox" name="gridLineSizeSpinBox">
-                  <property name="suffix">
-                   <string> pixels</string>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>10</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox_4">
-             <property name="title">
-              <string>Z Level Opacity</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_8">
-              <item>
-               <layout class="QFormLayout" name="formLayout_4">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="currentLevelLabel">
-                  <property name="text">
-                   <string>Current Level</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QSpinBox" name="currentLevelSpinBox">
-                  <property name="suffix">
-                   <string>%</string>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>100</number>
-                  </property>
-                  <property name="value">
-                   <number>100</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="closestLevelLabel">
-                  <property name="text">
-                   <string>Closest Levels</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QSpinBox" name="closestLevelSpinBox">
-                  <property name="suffix">
-                   <string>%</string>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>100</number>
-                  </property>
-                  <property name="value">
-                   <number>10</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="otherLevelsLabel">
-                  <property name="text">
-                   <string>Other Levels</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QSpinBox" name="otherLevelsSpinBox">
-                  <property name="suffix">
-                   <string>%</string>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>100</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="stackParsersSpells">
-          <layout class="QVBoxLayout" name="verticalLayout_5">
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="checkForUpdatesLabel">
+            <property name="text">
+             <string>Check for Updates</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="updateCheckCheckBox"/>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_14">
+         <property name="title">
+          <string>Everquest Directory</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,0">
+          <item>
+           <widget class="QLabel" name="eqDirectoryLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="selectEQDirectoryButton">
+            <property name="text">
+             <string>Set</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>User Interface</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="0,0,1">
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>QT Scaling</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="qtScalingSpinBox">
+            <property name="suffix">
+             <string>%</string>
+            </property>
+            <property name="minimum">
+             <number>25</number>
+            </property>
+            <property name="maximum">
+             <number>300</number>
+            </property>
+            <property name="singleStep">
+             <number>5</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <attribute name="title">
+       <string>Text to Speech</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_18">
+       <item>
+        <widget class="QGroupBox" name="groupBox_13">
+         <property name="title">
+          <string>Manage</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_20">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_12">
+            <item>
+             <widget class="QComboBox" name="ttsFileCombo"/>
+            </item>
+            <item>
+             <widget class="QToolButton" name="ttsPlayButton">
+              <property name="text">
+               <string>Play</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="ttsFileRefreshButton">
+              <property name="text">
+               <string>Refresh</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="ttsDeleteButton">
+              <property name="text">
+               <string>Delete</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_12">
+         <property name="title">
+          <string>Creates TTS mp3 files in data/tts/ so you can add them to triggers.</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_19">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Text </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="ttsTextLineEdit"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="ttsCreateButton">
+            <property name="text">
+             <string>Create</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <attribute name="title">
+       <string>Profiles</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Coming soon.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_4">
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <attribute name="title">
+       <string>Maps</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QGroupBox" name="groupBox_11">
+         <property name="title">
+          <string>Window</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="0,1">
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Opacity</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="mapOpacitySpinBox">
+              <property name="suffix">
+               <string>%</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="singleStep">
+               <number>5</number>
+              </property>
+              <property name="value">
+               <number>80</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
+          <string>Lines</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <item>
+           <layout class="QFormLayout" name="formLayout_3">
+            <item row="0" column="0">
+             <widget class="QLabel" name="mapLineSizeLabel">
+              <property name="text">
+               <string>Map Line Size</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="mapLineSizeSpinBox">
+              <property name="suffix">
+               <string> pixels</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>10</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="gridLineSizeLabel">
+              <property name="text">
+               <string>Grid Line Size</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="mapGridLineSizeSpinBox">
+              <property name="suffix">
+               <string> pixels</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>10</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string>Z Level Opacity</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_8">
+          <item>
+           <layout class="QFormLayout" name="formLayout_4">
+            <item row="0" column="0">
+             <widget class="QLabel" name="currentLevelLabel">
+              <property name="text">
+               <string>Current Level</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="mapCurrentLevelSpinBox">
+              <property name="suffix">
+               <string>%</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="value">
+               <number>100</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="closestLevelLabel">
+              <property name="text">
+               <string>Closest Levels</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="mapClosestLevelSpinBox">
+              <property name="suffix">
+               <string>%</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="value">
+               <number>10</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="otherLevelsLabel">
+              <property name="text">
+               <string>Other Levels</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QSpinBox" name="mapOtherLevelSpinBox">
+              <property name="suffix">
+               <string>%</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_5">
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <attribute name="title">
+       <string>Spells</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_24">
+       <item>
+        <widget class="QTabWidget" name="tabWidget_2">
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="currentIndex">
+          <number>1</number>
+         </property>
+         <widget class="QWidget" name="tab_6">
+          <property name="autoFillBackground">
+           <bool>true</bool>
+          </property>
+          <attribute name="title">
+           <string>General</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_22">
            <item>
             <widget class="QGroupBox" name="groupBox_5">
              <property name="title">
@@ -582,7 +525,7 @@
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QCheckBox" name="useCastingWindowCheckBox">
+                 <widget class="QCheckBox" name="spellsUseCastingWindowCheckBox">
                   <property name="checked">
                    <bool>true</bool>
                   </property>
@@ -596,7 +539,7 @@
                  </widget>
                 </item>
                 <item row="1" column="1">
-                 <widget class="QSpinBox" name="castingWindowTimeSpinBox">
+                 <widget class="QSpinBox" name="spellsCastingWindowTimeSpinBox">
                   <property name="suffix">
                    <string> msec</string>
                   </property>
@@ -626,7 +569,7 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_16">
               <item>
-               <widget class="QCheckBox" name="spellSoundEnabledCheckBox">
+               <widget class="QCheckBox" name="spellsSoundEnabledCheckBox">
                 <property name="text">
                  <string>Enabled</string>
                 </property>
@@ -683,6 +626,37 @@
                 </layout>
                </widget>
               </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_14">
+                <item>
+                 <widget class="QLabel" name="label_7">
+                  <property name="text">
+                   <string>Volume</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSlider" name="spellsSoundVolumeSlider">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_8">
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
              </layout>
             </widget>
            </item>
@@ -702,118 +676,23 @@
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QCheckBox" name="usePVPSpellDurationsCheckBox"/>
+                 <widget class="QCheckBox" name="spellsUsePVPSpellDurationsCheckBox"/>
                 </item>
                </layout>
               </item>
              </layout>
             </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer_6">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>170</height>
-              </size>
-             </property>
-            </spacer>
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="stackParsersSpellsAppearance">
-          <layout class="QVBoxLayout" name="verticalLayout_6">
-           <item>
-            <widget class="QGroupBox" name="groupBox_8">
-             <property name="title">
-              <string>Target Colors</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_14">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,0">
-                <item>
-                 <widget class="QLabel" name="youTargetLabel">
-                  <property name="autoFillBackground">
-                   <bool>true</bool>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding: 5px</string>
-                  </property>
-                  <property name="text">
-                   <string>You</string>
-                  </property>
-                 </widget>
-                </item>
-                <item alignment="Qt::AlignRight">
-                 <widget class="QPushButton" name="youColorButton">
-                  <property name="text">
-                   <string>Set Bar Color</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,0">
-                <item>
-                 <widget class="QLabel" name="friendlyTargetLabel">
-                  <property name="autoFillBackground">
-                   <bool>true</bool>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding: 5px</string>
-                  </property>
-                  <property name="text">
-                   <string>Friendly</string>
-                  </property>
-                 </widget>
-                </item>
-                <item alignment="Qt::AlignRight">
-                 <widget class="QPushButton" name="friendlyColorButton">
-                  <property name="text">
-                   <string>Set Bar Color</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="1,0">
-                <item>
-                 <widget class="QLabel" name="enemyTargetLabel">
-                  <property name="autoFillBackground">
-                   <bool>true</bool>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding: 5px</string>
-                  </property>
-                  <property name="text">
-                   <string>Enemy</string>
-                  </property>
-                 </widget>
-                </item>
-                <item alignment="Qt::AlignRight">
-                 <widget class="QPushButton" name="enemyColorButton">
-                  <property name="text">
-                   <string>Set Bar Color</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <widget class="QPushButton" name="targetTextColorButton">
-                <property name="text">
-                 <string>Set Text Color</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
+         <widget class="QWidget" name="tab_7">
+          <property name="autoFillBackground">
+           <bool>true</bool>
+          </property>
+          <attribute name="title">
+           <string>Appearance</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_25">
            <item>
             <widget class="QGroupBox" name="groupBox_7">
              <property name="title">
@@ -821,7 +700,95 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_13">
               <item>
-               <widget class="QLabel" name="buffBarLabel">
+               <widget class="QGroupBox" name="groupBox_8">
+                <property name="title">
+                 <string>Target Colors</string>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_14">
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,0">
+                   <item>
+                    <widget class="QLabel" name="spellsYouTargetLabel">
+                     <property name="autoFillBackground">
+                      <bool>true</bool>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">padding: 5px</string>
+                     </property>
+                     <property name="text">
+                      <string>You</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item alignment="Qt::AlignRight">
+                    <widget class="QPushButton" name="youColorButton">
+                     <property name="text">
+                      <string>Set Bar Color</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,0">
+                   <item>
+                    <widget class="QLabel" name="spellsFriendlyTargetLabel">
+                     <property name="autoFillBackground">
+                      <bool>true</bool>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">padding: 5px</string>
+                     </property>
+                     <property name="text">
+                      <string>Friendly</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item alignment="Qt::AlignRight">
+                    <widget class="QPushButton" name="friendlyColorButton">
+                     <property name="text">
+                      <string>Set Bar Color</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="1,0">
+                   <item>
+                    <widget class="QLabel" name="spellsEnemyTargetLabel">
+                     <property name="autoFillBackground">
+                      <bool>true</bool>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">padding: 5px</string>
+                     </property>
+                     <property name="text">
+                      <string>Enemy</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item alignment="Qt::AlignRight">
+                    <widget class="QPushButton" name="enemyColorButton">
+                     <property name="text">
+                      <string>Set Bar Color</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="targetTextColorButton">
+                   <property name="text">
+                    <string>Set Text Color</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="spellsBuffBarLabel">
                 <property name="autoFillBackground">
                  <bool>true</bool>
                 </property>
@@ -852,7 +819,7 @@
                </layout>
               </item>
               <item>
-               <widget class="QLabel" name="debuffBarLabel">
+               <widget class="QLabel" name="spellsDebuffBarLabel">
                 <property name="autoFillBackground">
                  <bool>true</bool>
                 </property>
@@ -885,208 +852,205 @@
              </layout>
             </widget>
            </item>
-           <item>
-            <spacer name="verticalSpacer_7">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="stackParsersTriggers">
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <layout class="QVBoxLayout" name="treeViewLayout">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="stackParsersTriggersDefaults">
-          <widget class="QLabel" name="label_4">
-           <property name="geometry">
-            <rect>
-             <x>9</x>
-             <y>9</y>
-             <width>65</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Coming soon.</string>
-           </property>
-          </widget>
-         </widget>
-         <widget class="QWidget" name="stackParsersText">
-          <layout class="QVBoxLayout" name="verticalLayout_9">
-           <item>
-            <widget class="QGroupBox" name="groupBox_15">
-             <property name="title">
-              <string>General</string>
-             </property>
-             <layout class="QFormLayout" name="formLayout">
-              <item row="1" column="0">
-               <widget class="QLabel" name="fadeSecondsLabel">
-                <property name="text">
-                 <string>Fade Seconds</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QSpinBox" name="fadeSecondsSpinBox">
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>120</number>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="textDirectionLabel">
-                <property name="text">
-                 <string>Text Direction</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QComboBox" name="textDirectionComboBox">
-                <property name="currentText">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="movePixelsSecondLabel">
-                <property name="text">
-                 <string>Move Pixels/Second</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QSpinBox" name="movePixelsSecondSpinBox">
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>120</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox_16">
-             <property name="title">
-              <string>Appearance</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_12">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0,0">
-                <item>
-                 <widget class="QLabel" name="label_5">
-                  <property name="text">
-                   <string>Text Shadow Color</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="textShadowColorLabel">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>20</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="autoFillBackground">
-                   <bool>true</bool>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::Box</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
-                  </property>
-                  <property name="lineWidth">
-                   <number>1</number>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="textShadowColorButton">
-                  <property name="text">
-                   <string>Set</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QFormLayout" name="formLayout_7">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="shadowBlurRadiusLabel">
-                  <property name="text">
-                   <string>Shadow Blue Radius</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QSpinBox" name="shadowBlurRadiusSpinBox">
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>120</number>
-                  </property>
-                  <property name="value">
-                   <number>20</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer_5">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
           </layout>
          </widget>
         </widget>
        </item>
+       <item>
+        <spacer name="verticalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
-     </item>
-    </layout>
+     </widget>
+     <widget class="QWidget" name="tab_8">
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <attribute name="title">
+       <string>Text</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_26">
+       <item>
+        <widget class="QGroupBox" name="groupBox_15">
+         <property name="title">
+          <string>General</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="1" column="0">
+           <widget class="QLabel" name="fadeSecondsLabel">
+            <property name="text">
+             <string>Fade Seconds</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="textFadeSecondsSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>120</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="textDirectionLabel">
+            <property name="text">
+             <string>Text Direction</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="textDirectionComboBox">
+            <property name="currentText">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="movePixelsSecondLabel">
+            <property name="text">
+             <string>Move Pixels/Second</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="textPixelsPerSecondSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>120</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_16">
+         <property name="title">
+          <string>Appearance</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_12">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0,0">
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Text Shadow Color</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="textShadowColorLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="autoFillBackground">
+               <bool>true</bool>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::Box</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Plain</enum>
+              </property>
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="textShadowColorButton">
+              <property name="text">
+               <string>Set</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QFormLayout" name="formLayout_7">
+            <item row="0" column="0">
+             <widget class="QLabel" name="shadowBlurRadiusLabel">
+              <property name="text">
+               <string>Shadow Blue Radius</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="textShadowBlurRadiusSpinBox">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>120</number>
+              </property>
+              <property name="value">
+               <number>20</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_9">
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <attribute name="title">
+       <string>Triggers</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_27">
+       <item>
+        <layout class="QVBoxLayout" name="treeViewLayout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -1135,6 +1099,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>youColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>youColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>478</x>
+     <y>55</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>textShadowColorButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
@@ -1151,14 +1131,94 @@
    </hints>
   </connection>
   <connection>
-   <sender>youColorButton</sender>
+   <sender>targetTextColorButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>youColorButtonPress()</slot>
+   <slot>targetTextColorButtonPress()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>478</x>
-     <y>55</y>
+     <x>330</x>
+     <y>147</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>debuffBarColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>debuffBarColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>424</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buffTextColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>buffTextColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>236</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>debuffTextColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>debuffTextColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>236</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buffBarColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>buffBarColorButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>424</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>selectEQDirectoryButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>selectEQDirectoryButtonPress()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>479</x>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
      <x>273</x>
@@ -1191,102 +1251,6 @@
     <hint type="sourcelabel">
      <x>478</x>
      <y>117</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>273</x>
-     <y>244</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buffBarColorButton</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>buffBarColorButtonPress()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>424</x>
-     <y>239</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>273</x>
-     <y>244</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buffTextColorButton</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>buffTextColorButtonPress()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>236</x>
-     <y>239</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>273</x>
-     <y>244</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>debuffBarColorButton</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>debuffBarColorButtonPress()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>424</x>
-     <y>299</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>273</x>
-     <y>244</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>debuffTextColorButton</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>debuffTextColorButtonPress()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>236</x>
-     <y>299</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>273</x>
-     <y>244</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>targetTextColorButton</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>targetTextColorButtonPress()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>330</x>
-     <y>147</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>273</x>
-     <y>244</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>selectEQDirectoryButton</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>selectEQDirectoryButtonPress()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>479</x>
-     <y>113</y>
     </hint>
     <hint type="destinationlabel">
      <x>273</x>

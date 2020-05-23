@@ -83,7 +83,7 @@ class Maps(NWindow):
         self._map.center()
 
     def _toggle_z_layers(self, _):
-        profile.maps.use_z_mlayers = not profile.maps.use_z_mlayers
+        profile.maps.use_z_layers = not profile.maps.use_z_layers
         profile_manager.save()
         self._map.update_()
 

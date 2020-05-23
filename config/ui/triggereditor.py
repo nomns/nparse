@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 from PyQt5 import uic
 from PyQt5.QtGui import QColor, QPalette, QRegExpValidator
-from PyQt5.QtCore import QRegExp, QFile, QByteArray
+from PyQt5.QtCore import QRegExp, QFile
 
 from utils import (
     get_spell_icon,
@@ -187,7 +187,7 @@ class TriggerEditor(QDialog):
         set_qcolor(self.endTextExample, QColor(t.end_action.text.color))
 
         self.endSoundEnabledCheckBox.setChecked(t.end_action.sound.enabled)
-        self.endSoundFileLabel.setText(str(t.end_action.sound.data))
+        self.endSoundFileLabel.setText(str(t.end_action.sound.name))
 
     def trigger(self) -> Trigger:
         # create Trigger object from settings and return it
@@ -253,7 +253,7 @@ class TriggerEditor(QDialog):
         return t
 
     def accept(self) -> None:
-        # Validate
+        # validate that items can resolve before accepting
         if self.triggerRegexRadio.isChecked():
             try:
                 create_regex_from(self.triggerRegexLineEdit.text())

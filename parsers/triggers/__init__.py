@@ -5,8 +5,6 @@ from utils import sound, text_time_to_seconds
 from widgets import (NDirection, NWindow, NTimer,
                      NContainer, NGroup)
 
-from .trigger import Trigger
-
 
 class Triggers(NWindow):
 
@@ -27,19 +25,20 @@ class Triggers(NWindow):
         self.content.addWidget(self._scroll_area, 1)
 
     def _set_triggers(self):
-        triggers = {}
-        for group_name in config.triggers:
-            if config.triggers[group_name]['enabled']:
-                for trigger_name in config.triggers[group_name]['triggers']:
-                    if config.triggers[group_name]['triggers'][trigger_name]['enabled']:
-                        t = Trigger(
-                            trigger_name,
-                            config.triggers[group_name]['triggers'][trigger_name]
-                        )
-                        t.triggered.connect(self._triggered)
+        pass
+        # triggers = {}
+        # for group_name in config.triggers:
+        #     if config.triggers[group_name]['enabled']:
+        #         for trigger_name in config.triggers[group_name]['triggers']:
+        #             if config.triggers[group_name]['triggers'][trigger_name]['enabled']:
+        #                 t = Trigger(
+        #                     trigger_name,
+        #                     config.triggers[group_name]['triggers'][trigger_name]
+        #                 )
+        #                 t.triggered.connect(self._triggered)
 
-                        triggers[trigger_name] = t
-        self._triggers = triggers
+        #                 triggers[trigger_name] = t
+        # self._triggers = triggers
 
     def _triggered(self, trigger_name, timestamp, re_groups: dict = None) -> None:
 
