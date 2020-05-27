@@ -66,5 +66,6 @@ nparse.triggers.json
 data/tts/*
 data/logs
 data/profiles
+data/triggers
 /venv/
 

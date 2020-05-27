@@ -24,7 +24,8 @@ class NTimer(QFrame):
         icon=1,
         style=None,
         sound=None,
-        direction=NDirection.DOWN
+        direction=NDirection.DOWN,
+        perstitent=False
     ):
         super().__init__()
         self.name = name
