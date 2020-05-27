@@ -2,12 +2,12 @@ from PyQt5.QtWidgets import QScrollArea
 
 from config.ui import styles
 from utils import sound, text_time_to_seconds
-from widgets import (NDirection, NWindow, NTimer,
-                     NContainer, NGroup)
+from widgets import NDirection, NWindow, NTimer, NContainer, NGroup
+
+from config import trigger_manager
 
 
 class Triggers(NWindow):
-
     def __init__(self, text_parser=None):
         super().__init__(name="triggers")
         self._triggers = {}
@@ -20,7 +20,7 @@ class Triggers(NWindow):
         self._scroll_area = QScrollArea()
         self._scroll_area.setWidgetResizable(True)
         self._scroll_area.setWidget(self.container)
-        self._scroll_area.setObjectName('ScrollArea')
+        self._scroll_area.setObjectName("ScrollArea")
 
         self.content.addWidget(self._scroll_area, 1)
 
@@ -52,31 +52,22 @@ class Triggers(NWindow):
                 if g.name == group_name:
                     group = g
             if not group:
-                group = NGroup(
-                    group_name=group_name,
-                    hide_title=True
-                )
+                group = NGroup(group_name=group_name, hide_title=True)
             self.container.add_timer(
                 group,
                 NTimer(
                     trigger_name,
                     style=styles.trigger(
-                        action.timer['bar_color'],
-                        action.timer['text_color']
+                        action.timer["bar_color"], action.timer["text_color"]
                     ),
-                    duration=text_time_to_seconds(
-                        action.timer['time']
-                    ),
-                    icon=action.timer['icon'],
+                    duration=text_time_to_seconds(action.timer["time"]),
+                    icon=action.timer["icon"],
                     timestamp=timestamp,
-                    direction=NDirection.DOWN
-                )
+                    direction=NDirection.DOWN,
+                ),
             )
         if action.text:
-            self._text_parser.display(
-                text_action=action.text,
-                re_groups=re_groups
-            )
+            self._text_parser.display(text_action=action.text, re_groups=re_groups)
 
     def parse(self, timestamp, text):
         for t in self._triggers.values():

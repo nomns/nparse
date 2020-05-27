@@ -1,17 +1,15 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import Qt, QRectF
 
-from config import profile_manager
-profile = profile_manager.profile
+from config import profile
 
 from .textitem import TextItem
 
 
 class TextView(QGraphicsView):
-
     def __init__(self) -> None:
         super().__init__()
-        self.setObjectName('TextView')
+        self.setObjectName("TextView")
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setTransformationAnchor(self.AnchorViewCenter)
@@ -23,18 +21,13 @@ class TextView(QGraphicsView):
 
     def add(self, text_item: TextItem) -> None:
         offset = text_item.boundingRect()
-        if profile.text.direction == 'down':
-            text_item.setPos(
-                self.mapToScene(
-                    self.width() / 2 - offset.width() / 2,
-                    0
-                )
-            )
+        if profile.text.direction == "down":
+            text_item.setPos(self.mapToScene(self.width() / 2 - offset.width() / 2, 0))
         else:
             text_item.setPos(
                 self.mapToScene(
                     self.width() / 2 - offset.width() / 2,
-                    self.height() - offset.height()
+                    self.height() - offset.height(),
                 )
             )
         self._scene.addItem(text_item)

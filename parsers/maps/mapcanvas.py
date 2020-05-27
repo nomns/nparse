@@ -1,11 +1,9 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPainter, QTransform
-from PyQt5.QtWidgets import (QGraphicsScene, QGraphicsView, QInputDialog,
-                             QMenu)
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QInputDialog, QMenu
 
 from utils import to_range, text_time_to_seconds, get_line_length
-from config import profile_manager
-profile = profile_manager.profile
+from config import profile
 
 from .mapclasses import MapPoint, WayPoint, Player, SpawnPoint, MouseLocation
 from .mapdata import MapData
@@ -19,7 +17,7 @@ class MapCanvas(QGraphicsView):
         self._data = None
         # UI Init
         super().__init__()
-        self.setObjectName('MapCanvas')
+        self.setObjectName("MapCanvas")
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setContentsMargins(0, 0, 0, 0)
@@ -45,12 +43,10 @@ class MapCanvas(QGraphicsView):
             if self._data:  # if _data exists, a zone has already been loaded
                 g = self._data.geometry
                 new_g = map_data.geometry
-                ratio_adjustment = (
-                    get_line_length(
-                        g.lowest_x, g.lowest_y, g.highest_x, g.highest_y
-                    ) / get_line_length(
-                        new_g.lowest_x, new_g.lowest_y, new_g.highest_x, new_g.highest_y
-                    )
+                ratio_adjustment = get_line_length(
+                    g.lowest_x, g.lowest_y, g.highest_x, g.highest_y
+                ) / get_line_length(
+                    new_g.lowest_x, new_g.lowest_y, new_g.highest_x, new_g.highest_y
                 )
                 self._scale *= ratio_adjustment
 
@@ -59,24 +55,25 @@ class MapCanvas(QGraphicsView):
             self._z_index = 0
             self._draw()
             rect = self._scene.sceneRect()
-            rect.adjust(-self._data.geometry.width * 2, -self._data.geometry.height * 2,
-                        self._data.geometry.width * 2, self._data.geometry.height * 2)
+            rect.adjust(
+                -self._data.geometry.width * 2,
+                -self._data.geometry.height * 2,
+                self._data.geometry.width * 2,
+                self._data.geometry.height * 2,
+            )
             self.setSceneRect(rect)
             self.update()
             self.update_()
 
-            self.centerOn(
-                self._data.geometry.center_x,
-                self._data.geometry.center_y
-            )
+            self.centerOn(self._data.geometry.center_x, self._data.geometry.center_y)
             self._mouse_location = MouseLocation()
             self._scene.addItem(self._mouse_location)
             profile.maps.last_zone = self._data.zone
 
     def _draw(self):
         for z in self._data.keys():
-            self._scene.addItem(self._data[z]['paths'])
-            for p in self._data[z]['poi']:
+            self._scene.addItem(self._data[z]["paths"])
+            for p in self._data[z]["poi"]:
                 self._scene.addItem(p.text)
 
         self._scene.addItem(self._data.grid)
@@ -115,26 +112,30 @@ class MapCanvas(QGraphicsView):
                     alpha = other_alpha
             # lines
             bolded = 0.5 if profile.maps.use_z_layers else 0.0
-            for path in self._data[z]['paths'].childItems():
+            for path in self._data[z]["paths"].childItems():
                 if z == current_z_level or not profile.maps.use_z_layers:
                     pen = path.pen()
-                    pen.setWidth(max(
-                        profile.maps.line_width + bolded,
-                        (profile.maps.line_width + bolded) / self._scale)
+                    pen.setWidth(
+                        max(
+                            profile.maps.line_width + bolded,
+                            (profile.maps.line_width + bolded) / self._scale,
+                        )
                     )
                     path.setPen(pen)
                 else:
                     pen = path.pen()
-                    pen.setWidth(max(
-                        profile.maps.line_width - 0.8,
-                        (profile.maps.line_width - 0.8) / self._scale
-                    ))
+                    pen.setWidth(
+                        max(
+                            profile.maps.line_width - 0.8,
+                            (profile.maps.line_width - 0.8) / self._scale,
+                        )
+                    )
                     path.setPen(pen)
 
-            self._data[z]['paths'].setOpacity(alpha)
+            self._data[z]["paths"].setOpacity(alpha)
 
             # points of interest
-            for p in self._data[z]['poi']:
+            for p in self._data[z]["poi"]:
                 p.update_(min(5, self.to_scale()))
                 if not profile.maps.show_poi:
                     p.text.setOpacity(0)
@@ -166,9 +167,11 @@ class MapCanvas(QGraphicsView):
                     if (self._data.way_point.location.z == current_z_level)
                     else other_alpha
                 )
-                player = self._data.players.get('__you__', None)
-                if player and current_z_level in \
-                        [self._data.way_point.location.z, player.z_level]:
+                player = self._data.players.get("__you__", None)
+                if player and current_z_level in [
+                    self._data.way_point.location.z,
+                    player.z_level,
+                ]:
                     self._data.way_point.line.setOpacity(current_alpha)
                 else:
                     self._data.way_point.line.setOpacity(other_alpha)
@@ -192,10 +195,12 @@ class MapCanvas(QGraphicsView):
         # grid lines
         if profile.maps.show_grid:
             pen = self._data.grid.pen()
-            pen.setWidth(max(
-                profile.maps.grid_line_width,
-                self.to_scale(profile.maps.grid_line_width)
-            ))
+            pen.setWidth(
+                max(
+                    profile.maps.grid_line_width,
+                    self.to_scale(profile.maps.grid_line_width),
+                )
+            )
             self._data.grid.setPen(pen)
             self._data.grid.setVisible(True)
         else:
@@ -207,43 +212,37 @@ class MapCanvas(QGraphicsView):
     def center(self):
         player = None
         if self._data:
-            player = self._data.players.get('__you__', None)
+            player = self._data.players.get("__you__", None)
         if profile.maps.auto_follow and player:
-            self.centerOn(
-                player.location.x,
-                player.location.y
-            )
+            self.centerOn(player.location.x, player.location.y)
 
     def add_player(self, name, timestamp, location):
         if name not in self._data.players.keys():
             self._data.players[name] = Player(
-                name=name,
-                location=location,
-                timestamp=timestamp)
+                name=name, location=location, timestamp=timestamp
+            )
             self._scene.addItem(self._data.players[name])
         else:
-            self._data.players[name].previous_location = self._data.players[name].location
+            self._data.players[name].previous_location = self._data.players[
+                name
+            ].location
             self._data.players[name].location = location
             self._data.players[name].timestamp = timestamp
         self._data.players[name].z_level = self._data.get_closest_z_group(
             self._data.players[name].location.z
         )
 
-        if name == '__you__' and profile.maps.use_z_layers:
+        if name == "__you__" and profile.maps.use_z_layers:
             self._z_index = self._data.geometry.z_groups.index(
-                self._data.get_closest_z_group(
-                    self._data.players['__you__'].location.z
-                ))
+                self._data.get_closest_z_group(self._data.players["__you__"].location.z)
+            )
 
         self.update_()
 
-        if self._data.way_point and name == '__you__':
-            self._data.way_point.update_(
-                self.to_scale(),
-                location=location
-            )
+        if self._data.way_point and name == "__you__":
+            self._data.way_point.update_(self.to_scale(), location=location)
 
-        if name == '__you__' and profile.maps.auto_follow:
+        if name == "__you__" and profile.maps.auto_follow:
             self.center()
 
     def enterEvent(self, event):
@@ -256,11 +255,7 @@ class MapCanvas(QGraphicsView):
         super().leaveEvent(event)
 
     def mouseMoveEvent(self, event):
-        self._mouse_location.set_value(
-            self.mapToScene(event.pos()),
-            self._scale,
-            self
-        )
+        self._mouse_location.set_value(self.mapToScene(event.pos()), self._scale, self)
         QGraphicsView.mouseMoveEvent(self, event)
 
     def wheelEvent(self, event):
@@ -277,15 +272,12 @@ class MapCanvas(QGraphicsView):
                     self._z_index = max(self._z_index - 1, 0)
                 else:
                     self._z_index = min(
-                        self._z_index + 1, len(self._data.geometry.z_groups) - 1)
+                        self._z_index + 1, len(self._data.geometry.z_groups) - 1
+                    )
                 self.update_()
 
         # Update Mouse Location
-        self._mouse_location.set_value(
-            self.mapToScene(event.pos()),
-            self._scale,
-            self
-        )
+        self._mouse_location.set_value(self.mapToScene(event.pos()), self._scale, self)
 
     def keyPressEvent(self, event):
         # Enable drag mode while control button is being held down
@@ -308,14 +300,14 @@ class MapCanvas(QGraphicsView):
         menu = QMenu(self)
         # remove from memory after usage
         menu.setAttribute(Qt.WA_DeleteOnClose)  # remove from memory
-        spawn_point_menu = menu.addMenu('Spawn Point')
-        spawn_point_create = spawn_point_menu.addAction('Create on Cursor')
-        spawn_point_delete = spawn_point_menu.addAction('Delete on Cursor')
-        spawn_point_delete_all = spawn_point_menu.addAction('Delete All')
-        way_point_menu = menu.addMenu('Way Point')
-        way_point_create = way_point_menu.addAction('Create on Cursor')
-        way_point_delete = way_point_menu.addAction('Clear')
-        load_map = menu.addAction('Load Map')
+        spawn_point_menu = menu.addMenu("Spawn Point")
+        spawn_point_create = spawn_point_menu.addAction("Create on Cursor")
+        spawn_point_delete = spawn_point_menu.addAction("Delete on Cursor")
+        spawn_point_delete_all = spawn_point_menu.addAction("Delete All")
+        way_point_menu = menu.addMenu("Way Point")
+        way_point_create = way_point_menu.addAction("Create on Cursor")
+        way_point_delete = way_point_menu.addAction("Clear")
+        load_map = menu.addAction("Load Map")
 
         # execute
         action = menu.exec_(self.mapToGlobal(event.pos()))
@@ -323,11 +315,11 @@ class MapCanvas(QGraphicsView):
         # parse response
 
         if action == spawn_point_create:
-            spawn_time = text_time_to_seconds('6:40')
+            spawn_time = text_time_to_seconds("6:40")
             dialog = QInputDialog(self)
-            dialog.setWindowTitle('Create Spawn Point')
-            dialog.setLabelText('Respawn Time (hh:mm:ss):')
-            dialog.setTextValue('6:40')
+            dialog.setWindowTitle("Create Spawn Point")
+            dialog.setLabelText("Respawn Time (hh:mm:ss):")
+            dialog.setTextValue("6:40")
 
             if dialog.exec_():
                 spawn_time = text_time_to_seconds(dialog.textValue())
@@ -335,11 +327,9 @@ class MapCanvas(QGraphicsView):
 
             spawn = SpawnPoint(
                 location=MapPoint(
-                    x=pos.x(),
-                    y=pos.y(),
-                    z=self._data.geometry.z_groups[self._z_index]
+                    x=pos.x(), y=pos.y(), z=self._data.geometry.z_groups[self._z_index]
                 ),
-                length=spawn_time
+                length=spawn_time,
             )
 
             self._scene.addItem(spawn)
@@ -347,8 +337,7 @@ class MapCanvas(QGraphicsView):
             spawn.start()
 
         if action == spawn_point_delete:
-            pixmap = self._scene.itemAt(
-                pos.x(), pos.y(), QTransform())
+            pixmap = self._scene.itemAt(pos.x(), pos.y(), QTransform())
             if pixmap:
                 group = pixmap.parentItem()
                 if group:
@@ -368,9 +357,7 @@ class MapCanvas(QGraphicsView):
 
             self._data.way_point = WayPoint(
                 location=MapPoint(
-                    x=pos.x(),
-                    y=pos.y(),
-                    z=self._data.geometry.z_groups[self._z_index]
+                    x=pos.x(), y=pos.y(), z=self._data.geometry.z_groups[self._z_index]
                 )
             )
 
@@ -385,10 +372,11 @@ class MapCanvas(QGraphicsView):
 
         if action == load_map:
             dialog = QInputDialog(self)
-            dialog.setWindowTitle('Load Map')
-            dialog.setLabelText('Select map to load:')
+            dialog.setWindowTitle("Load Map")
+            dialog.setLabelText("Select map to load:")
             dialog.setComboBoxItems(
-                sorted([map.title() for map in MapData.get_zone_dict().keys()]))
+                sorted([map.title() for map in MapData.get_zone_dict().keys()])
+            )
             if dialog.exec_():
                 self.load_map(dialog.textValue().lower())
             dialog.deleteLater()

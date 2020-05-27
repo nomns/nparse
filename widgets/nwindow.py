@@ -1,9 +1,14 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel,
-                             QVBoxLayout, QWidget, QStackedWidget)
+from PyQt5.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QVBoxLayout,
+    QWidget,
+    QStackedWidget,
+)
 
-from config import profile_manager
-profile = profile_manager.profile
+from config import profile
 
 from config.ui import styles
 
@@ -11,7 +16,6 @@ from .nmover import NMover
 
 
 class NWindow(QFrame):
-
     def __init__(self, name=None, transparent=True):
         super().__init__()
         self.name = name
@@ -19,7 +23,7 @@ class NWindow(QFrame):
         self.transparent = transparent
         self._locked = True
         self._locked_layout = None
-        self.setObjectName('NWindow')
+        self.setObjectName("NWindow")
         self.setStyleSheet(styles.parser_window())
         if self.transparent:
             self.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -33,10 +37,7 @@ class NWindow(QFrame):
         self.setLayout(layout)
 
         # Mover layout
-        self._unlocked_stack = NMover(
-            name=self.name,
-            parent=self
-        )
+        self._unlocked_stack = NMover(name=self.name, parent=self)
 
         # Parser layout in stack
         self._parser_stack = QWidget()
@@ -45,7 +46,7 @@ class NWindow(QFrame):
         self.content.setSpacing(0)
         self._parser_stack.setLayout(self.content)
         self._menu = QWidget()
-        self._menu.setObjectName('NWindowMenu')
+        self._menu.setObjectName("NWindowMenu")
         self._menu_content = QHBoxLayout()
         self._menu.setLayout(self._menu_content)
         self._menu_content.setSpacing(5)
@@ -53,7 +54,7 @@ class NWindow(QFrame):
         self.content.addWidget(self._menu, 0)
 
         self._title = QLabel()
-        self._title.setObjectName('NWindowTitle')
+        self._title.setObjectName("NWindowTitle")
 
         self._menu_content.addWidget(self._title, 1)
 
@@ -79,7 +80,8 @@ class NWindow(QFrame):
             | Qt.FramelessWindowHint
             | Qt.WindowStaysOnTopHint
             | Qt.WindowCloseButtonHint
-            | Qt.WindowMinMaxButtonsHint)
+            | Qt.WindowMinMaxButtonsHint
+        )
         self.show()
 
     def load(self):

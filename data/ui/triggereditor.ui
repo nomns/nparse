@@ -147,7 +147,7 @@
       <item>
        <widget class="QTabWidget" name="tabWidget_2">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab_4">
          <attribute name="title">
@@ -172,7 +172,7 @@
              <enum>QTabWidget::Rounded</enum>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>2</number>
             </property>
             <property name="elideMode">
              <enum>Qt::ElideNone</enum>
@@ -594,7 +594,7 @@
              <enum>QTabWidget::Rounded</enum>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <property name="elideMode">
              <enum>Qt::ElideNone</enum>
@@ -906,7 +906,7 @@
                    <item>
                     <widget class="QPushButton" name="endSoundFileButton">
                      <property name="text">
-                      <string>Select</string>
+                      <string>Set</string>
                      </property>
                     </widget>
                    </item>
@@ -1208,7 +1208,7 @@
    <sender>endTimerBarColorButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>endTimerBarColorButtonClickede()</slot>
+   <slot>endTimerBarColorButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>119</x>
@@ -1332,6 +1332,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>startSoundFileButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>startSoundFileButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>370</x>
+     <y>276</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>267</x>
+     <y>268</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>endSoundFileButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>endSoundFileButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>370</x>
+     <y>276</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>267</x>
+     <y>268</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>startTimerIconSpinBoxChanged(int)</slot>
@@ -1341,7 +1373,7 @@
   <slot>endTimerTextLineEditChanged(QString)</slot>
   <slot>endTimerTextColorButtonClicked()</slot>
   <slot>endTimerIconSpinBoxChanged(int)</slot>
-  <slot>endTimerBarColorButtonClickede()</slot>
+  <slot>endTimerBarColorButtonClicked()</slot>
   <slot>startTextTextLineEditChanged(QString)</slot>
   <slot>endTextTextLineEditChanged(QString)</slot>
   <slot>startTextSizeSpinBoxChanged(int)</slot>

@@ -5,11 +5,12 @@ import requests
 import json
 import re
 from datetime import datetime, timedelta
-from typing import Dict
+from typing import Dict, List
 
 from PyQt5.QtWidgets import QLabel, QWidget, QColorDialog
 from PyQt5.QtGui import QColor, QPixmap
-from PyQt5.QtCore import QRect, Qt
+from PyQt5.QtCore import QRect, Qt, QUrl
+from PyQt5.QtMultimedia import QMediaContent
 
 from gtts import gTTS
 
@@ -17,8 +18,8 @@ from gtts import gTTS
 def create_tts_mp3(text):
     try:
         tts = gTTS(text)
-        if not os.path.exists('data/tts'):
-            os.mkdir('data/tts')
+        if not os.path.exists("data/tts"):
+            os.mkdir("data/tts")
         filename = "data/tts/{}.mp3".format(text)
         tts.save(filename)
         return filename
@@ -26,14 +27,27 @@ def create_tts_mp3(text):
         return None
 
 
+def mp3_to_data(mp3_path: str) -> QMediaContent:
+    return QMediaContent(QUrl.fromLocalFile(mp3_path))
+
+
 def get_version():
     version = None
     try:
-        r = requests.get('http://nparse.nomns.com/info/version')
-        version = json.loads(r.text)['version']
+        r = requests.get("http://nparse.nomns.com/info/version")
+        version = json.loads(r.text)["version"]
     except:
         pass
     return version
+
+
+def get_unique_str(text: str, texts: List[str]) -> str:
+    count: int = 1
+    new_text = text
+    while new_text in texts:
+        new_text = f"{text} {count}"
+        count += 1
+    return new_text
 
 
 def parse_line(line):
@@ -41,20 +55,20 @@ def parse_line(line):
     Parses and then returns an everquest log entry's date and text.
     """
     index = line.find("]") + 1
-    sdate = line[1:index - 1].strip()
+    sdate = line[1 : index - 1].strip()
     text = line[index:].strip()
-    return datetime.strptime(sdate, '%a %b %d %H:%M:%S %Y'), text
+    return datetime.strptime(sdate, "%a %b %d %H:%M:%S %Y"), text
 
 
 def strip_timestamp(line):
     """
     Strings EQ Timestamp from log entry.
     """
-    return line[line.find("]") + 1:].strip()
+    return line[line.find("]") + 1 :].strip()
 
 
 def get_line_length(x1, y1, x2, y2):
-    return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 
 def resource_path(relative_path):
@@ -94,23 +108,23 @@ def get_degrees_from_line(x1, y1, x2, y2):
 
 def format_time(time_delta):
     """Returns a string from a timedelta '#d #h #m #s', but only 's' if d, h, m are all 0."""
-    time_string = ''
+    time_string = ""
     days = time_delta.days
     hours, remainder = divmod(time_delta.seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
     if sum([days, hours, minutes]):
-        time_string += '{}d'.format(days) if days else ''
-        time_string += '{}h'.format(hours) if hours else ''
-        time_string += '{}m'.format(minutes) if minutes else ''
-        time_string += '{}s'.format(seconds) if seconds else ''
+        time_string += "{}d".format(days) if days else ""
+        time_string += "{}h".format(hours) if hours else ""
+        time_string += "{}m".format(minutes) if minutes else ""
+        time_string += "{}s".format(seconds) if seconds else ""
         return time_string
     else:
         return str(seconds)
 
 
-def text_time_to_seconds(text_time):
+def text_time_to_seconds(text_time) -> datetime:
     """ Returns string 'hh:mm:ss' -> seconds """
-    parts = text_time.split(':')
+    parts = text_time.split(":")
     seconds, minutes, hours = 0, 0, 0
     try:
         seconds = int(parts[-1])
@@ -119,7 +133,7 @@ def text_time_to_seconds(text_time):
     except IndexError:
         pass
     except ValueError:
-        return
+        return None
 
     return timedelta(hours=hours, minutes=minutes, seconds=seconds).total_seconds()
 
@@ -140,10 +154,7 @@ def get_rgb(widget, role):
 
 def get_color(parent: QWidget = None, rgba: list = None) -> QColor:
     color = QColorDialog.getColor(
-        QColor(*rgba),
-        parent,
-        'Choose a Color',
-        QColorDialog.ShowAlphaChannel
+        QColor(*rgba), parent, "Choose a Color", QColorDialog.ShowAlphaChannel
     )
     return color if color.isValid() else QColor(*rgba)
 
@@ -151,7 +162,7 @@ def get_color(parent: QWidget = None, rgba: list = None) -> QColor:
 def get_spell_icon(icon_index):
     # Spell Icons are 40x40 pixels
     file_number = math.ceil(icon_index / 36)
-    file_name = 'data/spells/spells0' + str(file_number) + '.png'
+    file_name = "data/spells/spells0" + str(file_number) + ".png"
     spell_number = icon_index % 36
     file_row = math.floor((spell_number + 6) / 6)
     file_col = spell_number % 6 + 1
@@ -159,7 +170,8 @@ def get_spell_icon(icon_index):
     y = (file_row - 1) * 40
     icon_image = QPixmap(file_name)
     scaled_icon_image = icon_image.copy(QRect(x, y, 40, 40)).scaled(
-        18, 18, transformMode=Qt.SmoothTransformation)
+        18, 18, transformMode=Qt.SmoothTransformation
+    )
     label = QLabel()
     label.setPixmap(scaled_icon_image)
     label.setFixedSize(18, 18)
@@ -168,7 +180,7 @@ def get_spell_icon(icon_index):
 
 def create_regex_from(text=None, regex=None):
     if text:
-        return re.compile('^{}$'.format(text), re.IGNORECASE)
+        return re.compile("^{}$".format(text), re.IGNORECASE)
     else:
         return re.compile(regex)
 

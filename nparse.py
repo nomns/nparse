@@ -7,19 +7,28 @@ from typing import Tuple, List
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor, QFontDatabase, QIcon
-from PyQt5.QtWidgets import QApplication, QMenu, QSystemTrayIcon
+from PyQt5.QtWidgets import (
+    QApplication,
+    QMenu,
+    QSystemTrayIcon,
+    QSpinBox,
+    QWidgetAction,
+    QLabel,
+    QHBoxLayout,
+    QWidget,
+)
+
+from config import app_config, profile
+
+profile.load(app_config.last_profile if app_config.last_profile else "")
 
 import parsers
 from utils import logreader, resource_path, get_version, logger
 
-from config import app_config, profile_manager
-from config.ui import SettingsWindow
-
-# create logger
 log = logger.get_logger(__name__)
 
-# load profiles
-profile = profile_manager.profile
+from config.ui import SettingsWindow
+
 
 # set custom user defined scale factor
 os.environ["QT_SCALE_FACTOR"] = str(app_config.qt_scale_factor / 100)
@@ -109,7 +118,8 @@ class NomnsParse(QApplication):
                 parser.parse(timestamp, text)
 
     def _log_file_changed(self, log_file: str) -> None:
-        profile_manager.switch(log_file)
+        profile.switch(os.path.basename(log_file))
+        app_config.last_profile = os.path.basename(log_file)
 
     def _menu(self, event) -> None:
         """Returns a new QMenu for system tray."""
@@ -128,6 +138,27 @@ class NomnsParse(QApplication):
             parsers.addAction(toggle)
 
         menu.addMenu(parsers)
+
+        menu.addSeparator()
+
+        profiles = QMenu("Profile")
+
+        level_select = QWidgetAction(profiles)
+        w = QWidget()
+        layout = QHBoxLayout()
+        spinbox = QSpinBox()
+        spinbox.setMaximum(65)
+        spinbox.setMinimum(1)
+        spinbox.setMaximumWidth(100)
+        spinbox.setValue(profile.spells.level)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(QLabel("Level"), stretch=1)
+        layout.addWidget(spinbox, stretch=0)
+        w.setLayout(layout)
+        level_select.setDefaultWidget(w)
+        profiles.addAction(level_select)
+
+        menu.addMenu(profiles)
 
         menu.addSeparator()
         settings_action = menu.addAction("Settings")
@@ -149,11 +180,17 @@ class NomnsParse(QApplication):
         quit_action = menu.addAction("Quit")
 
         action = menu.exec(QCursor.pos())
+
+        # change level if it was changed
+        if spinbox.value() != profile.spells.level:
+            profile.spells.level = spinbox.value()
+
         if action == check_version_action:
             webbrowser.open("https://github.com/nomns/nparse/releases")
 
         elif action == settings_action:
             self._settings.set_values()
+            self._settings.setWindowTitle(f"Settings (Profile: {profile.name})")
             if self._settings.exec():
                 self._settings.save_settings()
                 # Update required settings
@@ -173,14 +210,14 @@ class NomnsParse(QApplication):
             # save parser geometry
             for parser in self._parsers:
                 g = parser.geometry()
-                profile_manager.profile.__dict__[parser.name].geometry = [
+                profile.__dict__[parser.name].geometry = [
                     g.x(),
                     g.y(),
                     g.width(),
                     g.height(),
                 ]
             app_config.save()
-            profile_manager.save()
+            profile.save()
             self._system_tray.setVisible(False)
             self.quit()
 
@@ -204,8 +241,8 @@ class NomnsParse(QApplication):
         # this will only work if numbers go up
         try:
             for (o, c) in zip(ONLINE_VERSION.split("."), CURRENT_VERSION.split(".")):
-                if int(o) > int(c):
-                    return True
+                if int(o) < int(c):
+                    return False
         except:
             log.warning(
                 f"unable to parse version from: online {o}, current {c}", exc_info=True
@@ -216,6 +253,7 @@ class NomnsParse(QApplication):
 if __name__ == "__main__":
     try:
         import ctypes
+
         APPID = "nomns.nparse"
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APPID)
     except Exception as error:

@@ -3,18 +3,16 @@ import datetime
 
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 
-from config import profile_manager
-profile = profile_manager.profile
+from config import profile, app_config
 
 
 class Spell:
-
     def __init__(self, **kwargs):
         self.id = 0
-        self.name = ''
-        self.effect_text_you = ''
-        self.effect_text_other = ''
-        self.effect_text_worn_off = ''
+        self.name = ""
+        self.effect_text_you = ""
+        self.effect_text_other = ""
+        self.effect_text_worn_off = ""
         self.aoe_range = 0
         self.max_targets = 1
         self.cast_time = 0
@@ -52,26 +50,39 @@ class SpellTrigger(QObject):
         if profile.spells.use_casting_window:
             # just in case user set casting window buffer super low,
             # create offset for more accuracy.
-            msec_offset =\
-                (datetime.datetime.now() - self.timestamp).total_seconds() * 1000
+            msec_offset = (
+                datetime.datetime.now() - self.timestamp
+            ).total_seconds() * 1000
             self._times_up_timer.start(
-                self.spell.cast_time + profile.spells.casting_window_buffer - msec_offset)
-            self._activate_timer.start(
-                self.spell.cast_time - profile.spells.casting_window_buffer - msec_offset)
+                self.spell.cast_time
+                + profile.spells.casting_window_buffer
+                - msec_offset
+            )
+            time = (
+                self.spell.cast_time
+                - profile.spells.casting_window_buffer
+                - msec_offset
+            )
+            self._activate_timer.start(time if time > 0 else 0)
         else:
             self.activated = True
 
     def parse(self, timestamp, text):
         if self.activated:
-            if self.spell.effect_text_you\
-                    and text[:len(self.spell.effect_text_you)] == self.spell.effect_text_you:
+            if (
+                self.spell.effect_text_you
+                and text[: len(self.spell.effect_text_you)]
+                == self.spell.effect_text_you
+            ):
                 # cast self
-                self.targets.append((timestamp, '__you__'))
-            elif text[len(text) - len(self.spell.effect_text_other):] ==\
-                    self.spell.effect_text_other and len(self.spell.effect_text_other) > 0:
+                self.targets.append((timestamp, "__you__"))
+            elif (
+                text[len(text) - len(self.spell.effect_text_other) :]
+                == self.spell.effect_text_other
+                and len(self.spell.effect_text_other) > 0
+            ):
                 # cast other
-                target =\
-                    text[:len(text) - len(self.spell.effect_text_other)].strip()
+                target = text[: len(text) - len(self.spell.effect_text_other)].strip()
                 self.targets.append((timestamp, target))
             if self.targets and self.spell.max_targets == 1:
                 self.stop()  # make sure you don't get two triggers
@@ -91,9 +102,9 @@ class SpellTrigger(QObject):
 def create_spell_book():
     """ Returns a dictionary of Spell by k, v -> spell_name, Spell() """
     spell_book = {}
-    with open('data/spells/spells_us.txt') as spell_file:
+    with open("data/spells/spells_us.txt") as spell_file:
         for line in spell_file:
-            values = line.strip().split('^')
+            values = line.strip().split("^")
             spell_book[values[1].lower()] = Spell(
                 id=int(values[0]),
                 name=values[1].lower(),
@@ -109,13 +120,13 @@ def create_spell_book():
                 duration=int(values[17]),
                 pvp_duration=int(values[182]),
                 type=int(values[83]),
-                spell_icon=int(values[144])
+                spell_icon=int(values[144]),
             )
     return spell_book
 
 
 def get_spell_duration(spell, level):
-    if spell.name in profile.spells.use_secondary:
+    if spell.name in app_config.use_secondary:
         formula, duration = spell.pvp_duration_formula, spell.pvp_duration
     elif profile.spells.use_secondary_all and spell.type == 0:
         formula, duration = spell.pvp_duration_formula, spell.pvp_duration

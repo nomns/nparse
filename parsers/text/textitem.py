@@ -4,27 +4,23 @@ from PyQt5.QtWidgets import QGraphicsTextItem, QGraphicsDropShadowEffect
 from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import QTimer
 
-from config import profile_manager
-profile = profile_manager.profile
+from config import profile
 
 from .common import TextAction
 
 
 class TextItem(QGraphicsTextItem):
-
     def __init__(self, text_action: TextAction) -> None:
         super().__init__()
         self.action = text_action
         self.timestamp = datetime.now()
         self._opacity = self.action.color[-1] / 255
         self._update_frequency = 30
-        self._direction = 1 if profile.text.direction == 'down' else -1
+        self._direction = 1 if profile.text.direction == "down" else -1
 
         self.setPlainText(text_action.text)
         self.setDefaultTextColor(QColor(*self.action.color))
-        self.setFont(
-            QFont('Arial', self.action.text_size)
-        )
+        self.setFont(QFont("Arial", self.action.text_size))
         effect = QGraphicsDropShadowEffect()
         effect.setBlurRadius(profile.text.shadow_blur_radius)
         effect.setOffset(0, 0)
@@ -39,10 +35,7 @@ class TextItem(QGraphicsTextItem):
         if seconds > profile.text.fade_seconds:
             self._remove()
         else:
-            self.moveBy(
-                0,
-                profile.text.pixels_per_second * 0.03 * self._direction
-            )
+            self.moveBy(0, profile.text.pixels_per_second * 0.03 * self._direction)
             self.setOpacity(
                 self._opacity - (self._opacity * (seconds / profile.text.fade_seconds))
             )

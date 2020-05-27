@@ -1,8 +1,13 @@
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from typing import List, Dict
-import json
 
-from PyQt5.QtCore import QByteArray
+
+@dataclass
+class TriggerChoice:
+    name: str = ""
+    enabled: bool = False
+    type_: str = "group"
+    group: List[any] = field(default_factory=lambda: [])
 
 
 @dataclass
@@ -29,14 +34,13 @@ class TriggerSound:
     enabled: bool = False
     volume: int = 100
     name: str = ""
-    data: QByteArray = None
 
 
 @dataclass
 class TriggerAction:
-    sound: TriggerSound = TriggerSound()
-    timer: TriggerTimer = TriggerTimer()
-    text: TriggerText = TriggerText()
+    sound: TriggerSound = field(default_factory=lambda: TriggerSound())
+    timer: TriggerTimer = field(default_factory=lambda: TriggerTimer())
+    text: TriggerText = field(default_factory=lambda: TriggerText())
 
 
 @dataclass
@@ -46,16 +50,15 @@ class Trigger:
     text: str = ""
     regex: str = ""
     duration: str = "60"
-    start_action: TriggerAction = TriggerAction()
-    end_action: TriggerAction = TriggerAction()
-
-    def json(self):
-        return json.dumps(asdict(self), indent=4, sort_keys=True)
+    start_action: TriggerAction = field(default_factory=lambda: TriggerAction())
+    end_action: TriggerAction = field(default_factory=lambda: TriggerAction())
 
     def update(self, dictionary: Dict[str, any], ref: Dict[str, any] = None):
         ref = self.__dict__ if ref is None else ref
         for k, v in dictionary.items():
-            if type(ref[k]) in [TriggerAction, TriggerSound, TriggerText, TriggerTimer]:
+            if isinstance(
+                ref[k], (TriggerAction, TriggerSound, TriggerText, TriggerTimer)
+            ):
                 self.update(v, ref[k].__dict__)
             else:
                 ref[k] = v

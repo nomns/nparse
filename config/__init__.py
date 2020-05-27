@@ -1,7 +1,7 @@
-from .profilemanager import ProfileManager
 from .triggermanager import TriggerManager
+from .profiles import Profile
 from .config import Config
 
-profile_manager = ProfileManager()
 trigger_manager = TriggerManager()
 app_config = Config()
+profile = Profile()

@@ -41,7 +41,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <property name="documentMode">
       <bool>false</bool>
@@ -208,7 +208,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="ttsFileRefreshButton">
+             <widget class="QToolButton" name="ttsRefreshButton">
               <property name="text">
                <string>Refresh</string>
               </property>
@@ -499,7 +499,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab_6">
           <property name="autoFillBackground">
@@ -582,7 +582,7 @@
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="1,0,0">
                  <item>
-                  <widget class="QLabel" name="spellSoundFileLabel">
+                  <widget class="QLabel" name="spellsSoundFileLabel">
                    <property name="maximumSize">
                     <size>
                      <width>200</width>
@@ -598,7 +598,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QToolButton" name="spellSoundSelectButton">
+                  <widget class="QToolButton" name="spellsSoundSelectButton">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                      <horstretch>0</horstretch>
@@ -611,7 +611,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QToolButton" name="spellSoundPlayButton">
+                  <widget class="QToolButton" name="spellsSoundPlayButton">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                      <horstretch>0</horstretch>
@@ -637,13 +637,25 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="spellsSoundVolumeSlider">
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="value">
+                   <number>100</number>
+                  </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="tickPosition">
+                   <enum>QSlider::TicksBelow</enum>
+                  </property>
+                  <property name="tickInterval">
+                   <number>10</number>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="label_8">
+                 <widget class="QLabel" name="spellsSoundVolumeLabel">
                   <property name="minimumSize">
                    <size>
                     <width>50</width>
@@ -667,21 +679,27 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_11">
               <item>
-               <layout class="QFormLayout" name="formLayout_6">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="usePVPSpellDurationsLabel">
-                  <property name="text">
-                   <string>Use PVP Spell durations</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QCheckBox" name="spellsUsePVPSpellDurationsCheckBox"/>
-                </item>
-               </layout>
+               <widget class="QCheckBox" name="spellsUsePVPSpellDurationsCheckBox">
+                <property name="text">
+                 <string>Use PVP Spell Durations</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -721,7 +739,7 @@
                     </widget>
                    </item>
                    <item alignment="Qt::AlignRight">
-                    <widget class="QPushButton" name="youColorButton">
+                    <widget class="QPushButton" name="spellsYouColorButton">
                      <property name="text">
                       <string>Set Bar Color</string>
                      </property>
@@ -745,7 +763,7 @@
                     </widget>
                    </item>
                    <item alignment="Qt::AlignRight">
-                    <widget class="QPushButton" name="friendlyColorButton">
+                    <widget class="QPushButton" name="spellsFriendlyColorButton">
                      <property name="text">
                       <string>Set Bar Color</string>
                      </property>
@@ -769,7 +787,7 @@
                     </widget>
                    </item>
                    <item alignment="Qt::AlignRight">
-                    <widget class="QPushButton" name="enemyColorButton">
+                    <widget class="QPushButton" name="spellsEnemyColorButton">
                      <property name="text">
                       <string>Set Bar Color</string>
                      </property>
@@ -778,7 +796,7 @@
                   </layout>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="targetTextColorButton">
+                  <widget class="QPushButton" name="spellsTargetTextColorButton">
                    <property name="text">
                     <string>Set Text Color</string>
                    </property>
@@ -803,14 +821,14 @@
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_6">
                 <item>
-                 <widget class="QPushButton" name="buffTextColorButton">
+                 <widget class="QPushButton" name="spellsBuffTextColorButton">
                   <property name="text">
                    <string>Set Text Color</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="buffBarColorButton">
+                 <widget class="QPushButton" name="spellsBuffBarColorButton">
                   <property name="text">
                    <string>Set Bar Color</string>
                   </property>
@@ -834,14 +852,14 @@
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_7">
                 <item>
-                 <widget class="QPushButton" name="debuffTextColorButton">
+                 <widget class="QPushButton" name="spellsDebuffTextColorButton">
                   <property name="text">
                    <string>Set Text Color</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="debuffBarColorButton">
+                 <widget class="QPushButton" name="spellsDebuffBarColorButton">
                   <property name="text">
                    <string>Set Bar Color</string>
                   </property>
@@ -855,19 +873,6 @@
           </layout>
          </widget>
         </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_6">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>
@@ -1099,10 +1104,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>youColorButton</sender>
+   <sender>spellsYouColorButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>youColorButtonPress()</slot>
+   <slot>spellsYouColorButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>478</x>
@@ -1118,7 +1123,7 @@
    <sender>textShadowColorButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>textShadowColorButtonPress()</slot>
+   <slot>textShadowColorButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>478</x>
@@ -1131,10 +1136,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>targetTextColorButton</sender>
+   <sender>spellsTargetTextColorButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>targetTextColorButtonPress()</slot>
+   <slot>spellsTargetTextColorButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>330</x>
@@ -1147,10 +1152,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>debuffBarColorButton</sender>
+   <sender>spellsDebuffBarColorButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>debuffBarColorButtonPress()</slot>
+   <slot>spellsDebuffBarColorButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>424</x>
@@ -1163,10 +1168,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>buffTextColorButton</sender>
+   <sender>spellsBuffTextColorButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>buffTextColorButtonPress()</slot>
+   <slot>spellsBuffTextColorButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>236</x>
@@ -1179,10 +1184,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>debuffTextColorButton</sender>
+   <sender>spellsDebuffTextColorButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>debuffTextColorButtonPress()</slot>
+   <slot>spellsDebuffTextColorButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>236</x>
@@ -1195,10 +1200,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>buffBarColorButton</sender>
+   <sender>spellsBuffBarColorButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>buffBarColorButtonPress()</slot>
+   <slot>spellsBuffBarColorButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>424</x>
@@ -1214,7 +1219,7 @@
    <sender>selectEQDirectoryButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>selectEQDirectoryButtonPress()</slot>
+   <slot>selectEQDirectoryButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>479</x>
@@ -1227,10 +1232,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>friendlyColorButton</sender>
+   <sender>spellsFriendlyColorButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>friendlyColorButtonPress()</slot>
+   <slot>spellsFriendlyColorButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>478</x>
@@ -1243,10 +1248,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>enemyColorButton</sender>
+   <sender>spellsEnemyColorButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>enemyColorButtonPress()</slot>
+   <slot>spellsEnemyColorButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>478</x>
@@ -1258,17 +1263,136 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>spellsSoundVolumeSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>Dialog</receiver>
+   <slot>spellsSoundVolumeSliderChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>238</x>
+     <y>269</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spellsSoundPlayButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>spellsSoundPlayButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>397</x>
+     <y>229</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spellsSoundSelectButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>spellsSoundSelectButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>301</x>
+     <y>229</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ttsCreateButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>ttsCreateButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>247</x>
+     <y>163</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ttsDeleteButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>ttsDeleteButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>442</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ttsRefreshButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>ttsRefreshButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>389</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ttsPlayButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>ttsPlayButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>341</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
-  <slot>textShadowColorButtonPress()</slot>
-  <slot>youColorButtonPress()</slot>
-  <slot>friendlyColorButtonPress()</slot>
-  <slot>enemyColorButtonPress()</slot>
-  <slot>targetTextColorButtonPress()</slot>
-  <slot>buffTextColorButtonPress()</slot>
-  <slot>buffBarColorButtonPress()</slot>
-  <slot>debuffTextColorButtonPress()</slot>
-  <slot>debuffBarColorButtonPress()</slot>
-  <slot>selectEQDirectoryButtonPress()</slot>
+  <slot>textShadowColorButtonClicked()</slot>
+  <slot>spellsYouColorButtonClicked()</slot>
+  <slot>spellsFriendlyColorButtonClicked()</slot>
+  <slot>spellsEnemyColorButtonClicked()</slot>
+  <slot>spellsTargetTextColorButtonClicked()</slot>
+  <slot>spellsBuffTextColorButtonClicked()</slot>
+  <slot>spellsBuffBarColorButtonClicked()</slot>
+  <slot>spellsDebuffTextColorButtonClicked()</slot>
+  <slot>spellsDebuffBarColorButtonClicked()</slot>
+  <slot>selectEQDirectoryButtonClicked()</slot>
+  <slot>spellsSoundVolumeSliderChanged(int)</slot>
+  <slot>spellsSoundSelectButtonClicked()</slot>
+  <slot>spellsSoundPlayButtonClicked()</slot>
+  <slot>ttsPlayButtonClicked()</slot>
+  <slot>ttsRefreshButtonClicked()</slot>
+  <slot>ttsDeleteButtonClicked()</slot>
+  <slot>ttsCreateButtonClicked()</slot>
  </slots>
 </ui>

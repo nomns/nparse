@@ -1,5 +1,4 @@
-from config import profile_manager
-profile = profile_manager.profile
+from config import profile
 
 
 def parser_window() -> str:
@@ -137,7 +136,9 @@ def parser_window() -> str:
             background: transparent;
         }}
 
-        """.format(window_opacity=profile.maps.opacity / 100 * 255)
+        """.format(
+        window_opacity=profile.maps.opacity / 100 * 255
+    )
 
 
 group_label = """
@@ -156,22 +157,22 @@ group_label = """
 
 def enemy_target() -> str:
     return group_label.format(
-        c=','.join(map(str, profile.spells.enemy_target_color)),
-        f=','.join(map(str, profile.spells.target_text_color))
+        c=",".join(map(str, profile.spells.enemy_target_color)),
+        f=",".join(map(str, profile.spells.target_text_color)),
     )
 
 
 def friendly_target() -> str:
     return group_label.format(
-        c=','.join(map(str, profile.spells.friendly_target_color)),
-        f=','.join(map(str, profile.spells.target_text_color))
+        c=",".join(map(str, profile.spells.friendly_target_color)),
+        f=",".join(map(str, profile.spells.target_text_color)),
     )
 
 
 def you_target() -> str:
     return group_label.format(
-        c=','.join(map(str, profile.spells.you_target_color)),
-        f=','.join(map(str, profile.spells.target_text_color))
+        c=",".join(map(str, profile.spells.you_target_color)),
+        f=",".join(map(str, profile.spells.target_text_color)),
     )
 
 
@@ -199,8 +200,8 @@ def good_spell() -> str:
             font-size: 12px;
         }}
     """.format(
-        c=','.join(map(str, profile.spells.buff_bar_color)),
-        f=','.join(map(str, profile.spells.buff_text_color))
+        c=",".join(map(str, profile.spells.buff_bar_color)),
+        f=",".join(map(str, profile.spells.buff_text_color)),
     )
 
 
@@ -240,8 +241,8 @@ def debuff_spell() -> str:
             font-size: 12px;
         }}
     """.format(
-        c=','.join(map(str, profile.spells.debuff_bar_color)),
-        f=','.join(map(str, profile.spells.debuff_text_color))
+        c=",".join(map(str, profile.spells.debuff_bar_color)),
+        f=",".join(map(str, profile.spells.debuff_text_color)),
     )
 
 
@@ -269,6 +270,5 @@ def trigger(bar_color, text_color) -> str:
             font-size: 12px;
         }}
     """.format(
-        c=','.join(map(str, bar_color)),
-        f=','.join(map(str, text_color))
+        c=",".join(map(str, bar_color)), f=",".join(map(str, text_color))
     )

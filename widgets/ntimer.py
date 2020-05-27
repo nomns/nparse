@@ -5,8 +5,11 @@ import string
 from PyQt5.QtWidgets import QFrame, QHBoxLayout, QProgressBar, QLabel
 from PyQt5.QtCore import QTimer
 
+from config import profile
+
 from utils import format_time, get_spell_icon, sound
 from config.ui import styles
+
 
 from .common import NDirection
 

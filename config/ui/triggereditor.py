@@ -1,7 +1,9 @@
+import os
+
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 from PyQt5 import uic
 from PyQt5.QtGui import QColor, QPalette, QRegExpValidator
-from PyQt5.QtCore import QRegExp, QFile
+from PyQt5.QtCore import QRegExp
 
 from utils import (
     get_spell_icon,
@@ -17,10 +19,11 @@ from config.trigger import Trigger
 
 
 class TriggerEditor(QDialog):
-    def __init__(self, parent=None, trigger: Trigger = None):
+    def __init__(self, parent: any, trigger: Trigger):
         super().__init__(parent)
         uic.loadUi(resource_path("data/ui/triggereditor.ui"), self)
-        self._set_values(trigger)
+        self.trigger: Trigger = trigger
+        self._set_values(self.trigger)
 
     # Events
 
@@ -38,7 +41,7 @@ class TriggerEditor(QDialog):
         self.endTimerIconLayout.removeItem(self.endTimerIconLayout.itemAt(0))
         self.endTimerIconLayout.addWidget(get_spell_icon(icon_index))
 
-    def startTimerBarColorChoose(self) -> None:
+    def startTimerBarColorButtonClicked(self) -> None:
         set_qcolor(
             self.startTimerExample,
             background=get_color(
@@ -46,7 +49,7 @@ class TriggerEditor(QDialog):
             ),
         )
 
-    def endTimerBarColorChoose(self) -> None:
+    def endTimerBarColorButtonClicked(self) -> None:
         set_qcolor(
             self.endTimerExample,
             background=get_color(
@@ -54,7 +57,7 @@ class TriggerEditor(QDialog):
             ),
         )
 
-    def startTimerTextColorChoose(self) -> None:
+    def startTimerTextColorButtonClicked(self) -> None:
         set_qcolor(
             self.startTimerExample,
             foreground=get_color(
@@ -62,7 +65,7 @@ class TriggerEditor(QDialog):
             ),
         )
 
-    def endTimerTextColorChoose(self) -> None:
+    def endTimerTextColorButtonClicked(self) -> None:
         set_qcolor(
             self.endTimerExample,
             foreground=get_color(
@@ -103,36 +106,53 @@ class TriggerEditor(QDialog):
         )
 
     def startSoundPlayButtonClicked(self) -> None:
-        sound.play(self.startSoundFileLabel.text())
+        if self.startSoundFileLabel.text():
+            sound.play(
+                self.trigger.package.audio_data.get(
+                    self.startSoundFileLabel.text(), None
+                ),
+                self.startSoundVolumeSlider.value(),
+            )
 
     def endSoundPlayButtonClicked(self) -> None:
-        sound.play(self.endSoundFileLabel.text())
+        if self.endSoundFileLabel.text():
+            sound.play(
+                self.trigger.package.audio_data.get(
+                    self.endSoundFileLabel.text(), None
+                ),
+                self.endSoundVolumeSlider.value(),
+            )
 
     def startSoundFileButtonClicked(self) -> None:
         fd = QFileDialog(self)
         fd.setDirectory("./data/tts")
         f = fd.getOpenFileName(filter="*.mp3")
-        if f[0]:
-            self.startSoundFileLabel.setText(f[0])
+        name = self.trigger.package.add_audio(f[0])
+        if f[0] and os.path.isfile(f[0]):
+            self.trigger.start_action.sound.name = name
+            self.startSoundFileLabel.setText(self.trigger.start_action.sound.name)
+
+        fd.deleteLater()
         fd.setParent(None)
 
     def endSoundFileButtonClicked(self) -> None:
         fd = QFileDialog(self)
         fd.setDirectory("./data/tts")
         f = fd.getOpenFileName(filter="*.mp3")
-        if f[0]:
-            self.endSoundFileLabel.setText(f[0])
+        name = self.trigger.package.add_audio(f[0])
+        if f[0] and os.path.isfile(f[0]):
+            self.trigger.end_action.sound.name = name
+            self.endSoundFileLabel.setText(self.trigger.end_action.sound.name)
+        fd.deleteLater()
         fd.setParent(None)
 
     def startSoundVolumeSliderChanged(self, new_value: int) -> None:
-        self.startSoundVolumeLabel.setText(f"{new_value:.2%}")
+        self.startSoundVolumeLabel.setText(f"{new_value}%")
 
     def endSoundVolumeSliderChanged(self, new_value: int) -> None:
-        self.endSoundVolumeLabel.setText(f"{new_value:.2%}")
+        self.endSoundVolumeLabel.setText(f"{new_value}%")
 
     def _set_values(self, t: Trigger):
-        # set values and validators
-
         # general
         self.triggerNameLineEdit.setText(t.name)
         self.triggerNameLineEdit.setValidator(QRegExpValidator(QRegExp(".+")))
@@ -165,10 +185,11 @@ class TriggerEditor(QDialog):
         self.startTextEnabledCheckBox.setChecked(t.start_action.text.enabled)
         self.startTextTextLineEdit.setText(t.start_action.text.text)
         self.startTextSizeSpinBox.setValue(t.start_action.text.text_size)
-        set_qcolor(self.startTextExample, QColor(t.start_action.text.color))
+        set_qcolor(self.startTextExample, QColor(*t.start_action.text.color))
 
         self.startSoundEnabledCheckBox.setChecked(t.start_action.sound.enabled)
-        self.startSoundFileLabel.setText(str(t.start_action.sound.data))
+        self.startSoundFileLabel.setText(t.start_action.sound.name)
+        self.startSoundVolumeSlider.setValue(t.start_action.sound.volume)
 
         # end action
         self.endTimerEnabledCheckBox.setChecked(t.end_action.timer.enabled)
@@ -184,15 +205,14 @@ class TriggerEditor(QDialog):
         self.endTextEnabledCheckBox.setChecked(t.end_action.text.enabled)
         self.endTextTextLineEdit.setText(t.end_action.text.text)
         self.endTextSizeSpinBox.setValue(t.end_action.text.text_size)
-        set_qcolor(self.endTextExample, QColor(t.end_action.text.color))
+        set_qcolor(self.endTextExample, QColor(*t.end_action.text.color))
 
         self.endSoundEnabledCheckBox.setChecked(t.end_action.sound.enabled)
-        self.endSoundFileLabel.setText(str(t.end_action.sound.name))
+        self.endSoundFileLabel.setText(t.end_action.sound.name)
+        self.endSoundVolumeSlider.setValue(t.end_action.sound.volume)
 
-    def trigger(self) -> Trigger:
-        # create Trigger object from settings and return it
-        t: Trigger = Trigger()
-        t.update(
+    def get_trigger(self) -> Trigger:
+        self.trigger.update(
             {
                 "name": self.triggerNameLineEdit.text(),
                 "duration": self.triggerDurationLineEdit.text(),
@@ -221,7 +241,6 @@ class TriggerEditor(QDialog):
                     "sound": {
                         "enabled": self.startSoundEnabledCheckBox.isChecked(),
                         "volume": self.startSoundVolumeSlider.value(),
-                        "data": QFile(self.startSoundFileLabel.text()).readAll(),
                     },
                 },
                 "end_action": {
@@ -245,12 +264,11 @@ class TriggerEditor(QDialog):
                     "sound": {
                         "enabled": self.endSoundEnabledCheckBox.isChecked(),
                         "volume": self.endSoundVolumeSlider.value(),
-                        "data": QFile(self.endSoundFileLabel.text()).readAll(),
                     },
                 },
             }
         )
-        return t
+        return self.trigger
 
     def accept(self) -> None:
         # validate that items can resolve before accepting
@@ -261,4 +279,6 @@ class TriggerEditor(QDialog):
             except Exception as e:
                 QMessageBox(text="Could not compile regex: {}".format(e)).exec()
                 return
+        self.setParent(None)
+        self.deleteLater()
         super().accept()
