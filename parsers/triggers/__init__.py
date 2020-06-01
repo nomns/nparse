@@ -35,14 +35,13 @@ class Triggers(NWindow):
                 action.sound.volume,
             )
         if action.timer.enabled:
-            group_name = trigger.name
             group = None
             for g in self.container.groups():
-                if g.name == group_name:
+                if g.name == trigger.name:
                     group = g
             if not group:
-                group = NGroup(group_name=group_name, hide_title=True)
-            text = group_name
+                group = NGroup(group_name=trigger.name, hide_title=True)
+            text = action.timer.text if action.timer.text else trigger.name
             if action.timer.text and re_groups:
                 text = replace_from_regex_groups(action.timer.text, re_groups)
             self.container.add_timer(
