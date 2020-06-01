@@ -1,17 +1,19 @@
 from PyQt5.QtWidgets import QScrollArea
 
 from config.ui import styles
-from utils import sound, text_time_to_seconds
+from utils import sound, text_time_to_seconds, replace_from_regex_groups
 from widgets import NDirection, NWindow, NTimer, NContainer, NGroup
 
-from config import trigger_manager
+from config import trigger_manager, profile
+from config.trigger import Trigger, TriggerAction
 
 
 class Triggers(NWindow):
     def __init__(self, text_parser=None):
         super().__init__(name="triggers")
-        self._triggers = {}
-        self._set_triggers()
+        self._triggers = trigger_manager.create_parsers(
+            choices=profile.trigger_choices, slot=self._triggered
+        )
         self._text_parser = text_parser
 
         # ui
@@ -24,58 +26,51 @@ class Triggers(NWindow):
 
         self.content.addWidget(self._scroll_area, 1)
 
-    def _set_triggers(self):
-        pass
-        # triggers = {}
-        # for group_name in config.triggers:
-        #     if config.triggers[group_name]['enabled']:
-        #         for trigger_name in config.triggers[group_name]['triggers']:
-        #             if config.triggers[group_name]['triggers'][trigger_name]['enabled']:
-        #                 t = Trigger(
-        #                     trigger_name,
-        #                     config.triggers[group_name]['triggers'][trigger_name]
-        #                 )
-        #                 t.triggered.connect(self._triggered)
-
-        #                 triggers[trigger_name] = t
-        # self._triggers = triggers
-
-    def _triggered(self, trigger_name, timestamp, re_groups: dict = None) -> None:
-
-        action = self._triggers[trigger_name].action
-        if action.sound:
-            sound.play(action.sound)
-        if action.timer:
-            group_name = trigger_name
+    def _triggered(
+        self, trigger: Trigger, action: TriggerAction, timestamp, re_groups: dict = None
+    ) -> None:
+        if action.sound.enabled:
+            sound.play(
+                trigger.package.audio_data.get(action.sound.name, None),
+                action.sound.volume,
+            )
+        if action.timer.enabled:
+            group_name = trigger.name
             group = None
             for g in self.container.groups():
                 if g.name == group_name:
                     group = g
             if not group:
                 group = NGroup(group_name=group_name, hide_title=True)
+            text = group_name
+            if action.timer.text and re_groups:
+                text = replace_from_regex_groups(action.timer.text, re_groups)
             self.container.add_timer(
                 group,
                 NTimer(
-                    trigger_name,
+                    name=text,
                     style=styles.trigger(
-                        action.timer["bar_color"], action.timer["text_color"]
+                        action.timer.bar_color, action.timer.text_color,
                     ),
-                    duration=text_time_to_seconds(action.timer["time"]),
-                    icon=action.timer["icon"],
+                    duration=text_time_to_seconds(action.timer.duration),
+                    icon=action.timer.icon,
                     timestamp=timestamp,
                     direction=NDirection.DOWN,
+                    persistent=action.timer.persistent,
                 ),
             )
-        if action.text:
-            self._text_parser.display(text_action=action.text, re_groups=re_groups)
+        if action.text.enabled:
+            self._text_parser.display(trigger_text=action.text, re_groups=re_groups)
 
     def parse(self, timestamp, text):
-        for t in self._triggers.values():
+        for t in self._triggers:
             t.parse(timestamp, text)
 
     def settings_updated(self):
         super().settings_updated()
-        self._set_triggers()
+        self._triggers = trigger_manager.create_parsers(
+            choices=profile.trigger_choices, slot=self._triggered
+        )
 
     def toggle_menu(self, on=True):
         pass  # do not use menu

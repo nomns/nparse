@@ -5,7 +5,9 @@ import requests
 import json
 import re
 from datetime import datetime, timedelta
+from dataclasses import dataclass
 from typing import Dict, List
+
 
 from PyQt5.QtWidgets import QLabel, QWidget, QColorDialog
 from PyQt5.QtGui import QColor, QPixmap
@@ -14,8 +16,45 @@ from PyQt5.QtMultimedia import QMediaContent
 
 from gtts import gTTS
 
+from utils import logger
 
-def create_tts_mp3(text):
+log = logger.get_logger(__name__)
+
+
+@dataclass
+class Version:
+    version: str
+    major: int = 0
+    minor: int = 0
+    revision: int = 0
+
+    def __post_init__(self):
+        if self.version:
+            self.major, self.minor, self.revision = [
+                int(v) for v in self.version.split(".")
+            ]
+
+    def __gt__(self, other):
+        if self.major > other.major:
+            return True
+        elif self.minor > other.minor and self.major == other.major:
+            return True
+        elif (
+            self.revision > other.revision
+            and self.major == other.major
+            and self.minor == other.minor
+        ):
+            return True
+
+
+def replace_from_regex_groups(text: str, groups: Dict) -> str:
+    if groups:
+        for k, v in groups.items():
+            text = text.replace(f"<{k}>", v)
+    return text
+
+
+def create_tts_mp3(text: str):
     try:
         tts = gTTS(text)
         if not os.path.exists("data/tts"):
@@ -37,8 +76,25 @@ def get_version():
         r = requests.get("http://nparse.nomns.com/info/version")
         version = json.loads(r.text)["version"]
     except:
-        pass
+        log.warning("Unable to get version from server.", exc_info=True)
     return version
+
+
+def is_new_version_available(new_version: str, old_version: str) -> bool:
+    try:
+        return Version(new_version) > Version(old_version)
+    except:
+        return False
+        log.warning(f"Unable to parse versions: {new_version} and {old_version}")
+
+
+def parse_name_from_log(log_file: str):
+    r = re.search("^eqlog_(?P<name>\w+)_(?P<server>\w+).txt", log_file)
+    try:
+        return r.group("name")
+    except:
+        log.warning(f"Unable to parse name from {log_file}.")
+        return None
 
 
 def get_unique_str(text: str, texts: List[str]) -> str:

@@ -3,7 +3,7 @@ from dataclasses import dataclass, field, asdict
 from typing import List, Dict
 import json
 
-from utils import logger, mp3_to_data
+from utils import logger, mp3_to_data, parse_name_from_log
 
 from .trigger import TriggerChoice
 
@@ -27,7 +27,7 @@ class ProfileMaps:
     show_grid: bool = True
     show_mouse_location: bool = True
     show_poi: bool = True
-    toggled: bool = True
+    toggled: bool = False
     use_z_layers: bool = False
 
 
@@ -43,11 +43,13 @@ class ProfileSpells:
     friendly_target_color: List[int] = field(default_factory=lambda: [0, 68, 0, 255])
     geometry: List[int] = field(default_factory=lambda: [301, 0, 300, 300])
     level: int = 1
+    persistent_buffs: bool = False
+    persistent_debuffs: bool = False
     sound_enabled: bool = True
     sound_file: str = "data/mp3/ding.mp3"
     sound_volume: int = 100
     target_text_color: List[int] = field(default_factory=lambda: [255, 255, 255, 255])
-    toggled: bool = True
+    toggled: bool = False
     use_casting_window: bool = True
     use_secondary_all: bool = False
     you_target_color: List[int] = field(default_factory=lambda: [22, 66, 91, 255])
@@ -60,14 +62,14 @@ class ProfileText:
     geometry: List[int] = field(default_factory=lambda: [901, 0, 300, 300])
     pixels_per_second: int = 35
     shadow_color: List[int] = field(default_factory=lambda: [0, 0, 0, 255])
-    shadow_blur_radius: int = 20
-    toggled: bool = True
+    shadow_blur_radius: int = 5
+    toggled: bool = False
 
 
 @dataclass
 class ProfileTriggers:
     geometry: List[int] = field(default_factory=lambda: [601, 0, 300, 300])
-    toggled: bool = True
+    toggled: bool = False
 
 
 @dataclass
@@ -83,6 +85,8 @@ class Profile:
     def __post_init__(self):
         if not os.path.exists(PROFILES_LOCATION):
             os.mkdir(PROFILES_LOCATION)
+        if self.log_file and not self.name:
+            self.name = parse_name_from_log(self.log_file)
 
     def switch(self, log_file: str) -> None:
         self.save()
@@ -103,14 +107,15 @@ class Profile:
         else:
             log.info(f"Creating new log for {log_file}")
             profile.update(asdict(self))
-            self.log_file = log_file
-            self.name = log_file
+            profile.log_file = log_file
+            profile.name = parse_name_from_log(log_file)
         self.update(asdict(profile))
         self.spells.sound_data = mp3_to_data(profile.spells.sound_file)
 
     def save(self) -> None:
         try:
             if self.name:
+                log.info(f"Saving profile: {self.log_file}.")
                 open(
                     os.path.join("data/profiles", f"{self.log_file}.json"), "w",
                 ).write(self.json())
@@ -123,15 +128,16 @@ class Profile:
     def update(self, dictionary: Dict[str, any], ref: Dict[str, any] = None):
         ref = self.__dict__ if ref is None else ref
         for k, v in dictionary.items():
-            if isinstance(
-                ref[k], (ProfileMaps, ProfileSpells, ProfileText, ProfileTriggers)
-            ):
-                self.update(v, ref[k].__dict__)
-            else:
-                if k == "trigger_choices":
-                    ref[k] = self.parse_trigger_choices(v)
+            if k in ref:
+                if isinstance(
+                    ref[k], (ProfileMaps, ProfileSpells, ProfileText, ProfileTriggers)
+                ):
+                    self.update(v, ref[k].__dict__)
                 else:
-                    ref[k] = v
+                    if k == "trigger_choices":
+                        ref[k] = self.parse_trigger_choices(v)
+                    else:
+                        ref[k] = v
 
     def parse_trigger_choices(
         self, choice_list: List[Dict[str, any]]

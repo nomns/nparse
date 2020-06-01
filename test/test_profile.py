@@ -1,15 +1,9 @@
 import unittest
 import os
-from glob import glob
 from dataclasses import asdict
-from typing import List
 
+from test.common import get_profiles
 from config.profiles import Profile
-
-
-def get_profiles() -> List[str]:
-    #  remove '.json' from end of file
-    return [os.path.basename(f[:-5]) for f in glob("data/profiles/*.json")]
 
 
 class TestProfile(unittest.TestCase):
@@ -40,8 +34,33 @@ class TestProfile(unittest.TestCase):
         if len(profiles) > 1:
             test_profile.load(profiles[0])
             test_profile.switch(profiles[1])
+            self.assertIsInstance(test_profile, Profile)
+            self.assertNotEqual(test_profile, Profile())
+
+    def test_save(self, delete: bool = True):
+        test_profile = Profile(log_file="__testing__")
+        test_profile.name = "Leela"
+        profile_path = os.path.join("data/profiles", f"{test_profile.log_file}.json")
+        test_profile.save()
+        self.assertTrue(os.path.exists(profile_path))
+        if delete:
+            os.remove(profile_path)
+
+    def test_load(self):
+        self.test_save(delete=False)
+        test_profile = Profile()
+        test_profile.load("__testing__")
+        profile_path = os.path.join("data/profiles", f"{test_profile.log_file}.json")
         self.assertIsInstance(test_profile, Profile)
-        self.assertNotEqual(test_profile, Profile())
+        self.assertEqual(test_profile.name, "Leela")
+        os.remove(os.path.abspath(profile_path))
+
+    def test_enabled(self):
+        test_profile = Profile()
+        profiles = get_profiles()
+        if profiles:
+            test_profile.load(profiles[0])
+            self.assertIsNotNone(test_profile.trigger_choices)
 
 
 if __name__ == "__main__":

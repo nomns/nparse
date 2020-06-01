@@ -88,3 +88,8 @@ class Maps(NWindow):
 
     def _toggle_show_mouse_location(self,):
         profile.maps.show_mouse_location = not profile.maps.show_mouse_location
+
+    def settings_updated(self):
+        super().settings_updated()
+        if profile.maps.last_zone:
+            self._map.load_map(profile.maps.last_zone)

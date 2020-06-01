@@ -5,22 +5,21 @@ from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import QTimer
 
 from config import profile
-
-from .common import TextAction
+from config.trigger import TriggerText
 
 
 class TextItem(QGraphicsTextItem):
-    def __init__(self, text_action: TextAction) -> None:
+    def __init__(self, text: str, trigger_text: TriggerText) -> None:
         super().__init__()
-        self.action = text_action
+        self.trigger_text = trigger_text
         self.timestamp = datetime.now()
-        self._opacity = self.action.color[-1] / 255
+        self._opacity = trigger_text.color[-1] / 255
         self._update_frequency = 30
         self._direction = 1 if profile.text.direction == "down" else -1
 
-        self.setPlainText(text_action.text)
-        self.setDefaultTextColor(QColor(*self.action.color))
-        self.setFont(QFont("Arial", self.action.text_size))
+        self.setPlainText(text)
+        self.setDefaultTextColor(QColor(*trigger_text.color))
+        self.setFont(QFont("Arial", trigger_text.text_size))
         effect = QGraphicsDropShadowEffect()
         effect.setBlurRadius(profile.text.shadow_blur_radius)
         effect.setOffset(0, 0)

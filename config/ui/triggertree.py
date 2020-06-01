@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List
 
 from PyQt5.QtWidgets import (
     QTreeWidget,
@@ -11,7 +11,7 @@ from PyQt5.QtGui import QIcon, QMouseEvent
 from PyQt5.QtCore import Qt
 
 from utils import resource_path, get_unique_str
-from config import trigger_manager, profile
+from config import profile, trigger_manager
 
 from .triggereditor import TriggerEditor
 from ..trigger import Trigger, TriggerContainer, TriggerChoice
@@ -33,7 +33,10 @@ class TriggerGroup(QTreeWidgetItem):
         self.setFlags(self.flags() ^ Qt.ItemIsDragEnabled)
 
     def __lt__(self, other_item):
-        return f"_{self.text(0)}" < other_item.text(0)
+        other_text = other_item.text(0).lower()
+        if isinstance(other_item, TriggerGroup):
+            other_text = f"_{other_text}"
+        return f"_{self.text(0).lower()}" < other_text
 
     def get_package(self):
         if isinstance(self.container, TriggerPackage):
@@ -51,7 +54,7 @@ class TriggerItem(QTreeWidgetItem):
         self.setFlags(self.flags() ^ (Qt.ItemIsDropEnabled | Qt.ItemIsDragEnabled))
 
     def __lt__(self, other_item):
-        return self.text(0) < other_item.text(0)
+        return self.text(0).lower() < other_item.text(0).lower()
 
 
 class TriggerTree(QTreeWidget):
@@ -72,8 +75,10 @@ class TriggerTree(QTreeWidget):
             tg.setCheckState(0, Qt.Unchecked)
             self._fill_trigger_group(container.items, tg)
             self.root.addChild(tg)
+        self.root.sortChildren(0, Qt.AscendingOrder)
 
         self.set_choices()
+        self.expandAll()
 
     def _fill_trigger_group(self, items: List[any] = None, group: TriggerGroup = None):
         for item in items:
@@ -86,6 +91,7 @@ class TriggerTree(QTreeWidget):
                 tg.setCheckState(0, Qt.Unchecked)
                 self._fill_trigger_group(item.items, tg)
                 group.addChild(tg)
+        group.sortChildren(0, Qt.AscendingOrder)
 
     def get_choices(self, item: QTreeWidgetItem = None):
         choices = []
@@ -134,7 +140,18 @@ class TriggerTree(QTreeWidget):
                         )
 
     def remove_selected(self):
-        todo
+        if self.selectedItems():
+            item = self.selectedItems()[0]
+            parent_item = item.parent()
+            trigger_object = (
+                item.container if isinstance(item, TriggerGroup) else item.trigger
+            )
+            if not parent_item:
+                trigger_manager.delete(trigger_object)
+                self.root.removeChild(item)
+            else:
+                parent_item.container.items.remove(trigger_object)
+                item.parent().removeChild(item)
 
     def add_new_trigger(self, trigger: Trigger, group: TriggerGroup) -> None:
         trigger_item = TriggerItem(trigger)
@@ -199,12 +216,15 @@ class TriggerTree(QTreeWidget):
             if isinstance(item, TriggerGroup):
                 menu.addAction("New Trigger", self.menuAddNewTriggerClicked)
                 menu.addAction("New Group", self.menuAddNewGroupClicked)
-                menu.addAction("Delete Group", self.menuDeleteGroupClicked)
+                if isinstance(item.container, TriggerPackage):
+                    menu.addAction("Delete Package", self.menuDeletePackageClicked)
+                else:
+                    menu.addAction("Delete Group", self.menuDeleteGroupClicked)
             elif isinstance(item, TriggerItem):
                 menu.addAction("Edit Trigger", self.menuEditTriggerClicked)
                 menu.addAction("Delete Trigger", self.menuDeleteTriggerClicked)
             elif isinstance(item, type(None)):
-                menu.addAction("New Group", self.menuAddNewGroupClicked)
+                menu.addAction("New Package", self.menuAddNewPackageClicked)
             menu.exec(event.globalPos())
             menu.deleteLater()
 
@@ -224,6 +244,22 @@ class TriggerTree(QTreeWidget):
                     QMessageBox.Warning,
                     "Warning",
                     f"Group already exists: {name}",
+                    QMessageBox.Ok,
+                ).exec()
+
+    def menuAddNewPackageClicked(self) -> None:
+        name, response = QInputDialog.getText(
+            self, "New Package", "Enter New Package Name:"
+        )
+        if response:
+            parent = self.root
+            if not self.group_exists(name, parent):
+                self.add_new_group(name, parent)
+            else:
+                QMessageBox(
+                    QMessageBox.Warning,
+                    "Warning",
+                    f"Package already exists: {name}",
                     QMessageBox.Ok,
                 ).exec()
 
@@ -256,15 +292,20 @@ class TriggerTree(QTreeWidget):
             return
         self.remove_selected()
 
+    def menuDeletePackageClicked(self) -> None:
+        result = QMessageBox.question(
+            self,
+            "Are you sure?",
+            (
+                "Selected item is a package. "
+                "Remove package and all triggers and sound files it contains?"
+            ),
+        )
+        if result == QMessageBox.No:
+            return
+        self.remove_selected()
+
     def menuDeleteTriggerClicked(self, _=None):
-        if self.is_group_selected():
-            r = QMessageBox.question(
-                self,
-                "Are you sure?",
-                "Selected item is a group.  Remove group and all triggers it contains?",
-            )
-            if r == QMessageBox.No:
-                return
         self.remove_selected()
 
     def menuEditTriggerClicked(self):

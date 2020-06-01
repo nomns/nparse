@@ -68,6 +68,11 @@ class Spells(NWindow):
                                 else None
                             ),
                             direction=NDirection.DOWN,
+                            persistent=(
+                                profile.spells.persistent_buffs
+                                if s.type
+                                else profile.spells.persistent_debuffs
+                            ),
                         ),
                     )
         self._remove_spell_trigger()

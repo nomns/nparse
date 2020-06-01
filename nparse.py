@@ -16,14 +16,24 @@ from PyQt5.QtWidgets import (
     QLabel,
     QHBoxLayout,
     QWidget,
+    QAction,
 )
 
-from config import app_config, profile
+from config import profile, app_config
 
-profile.load(app_config.last_profile if app_config.last_profile else "")
+if app_config.last_profile and os.path.exists(app_config.last_profile):
+    profile.load(app_config.last_profile)
+else:
+    app_config.last_profile = ""
 
 import parsers
-from utils import logreader, resource_path, get_version, logger
+from utils import (
+    logreader,
+    resource_path,
+    get_version,
+    logger,
+    is_new_version_available,
+)
 
 log = logger.get_logger(__name__)
 
@@ -34,7 +44,7 @@ from config.ui import SettingsWindow
 os.environ["QT_SCALE_FACTOR"] = str(app_config.qt_scale_factor / 100)
 
 # update check
-CURRENT_VERSION: str = "0.9.0"
+CURRENT_VERSION: str = "0.6.0"
 if app_config.update_check:
     ONLINE_VERSION: str = get_version()
 else:
@@ -67,7 +77,7 @@ class NomnsParse(QApplication):
         self._toggle()
 
         # Version Check
-        if self.new_version_available():
+        if is_new_version_available(ONLINE_VERSION, CURRENT_VERSION):
             self._system_tray.showMessage(
                 "nParse Update",
                 f"New version available!\ncurrent: {CURRENT_VERSION}\nonline: {ONLINE_VERSION}",
@@ -106,7 +116,6 @@ class NomnsParse(QApplication):
             self._toggled = False
 
     def _parse(self, new_line: Tuple[datetime.datetime, str]) -> None:
-        datetime.datetime
         if new_line:
             timestamp, text = new_line  # (datetime, text)
             #  don't send parse to non toggled items, except maps.  always parse maps
@@ -118,8 +127,23 @@ class NomnsParse(QApplication):
                 parser.parse(timestamp, text)
 
     def _log_file_changed(self, log_file: str) -> None:
+        self._settings.reject()
         profile.switch(os.path.basename(log_file))
         app_config.last_profile = os.path.basename(log_file)
+        self.update()
+
+    def update(self):
+        for parser in self._parsers:
+            parser.settings_updated()
+
+    def lock_toggle(self):
+        self._locked = not self._locked
+        for parser in self._parsers:
+            if profile.__dict__[parser.name].toggled:
+                if self._locked:
+                    parser.lock()
+                else:
+                    parser.unlock()
 
     def _menu(self, event) -> None:
         """Returns a new QMenu for system tray."""
@@ -131,9 +155,9 @@ class NomnsParse(QApplication):
         parser_toggles = set()
         parsers = QMenu("Toggles")
         for parser in self._parsers:
-            toggle = parsers.addAction(parser.name.title())
+            toggle: QAction = parsers.addAction(parser.name.title())
             toggle.setCheckable(True)
-            toggle.setCheckable(profile.__dict__[parser.name].toggled)
+            toggle.setChecked(profile.__dict__[parser.name].toggled)
             parser_toggles.add(toggle)
             parsers.addAction(toggle)
 
@@ -141,7 +165,7 @@ class NomnsParse(QApplication):
 
         menu.addSeparator()
 
-        profiles = QMenu("Profile")
+        profiles = QMenu(profile.name if profile.name else "Profile")
 
         level_select = QWidgetAction(profiles)
         w = QWidget()
@@ -169,7 +193,7 @@ class NomnsParse(QApplication):
 
         # check online for new version
         new_version_text = ""
-        if self.new_version_available():
+        if is_new_version_available(ONLINE_VERSION, CURRENT_VERSION):
             new_version_text = "Update Available {}".format(ONLINE_VERSION)
         else:
             new_version_text = "Version {}".format(CURRENT_VERSION)
@@ -189,19 +213,21 @@ class NomnsParse(QApplication):
             webbrowser.open("https://github.com/nomns/nparse/releases")
 
         elif action == settings_action:
-            self._settings.set_values()
-            self._settings.setWindowTitle(f"Settings (Profile: {profile.name})")
-            if self._settings.exec():
-                self._settings.save_settings()
-                # Update required settings
-                for parser in self._parsers:
-                    parser.settings_updated()
-                if self._toggled:
+            if not self._settings.isVisible():
+                self._settings.set_values()
+                self._settings.setWindowTitle(f"Settings (Profile: {profile.name})")
+                if self._settings.exec():
+                    self._settings.save_settings()
+                    # Update required settings
+                    for parser in self._parsers:
+                        parser.settings_updated()
+                    if self._toggled:
+                        self._toggle()
                     self._toggle()
-                self._toggle()
-
+                else:
+                    self._settings.set_values()  # revert values
             else:
-                self._settings.set_values()  # revert values
+                self._settings.activateWindow()
 
         elif action == quit_action:
             if self._toggled:
@@ -222,6 +248,8 @@ class NomnsParse(QApplication):
             self.quit()
 
         elif action in parser_toggles:
+            if not self._locked:
+                self.lock_toggle()
             parser = [
                 parser
                 for parser in self._parsers
@@ -230,24 +258,7 @@ class NomnsParse(QApplication):
             parser.toggle()
 
         elif action == lock_toggle:
-            self._locked = not self._locked
-            for parser in self._parsers:
-                if self._locked:
-                    parser.lock()
-                else:
-                    parser.unlock()
-
-    def new_version_available(self) -> bool:
-        # this will only work if numbers go up
-        try:
-            for (o, c) in zip(ONLINE_VERSION.split("."), CURRENT_VERSION.split(".")):
-                if int(o) < int(c):
-                    return False
-        except:
-            log.warning(
-                f"unable to parse version from: online {o}, current {c}", exc_info=True
-            )
-            return False
+            self.lock_toggle()
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 import os
 import datetime
 from glob import glob
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from PyQt5.QtCore import QFileSystemWatcher, pyqtSignal
 
@@ -61,6 +61,8 @@ class LogReader(QFileSystemWatcher):
                 self._stats.last_read = log.tell()
                 for line in lines:
                     self.new_line.emit((datetime.datetime.now(), strip_timestamp(line)))
-            except Exception:  # do not read lines if they cause errors
+            except Exception:
+                # do not read lines if they cause errors
+                # TODO: update this to safely read these lines
                 log.seek(0, os.SEEK_END)
                 self._stats.last_read = log.tell()

@@ -1,16 +1,12 @@
-from PyQt5.QtWidgets import (
-    QDialog,
-    QColorDialog,
-    QFileDialog,
-)
+from PyQt5.QtWidgets import QDialog, QColorDialog, QFileDialog
 from PyQt5 import uic
 from PyQt5.QtGui import QColor, QPalette
 
 import os
 from glob import glob
 
-from utils import resource_path, set_qcolor, get_rgb, sound, create_tts_mp3
-from config import profile, trigger_manager, app_config
+from utils import resource_path, set_qcolor, get_rgb, sound, create_tts_mp3, mp3_to_data
+from config import profile, app_config, trigger_manager
 
 from .triggertree import TriggerTree
 
@@ -30,30 +26,30 @@ class SettingsWindow(QDialog):
             self.eqDirectoryLabel.setText(dir_path)
 
     def ttsDeleteButtonClicked(self) -> None:
-        try:
-            if self.ttsFileCombo.currentText():
-                os.remove(self.ttsFileCombo.currentText())
-                self._fill_tts_files(None)
-        except:
-            pass
+        if self.ttsFileCombo.currentText():
+            os.remove(os.path.join("data/tts", self.ttsFileCombo.currentText()))
+            self.ttsRefreshButtonClicked()
 
     def ttsCreateButtonClicked(self) -> None:
         if self.ttsTextLineEdit.text():
             created_file = create_tts_mp3(self.ttsTextLineEdit.text())
             if created_file:
-                self.ttsFileCombo.addItem(created_file)
-                self.ttsFileCombo.setCurrentIndex(self.ttsFileCombo.count() - 1)
+                name = os.path.basename(created_file)
+                self.ttsRefreshButtonClicked()
+                self.ttsFileCombo.setCurrentText(name)
         self.ttsTextLineEdit.setText("")
 
     def ttsPlayButtonClicked(self) -> None:
-        sound.play(os.path.join("data/tts", self.ttsFileCombo.currentText()))
+        sound.play(
+            mp3_to_data(os.path.join("data/tts", self.ttsFileCombo.currentText()))
+        )
 
     def ttsRefreshButtonClicked(self) -> None:
         self.ttsFileCombo.clear()
         self.ttsFileCombo.addItems(os.path.basename(f) for f in glob("data/tts/*.mp3"))
 
     def spellsSoundPlayButtonClicked(self):
-        sound.play(self.spellsSoundFileLabel.text())
+        sound.play(mp3_to_data(self.spellsSoundFileLabel.text()))
 
     def spellsSoundSelectButtonClicked(self):
         fd = QFileDialog(self)
@@ -68,61 +64,65 @@ class SettingsWindow(QDialog):
 
     def spellsBuffTextColorButtonClicked(self) -> None:
         set_qcolor(
-            self.buffBarLabel,
-            foreground=self._get_color(get_rgb(self.buffBarLabel, QPalette.Foreground)),
+            self.spellsBuffBarLabel,
+            foreground=self._get_color(
+                get_rgb(self.spellsBuffBarLabel, QPalette.Foreground)
+            ),
         )
 
     def spellsBuffBarColorButtonClicked(self) -> None:
         set_qcolor(
-            self.buffBarLabel,
-            background=self._get_color(get_rgb(self.buffBarLabel, QPalette.Background)),
+            self.spellsBuffBarLabel,
+            background=self._get_color(
+                get_rgb(self.spellsBuffBarLabel, QPalette.Background)
+            ),
         )
 
     def spellsDebuffTextColorButtonClicked(self) -> None:
         set_qcolor(
-            self.debuffBarLabel,
+            self.spellsDebuffBarLabel,
             foreground=self._get_color(
-                get_rgb(self.debuffBarLabel, QPalette.Foreground)
+                get_rgb(self.spellsDebuffBarLabel, QPalette.Foreground)
             ),
         )
 
     def spellsDebuffBarColorButtonClicked(self) -> None:
         set_qcolor(
-            self.debuffBarLabel,
+            self.spellsDebuffBarLabel,
             background=self._get_color(
-                get_rgb(self.debuffBarLabel, QPalette.Background)
+                get_rgb(self.spellsDebuffBarLabel, QPalette.Background)
             ),
         )
 
     def spellsYouColorButtonClicked(self) -> None:
         set_qcolor(
-            self.youTargetLabel,
+            self.spellsYouTargetLabel,
             background=self._get_color(
-                get_rgb(self.youTargetLabel, QPalette.Background)
+                get_rgb(self.spellsYouTargetLabel, QPalette.Background)
             ),
         )
 
     def spellsFriendlyColorButtonClicked(self, _) -> None:
         set_qcolor(
-            self.friendlyTargetLabel,
+            self.spellsFriendlyTargetLabel,
             background=self._get_color(
-                get_rgb(self.friendlyTargetLabel, QPalette.Background)
+                get_rgb(self.spellsFriendlyTargetLabel, QPalette.Background)
             ),
         )
 
     def spellsEnemyColorButtonClicked(self, _) -> None:
         set_qcolor(
-            self.enemyTargetLabel,
+            self.spellsEnemyTargetLabel,
             background=self._get_color(
-                get_rgb(self.enemyTargetLabel, QPalette.Background)
+                get_rgb(self.spellsEnemyTargetLabel, QPalette.Background)
             ),
         )
 
     def spellsTargetTextColorButtonClicked(self, _) -> None:
-        color = self._get_color(get_rgb(self.youTargetLabel, QPalette.Foreground))
-        set_qcolor(self.youTargetLabel, foreground=color)
-        set_qcolor(self.friendlyTargetLabel, foreground=color)
-        set_qcolor(self.enemyTargetLabel, foreground=color)
+        color = self._get_color(get_rgb(self.spellsYouTargetLabel, QPalette.Foreground))
+        set_qcolor(self.spellsYouTargetLabel, foreground=color)
+        set_qcolor(self.spellsFriendlyTargetLabel, foreground=color)
+        set_qcolor(self.spellsEnemyTargetLabel, foreground=color)
 
     def textShadowColorButtonClicked(self, _) -> None:
         set_qcolor(
@@ -154,6 +154,12 @@ class SettingsWindow(QDialog):
 
         # Spells
 
+        profile.spells.persistent_buffs = (
+            self.spellsPersistentBuffTimersCheckBox.isChecked()
+        )
+        profile.spells.persistent_debuffs = (
+            self.spellsPersistentDebuffTimersCheckBox.isChecked()
+        )
         profile.spells.use_casting_window = (
             self.spellsUseCastingWindowCheckBox.isChecked()
         )
@@ -231,10 +237,17 @@ class SettingsWindow(QDialog):
         self.spellsUseCastingWindowCheckBox.setChecked(
             profile.spells.use_casting_window
         )
+        self.spellsPersistentBuffTimersCheckBox.setChecked(
+            profile.spells.persistent_buffs
+        )
+        self.spellsPersistentDebuffTimersCheckBox.setChecked(
+            profile.spells.persistent_debuffs
+        )
         self.spellsCastingWindowTimeSpinBox.setValue(
             profile.spells.casting_window_buffer
         )
         self.spellsSoundEnabledCheckBox.setChecked(profile.spells.sound_enabled)
+        self.spellsSoundFileLabel.setText(profile.spells.sound_file)
         self.spellsSoundVolumeSlider.setValue(profile.spells.sound_volume)
         self.spellsUsePVPSpellDurationsCheckBox.setChecked(
             profile.spells.use_secondary_all
@@ -274,7 +287,7 @@ class SettingsWindow(QDialog):
         self.textShadowBlurRadiusSpinBox.setValue(profile.text.shadow_blur_radius)
 
         set_qcolor(
-            self.textShadowColorLabel, background=QColor(*profile.text.shadow_color)
+            self.textShadowColorLabel, background=QColor(*profile.text.shadow_color),
         )
 
         # Remove triggertree if it exists and reinsert it

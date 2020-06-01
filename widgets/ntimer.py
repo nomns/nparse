@@ -5,8 +5,6 @@ import string
 from PyQt5.QtWidgets import QFrame, QHBoxLayout, QProgressBar, QLabel
 from PyQt5.QtCore import QTimer
 
-from config import profile
-
 from utils import format_time, get_spell_icon, sound
 from config.ui import styles
 
@@ -25,7 +23,7 @@ class NTimer(QFrame):
         style=None,
         sound=None,
         direction=NDirection.DOWN,
-        perstitent=False
+        persistent=False
     ):
         super().__init__()
         self.name = name
@@ -37,6 +35,7 @@ class NTimer(QFrame):
         self._sound = sound
         self._alert = False
         self._direction = direction
+        self.persistent = persistent
         self.progress = QProgressBar()
 
         # ui
@@ -79,7 +78,7 @@ class NTimer(QFrame):
     def _update(self):
         if self._active:
             remaining = self.end_time - datetime.datetime.now()
-            remaining_seconds = remaining.total_seconds()
+            remaining_seconds = max(remaining.total_seconds(), 0)
             self.progress.setValue(
                 remaining.seconds
                 if self._direction == NDirection.DOWN else
@@ -94,8 +93,12 @@ class NTimer(QFrame):
             else:
                 self._alert = False
             if remaining_seconds <= 0:
-                self._remove()
-            self._time_label.setText(format_time(remaining))
+                if self.persistent:
+                    self._time_label.setText("")
+                else:
+                    self._remove()
+            else:
+                self._time_label.setText(format_time(remaining))
             self.progress.update()
         QTimer.singleShot(1000, self._update)
 

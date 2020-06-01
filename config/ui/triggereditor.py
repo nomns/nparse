@@ -172,6 +172,7 @@ class TriggerEditor(QDialog):
             self.triggerTextRadio.setChecked(True)
 
         # start action
+        self.startTimerTextLineEdit.setText(t.start_action.timer.text)
         self.startTimerEnabledCheckBox.setChecked(t.start_action.timer.enabled)
         self.startTimerDurationLineEdit.setText(t.start_action.timer.duration)
         self.startTimerIconSpinBox.setValue(t.start_action.timer.icon)
@@ -192,6 +193,7 @@ class TriggerEditor(QDialog):
         self.startSoundVolumeSlider.setValue(t.start_action.sound.volume)
 
         # end action
+        self.endTimerTextLineEdit.setText(t.end_action.timer.text)
         self.endTimerEnabledCheckBox.setChecked(t.end_action.timer.enabled)
         self.endTimerDurationLineEdit.setText(t.end_action.timer.duration)
         self.endTimerIconSpinBox.setValue(t.end_action.timer.icon)
@@ -277,7 +279,12 @@ class TriggerEditor(QDialog):
                 create_regex_from(self.triggerRegexLineEdit.text())
                 super().accept()
             except Exception as e:
-                QMessageBox(text="Could not compile regex: {}".format(e)).exec()
+                QMessageBox(
+                    QMessageBox.Warning,
+                    "Regex Error",
+                    "Could not compile regex: {}".format(e),
+                    parent=self,
+                ).exec()
                 return
         self.setParent(None)
         self.deleteLater()

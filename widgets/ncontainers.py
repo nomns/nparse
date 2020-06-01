@@ -8,10 +8,9 @@ from .common import NGrow
 
 
 class NContainer(QFrame):
-
     def __init__(self):
         super().__init__()
-        self.setObjectName('Container')
+        self.setObjectName("Container")
         self.setLayout(QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().addStretch(1)
@@ -30,7 +29,9 @@ class NContainer(QFrame):
             group.add_timer(timer)
 
     def sort(self):
-        for x, group in enumerate(sorted(self.groups(), key=lambda x: (x.order, x.name))):
+        for x, group in enumerate(
+            sorted(self.groups(), key=lambda x: (x.order, x.name))
+        ):
             self.layout().insertWidget(x, group, 0)
 
     def groups(self):
@@ -38,24 +39,16 @@ class NContainer(QFrame):
         return self.findChildren(NGroup)
 
     def get_group_by_name(self, name):
-        groups = [
-            group for group in self.groups() if group.name == name]
+        groups = [group for group in self.groups() if group.name == name]
         if groups:
             return groups[0]
         return None
 
 
 class NGroup(QFrame):
-
-    def __init__(
-            self,
-            group_name=None,
-            order=0,
-            hide_title=False,
-            grow=NGrow.DOWN
-    ):
+    def __init__(self, group_name=None, order=0, hide_title=False, grow=NGrow.DOWN):
         super().__init__()
-        self.setObjectName('Container')
+        self.setObjectName("Container")
         self.name = group_name
         self.order = order
         self._hide_title = hide_title
@@ -67,7 +60,7 @@ class NGroup(QFrame):
         self.layout().setSpacing(0)
         if self.name and not self._hide_title:
             self.name_label = QLabel(self.name.title())
-            self.name_label.setObjectName('GroupLabel')
+            self.name_label.setObjectName("GroupLabel")
             self.name_label.setMaximumHeight(20)
             self.name_label.setAlignment(Qt.AlignCenter)
             self.name_label.mouseDoubleClickEvent = self._remove
@@ -90,18 +83,21 @@ class NGroup(QFrame):
         event.accept()
 
     def sort(self):
-        for x, widget in enumerate(sorted(
+        for x, widget in enumerate(
+            sorted(
                 self.findChildren(NTimer),
-                key=lambda x: (x.end_time - datetime.datetime.now())
-        )):
+                key=lambda x: (x.end_time - datetime.datetime.now()),
+            )
+        ):
             self.layout().insertWidget(
-                x + (0 if self._hide_title else 1),
-                widget)  # +- 1  skip target label if hidden
+                x + (0 if self._hide_title else 1), widget
+            )  # +- 1  skip target label if hidden
 
     def add_timer(self, n_timer):
         for nt in self.findChildren(NTimer):
             if nt.name == n_timer.name:
                 nt.recalculate(n_timer.timestamp)
+                self.sort()
                 return
         self.layout().addWidget(n_timer)
         self.sort()
