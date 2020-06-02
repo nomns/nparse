@@ -3,7 +3,7 @@ import os
 from dataclasses import asdict
 
 from test.common import get_profiles
-from config.profiles import Profile
+from config.profiles.profiles import Profile
 
 
 class TestProfile(unittest.TestCase):

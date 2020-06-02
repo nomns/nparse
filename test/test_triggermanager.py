@@ -1,8 +1,8 @@
 import unittest
 
-from config.triggermanager import TriggerManager
-from config.triggerpackage import TriggerPackage
-from config.profiles import Profile
+from config.triggers.triggermanager import TriggerManager
+from config.triggers.triggerpackage import TriggerPackage
+from config.profiles.profiles import Profile
 
 from test.common import get_profiles
 

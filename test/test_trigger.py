@@ -1,6 +1,6 @@
 import unittest
 from dataclasses import asdict
-from config import trigger
+from config.triggers import trigger
 
 
 class TestTrigger(unittest.TestCase):

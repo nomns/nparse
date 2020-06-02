@@ -1,6 +1,7 @@
 import unittest
+import re
 
-from utils import parse_name_from_log, is_new_version_available
+from utils import parse_name_from_log, is_new_version_available, searches
 
 
 class TestUtil(unittest.TestCase):
@@ -26,3 +27,11 @@ class TestUtil(unittest.TestCase):
                 )
             )
         )
+
+    def test_searches(self):
+        level = 0
+        level_text = "You have gained a level! Welcome to level 2!"
+        r = searches.level.search(level_text)
+        print(r)
+
+        level_text = "You have gained a level! Welcome to level 2!"
