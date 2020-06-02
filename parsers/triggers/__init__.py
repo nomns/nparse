@@ -5,7 +5,7 @@ from utils import sound, text_time_to_seconds, replace_from_regex_groups
 from widgets import NDirection, NWindow, NTimer, NContainer, NGroup
 
 from config import trigger_manager, profile
-from config.trigger import Trigger, TriggerAction
+from config.triggers.trigger import Trigger, TriggerAction
 
 
 class Triggers(NWindow):

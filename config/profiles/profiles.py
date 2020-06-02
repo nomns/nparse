@@ -1,11 +1,12 @@
 import os
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict
+from datetime import datetime
 import json
 
 from utils import logger, mp3_to_data, parse_name_from_log
 
-from .trigger import TriggerChoice
+from ..triggers.trigger import TriggerChoice
 
 log = logger.get_logger(__name__)
 
@@ -151,3 +152,6 @@ class Profile:
                 tc.group = self.parse_trigger_choices(choice["group"])
             choices.append(tc)
         return choices
+
+    def parse(self, timestamp: datetime, text: str) -> None:
+        pass

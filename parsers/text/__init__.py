@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt
 
 from widgets import NWindow
 
-from config.trigger import TriggerText
+from config.triggers.trigger import TriggerText
 from utils import replace_from_regex_groups
 
 from .textview import TextView

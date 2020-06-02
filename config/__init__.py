@@ -1,5 +1,5 @@
-from .triggermanager import TriggerManager
-from .profiles import Profile
+from .triggers.triggermanager import TriggerManager
+from .profiles.profiles import Profile
 from .config import Config
 
 trigger_manager = TriggerManager()

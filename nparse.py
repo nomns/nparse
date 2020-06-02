@@ -119,6 +119,7 @@ class NomnsParse(QApplication):
         if new_line:
             timestamp, text = new_line  # (datetime, text)
             #  don't send parse to non toggled items, except maps.  always parse maps
+            profile.parse(timestamp, text)
             for parser in [
                 parser
                 for parser in self._parsers

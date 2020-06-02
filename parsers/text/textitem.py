@@ -5,7 +5,7 @@ from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import QTimer
 
 from config import profile
-from config.trigger import TriggerText
+from config.triggers.trigger import TriggerText
 
 
 class TextItem(QGraphicsTextItem):

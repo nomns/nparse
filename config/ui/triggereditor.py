@@ -15,7 +15,7 @@ from utils import (
     get_color,
 )
 
-from config.trigger import Trigger
+from ..triggers.trigger import Trigger
 
 
 class TriggerEditor(QDialog):

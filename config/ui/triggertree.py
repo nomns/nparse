@@ -14,8 +14,8 @@ from utils import resource_path, get_unique_str
 from config import profile, trigger_manager
 
 from .triggereditor import TriggerEditor
-from ..trigger import Trigger, TriggerContainer, TriggerChoice
-from ..triggerpackage import TriggerPackage
+from ..triggers.trigger import Trigger, TriggerContainer, TriggerChoice
+from ..triggers.triggerpackage import TriggerPackage
 
 
 class TriggerGroup(QTreeWidgetItem):
