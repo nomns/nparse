@@ -1,5 +1,4 @@
 import unittest
-import re
 
 from utils import parse_name_from_log, is_new_version_available, searches
 

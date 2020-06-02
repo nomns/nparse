@@ -21,7 +21,9 @@ from PyQt5.QtWidgets import (
 
 from config import profile, app_config
 
-if app_config.last_profile and os.path.exists(app_config.last_profile):
+if app_config.last_profile and os.path.exists(
+    os.path.join("data/profiles", f"{app_config.last_profile}.json")
+):
     profile.load(app_config.last_profile)
 else:
     app_config.last_profile = ""
