@@ -4,7 +4,7 @@ from typing import List, Dict
 from datetime import datetime
 import json
 
-from utils import logger, mp3_to_data, parse_name_from_log
+from utils import logger, mp3_to_data, parse_name_from_log, searches
 
 from ..triggers.trigger import TriggerChoice
 
@@ -154,4 +154,7 @@ class Profile:
         return choices
 
     def parse(self, timestamp: datetime, text: str) -> None:
-        pass
+        # parse level up
+        r = searches.level.search(text)
+        if r:
+            self.spells.level = int(r.group(1))

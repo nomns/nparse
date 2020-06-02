@@ -29,9 +29,9 @@ class TestUtil(unittest.TestCase):
         )
 
     def test_searches(self):
-        level = 0
         level_text = "You have gained a level! Welcome to level 2!"
         r = searches.level.search(level_text)
-        print(r)
-
-        level_text = "You have gained a level! Welcome to level 2!"
+        self.assertEqual(int(r.group(1)), 2)
+        level_text = "You have gained a level! Welcome to level 50!"
+        r = searches.level.search(level_text)
+        self.assertEqual(int(r.group(1)), 50)
