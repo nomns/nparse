@@ -16,6 +16,7 @@ class Maps(NWindow):
         super().__init__(name="maps", transparent=False)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_NoSystemBackground, False)
+        self.set_title(profile.maps.last_zone.title())
         # interface
         self._map = MapCanvas()
         self.content.addWidget(self._map, 1)
@@ -63,6 +64,7 @@ class Maps(NWindow):
         if text[:23] == "LOADING, PLEASE WAIT...":
             pass
         if text[:16] == "You have entered":
+            self.set_title(text[17:-1])
             self._map.load_map(text[17:-1])
         if text[:16] == "Your Location is":
             x, y, z = [float(value) for value in text[17:].strip().split(",")]

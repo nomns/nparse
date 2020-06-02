@@ -308,7 +308,7 @@
                      <item>
                       <widget class="QLabel" name="startTimerExample">
                        <property name="autoFillBackground">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="styleSheet">
                         <string notr="true">padding: 5px</string>
@@ -426,7 +426,7 @@
                  <item>
                   <widget class="QLabel" name="startTextExample">
                    <property name="autoFillBackground">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="styleSheet">
                     <string notr="true">padding: 5px</string>
@@ -587,6 +587,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
             <property name="tabPosition">
              <enum>QTabWidget::North</enum>
             </property>
@@ -727,7 +730,7 @@
                      <item>
                       <widget class="QLabel" name="endTimerExample">
                        <property name="autoFillBackground">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="styleSheet">
                         <string notr="true">padding: 5px</string>
@@ -845,7 +848,7 @@
                  <item>
                   <widget class="QLabel" name="endTextExample">
                    <property name="autoFillBackground">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="styleSheet">
                     <string notr="true">padding: 5px</string>

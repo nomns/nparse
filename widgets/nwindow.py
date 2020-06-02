@@ -97,7 +97,6 @@ class NWindow(QFrame):
             self.hide()
 
     def set_title(self, title):
-        self.setWindowTitle(title)
         self._title.setText(title)
 
     def toggle(self, _=None):

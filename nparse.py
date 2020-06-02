@@ -140,6 +140,7 @@ class NomnsParse(QApplication):
             parser.settings_updated()
 
     def lock_toggle(self):
+        self.save_geometry()
         self._locked = not self._locked
         for parser in self._parsers:
             if profile.__dict__[parser.name].toggled:
@@ -147,6 +148,17 @@ class NomnsParse(QApplication):
                     parser.lock()
                 else:
                     parser.unlock()
+        profile.save()
+
+    def save_geometry(self):
+        for parser in self._parsers:
+            g = parser.geometry()
+            profile.__dict__[parser.name].geometry = [
+                g.x(),
+                g.y(),
+                g.width(),
+                g.height(),
+            ]
 
     def _menu(self, event) -> None:
         """Returns a new QMenu for system tray."""
@@ -237,14 +249,7 @@ class NomnsParse(QApplication):
                 self._toggle()
 
             # save parser geometry
-            for parser in self._parsers:
-                g = parser.geometry()
-                profile.__dict__[parser.name].geometry = [
-                    g.x(),
-                    g.y(),
-                    g.width(),
-                    g.height(),
-                ]
+            self.save_geometry()
             app_config.save()
             profile.save()
             self._system_tray.setVisible(False)
