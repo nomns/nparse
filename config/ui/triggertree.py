@@ -232,7 +232,7 @@ class TriggerTree(QTreeWidget):
         name, response = QInputDialog.getText(
             self, "New Group", "Enter New Group Name:"
         )
-        if response:
+        if name and response:
             item = self.selectedItems()[0] if self.selectedItems() else None
             parent = item if type(item) == TriggerGroup else self.root
             if type(item) == TriggerGroup:
@@ -251,7 +251,7 @@ class TriggerTree(QTreeWidget):
         name, response = QInputDialog.getText(
             self, "New Package", "Enter New Package Name:"
         )
-        if response:
+        if name and response:
             parent = self.root
             if not self.group_exists(name, parent):
                 self.add_new_group(name, parent)
