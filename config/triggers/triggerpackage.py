@@ -32,24 +32,30 @@ class TriggerPackage:
         if os.path.exists(self.location):
             data = None
             # load trigger data and convert to dataclasses
-            with open(os.path.join(self.location, "triggers.json"), "r") as f:
-                data = json.loads(f.read())
-            for k, v in data.items():
-                if k == "items":
-                    self.items = self._load(v)
+            if os.path.exists(os.path.join(self.location, "triggers.json")):
+                with open(os.path.join(self.location, "triggers.json"), "r") as f:
+                    data = json.loads(f.read())
+                    for k, v in data.items():
+                        if k == "items":
+                            self.items = self._load(v)
 
-            # load sound data into memory
-            data_path = os.path.join(self.location, "data")
-            mp3_files = [
-                os.path.basename(f) for f in glob.glob(os.path.join(data_path, "*.mp3"))
-            ]
-            for mp3_file in mp3_files:
-                self.audio_data[mp3_file] = mp3_to_data(
-                    os.path.join(data_path, mp3_file)
-                )
+                # load sound data into memory
+                data_path = os.path.join(self.location, "data")
+                mp3_files = [
+                    os.path.basename(f)
+                    for f in glob.glob(os.path.join(data_path, "*.mp3"))
+                ]
+                for mp3_file in mp3_files:
+                    self.audio_data[mp3_file] = mp3_to_data(
+                        os.path.join(data_path, mp3_file)
+                    )
+            else:
+                self.save()
+                self.load()
         else:
             os.mkdir(self.location)
             os.mkdir(os.path.join(self.location, "data"))
+            self.save()
 
     def _load(self, items: List[any]) -> List[any]:
         converted = []
