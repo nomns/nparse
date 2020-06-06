@@ -127,11 +127,10 @@ class TriggerEditor(QDialog):
         fd = QFileDialog(self)
         fd.setDirectory("./data/tts")
         f = fd.getOpenFileName(filter="*.mp3")
-        name = self.trigger.package.add_audio(f[0])
-        if f[0] and os.path.isfile(f[0]):
+        if f and os.path.isfile(f[0]):
+            name = self.trigger.package.add_audio(f[0])
             self.trigger.start_action.sound.name = name
             self.startSoundFileLabel.setText(self.trigger.start_action.sound.name)
-
         fd.deleteLater()
         fd.setParent(None)
 
@@ -139,8 +138,8 @@ class TriggerEditor(QDialog):
         fd = QFileDialog(self)
         fd.setDirectory("./data/tts")
         f = fd.getOpenFileName(filter="*.mp3")
-        name = self.trigger.package.add_audio(f[0])
-        if f[0] and os.path.isfile(f[0]):
+        if f and os.path.isfile(f[0]):
+            name = self.trigger.package.add_audio(f[0])
             self.trigger.end_action.sound.name = name
             self.endSoundFileLabel.setText(self.trigger.end_action.sound.name)
         fd.deleteLater()
