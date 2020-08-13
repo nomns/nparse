@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFileDialog, QMenu, QMessageBox,
                              QSystemTrayIcon)
 
 import parsers
-from helpers import config, logreader, resource_path, get_version
+from helpers import config, logreader, resource_path, get_version, location_service
 from helpers.settings import SettingsWindow
 
 config.load('nparse.config.json')
@@ -20,7 +20,7 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = '0.5.1'
+CURRENT_VERSION = '0.5.1-sharing'
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
@@ -92,6 +92,7 @@ class NomnsParse(QApplication):
             if self._log_reader:
                 self._log_reader.deleteLater()
                 self._log_reader = None
+            location_service.stop_location_service()
             self._toggled = False
 
     def _parse(self, new_line):
