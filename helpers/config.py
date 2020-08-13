@@ -81,8 +81,8 @@ def verify_settings():
         lambda x: (type(x) == int and x >= 1)
     )
     data['sharing']['enabled'] = get_setting(
-        data['sharing'].get('enabled', True),
-        True
+        data['sharing'].get('enabled', False),
+        False
     )
 
     # maps

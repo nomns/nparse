@@ -9,6 +9,7 @@ from PyQt5.QtCore import Qt
 from helpers import config, text_time_to_seconds
 
 from parsers.spells import CustomTrigger
+from helpers import location_service
 
 
 WHATS_THIS_CASTING_WINDOW = """The Casting Window is a range of time in which the spell you are casting will land.
@@ -27,6 +28,9 @@ the duration of debuffs when you cast on yourself.  Are these timers that coinci
 on Red.  Using the 'PvP Duration' will use the secondary timers for non beneficiary spells and will use the primary
 durations for all good buffs.
 """.replace('\n', ' ')
+
+WHATS_THIS_SHARING = """
+"""
 
 
 class SettingsWindow(QDialog):
@@ -87,11 +91,18 @@ class SettingsWindow(QDialog):
                 if wt == QCheckBox:
                     key1, key2 = widget.objectName().split(':')
                     config.data[key1][key2] = widget.isChecked()
-                if wt == QSpinBox:
+                elif wt == QSpinBox:
                     key1, key2 = widget.objectName().split(':')
                     config.data[key1][key2] = widget.value()
+                elif wt == QLineEdit:
+                    key1, key2 = widget.objectName().split(':')
+                    config.data[key1][key2] = widget.text()
         config.save()
+        self._config_update_triggers()
         self.accept()
+
+    def _config_update_triggers(self):
+        location_service.SIGNALS.config_updated.emit()
 
     def _cancelled(self):
         self._set_values()
@@ -112,9 +123,12 @@ class SettingsWindow(QDialog):
                 if wt == QCheckBox:
                     key1, key2 = widget.objectName().split(':')
                     widget.setChecked(config.data[key1][key2])
-                if wt == QSpinBox:
+                elif wt == QSpinBox:
                     key1, key2 = widget.objectName().split(':')
                     widget.setValue(config.data[key1][key2])
+                elif wt == QLineEdit:
+                    key1, key2 = widget.objectName().split(':')
+                    widget.setText(config.data[key1][key2])
 
     def _create_settings(self):
         stacked_widgets = []
@@ -222,26 +236,31 @@ class SettingsWindow(QDialog):
         shsl.addRow(SettingsHeader('general'))
 
         enable_sharing = QCheckBox()
-        enable_sharing.setWhatsThis(WHATS_THIS_CASTING_WINDOW)
+        enable_sharing.setWhatsThis(WHATS_THIS_SHARING)
         enable_sharing.setObjectName('sharing:enabled')
-        shsl.addRow('Enable Location Sharing', enable_sharing)
+        shsl.addRow('Enable Sharing', enable_sharing)
+
+        sharing_player_name = QLineEdit()
+        sharing_player_name.setObjectName('sharing:player_name')
+        shsl.addRow(
+            'Display Name',
+            sharing_player_name
+        )
 
         sharing_hostname = QLineEdit()
         sharing_hostname.setObjectName('sharing:url')
         shsl.addRow(
-            'Share Server Hostname',
+            'Sharing Hostname',
             sharing_hostname
         )
 
-        msl_closest_z_alpha = QSpinBox()
-        msl_closest_z_alpha.setRange(1, 100)
-        msl_closest_z_alpha.setSingleStep(1)
-        msl_closest_z_alpha.setSuffix('%')
-        msl_closest_z_alpha.setObjectName('maps:closest_z_alpha')
-        msl.addRow('Closest Z Opacity', msl_closest_z_alpha)
-
+        sharing_reconnect_delay = QSpinBox()
+        sharing_reconnect_delay.setRange(1, 300)
+        sharing_reconnect_delay.setSingleStep(1)
+        sharing_reconnect_delay.setSuffix(' seconds')
+        sharing_reconnect_delay.setObjectName('sharing:reconnect_delay')
+        shsl.addRow('Reconnect Delay', sharing_reconnect_delay)
         sharing_settings.setLayout(shsl)
-
         stacked_widgets.append(('Sharing', sharing_settings))
 
         return stacked_widgets
