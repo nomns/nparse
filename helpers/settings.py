@@ -29,8 +29,10 @@ on Red.  Using the 'PvP Duration' will use the secondary timers for non benefici
 durations for all good buffs.
 """.replace('\n', ' ')
 
-WHATS_THIS_SHARING = """
-"""
+WHATS_THIS_SHARING = """Your location can be shared with others via a central location server. If you enable this, you
+agree to send and receive location data via a third-party server. The only data other players can see is the display
+name you provide and the zone+loc you send. Nothing personally identifiable will be visible beyond what you provide.
+""".replace('\n', ' ')
 
 
 class SettingsWindow(QDialog):
@@ -252,6 +254,13 @@ class SettingsWindow(QDialog):
         shsl.addRow(
             'Sharing Hostname',
             sharing_hostname
+        )
+
+        sharing_group_key = QLineEdit()
+        sharing_group_key.setObjectName('sharing:group_key')
+        shsl.addRow(
+            'Group Key',
+            sharing_group_key
         )
 
         sharing_reconnect_delay = QSpinBox()

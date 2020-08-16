@@ -80,27 +80,27 @@ class LocationServiceConnection(QRunnable):
 
     def configure_socket(self):
         if self._socket:
-            logger.warning("Resetting socket, killing any open connection...")
+            print("Resetting socket, killing any open connection...")
             try:
                 self._socket.close()
             except AttributeError:
                 pass
             self._socket = None
         if self.host and self.enabled:
-            logger.warning("Host set and sharing enabled, connecting...")
+            print("Host set and sharing enabled, connecting...")
             self._socket = websocket.WebSocketApp(
                 self.host, on_message=self._on_message,
                 on_error=self._on_error, on_close=self._on_close,
                 on_open=self._on_open)
         else:
-            logger.warning("Sharing disabled.")
+            print("Sharing disabled.")
 
     @pyqtSlot()
     def run(self):
         while RUN:
             self.configure_socket()
             if self.enabled:
-                logger.warning("Starting connection to sharing host...")
+                print("Starting connection to sharing host...")
                 self._socket.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
             if RUN:
                 time.sleep(self.reconnect_delay)
@@ -109,22 +109,24 @@ class LocationServiceConnection(QRunnable):
         if not self.enabled:
             return
         message = {'type': "location",
+                   'group_key': config.data['sharing']['group_key'],
                    'location': loc}
         try:
             self._socket.send(json.dumps(message))
         except:
-            logger.warning("Unable to send location to server.")
+            print("Unable to send location to server.")
 
     def _on_message(self, ws, message):
         message = json.loads(message)
         if message['type'] == "state":
+            print("Message received: %s" % message)
             SIGNALS.locs_recieved.emit(message['locations'])
 
     def _on_error(self, ws, error):
-        logger.warning("Connection error: %s" % error)
+        print("Connection error: %s" % error)
 
     def _on_open(self, ws):
-        logger.warning("Connection opened.")
+        print("Connection opened.")
 
     def _on_close(self, ws):
-        logger.warning("Connection closed.")
+        print("Connection closed.")

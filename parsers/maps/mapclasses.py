@@ -1,5 +1,6 @@
 import datetime
 
+import colorhash
 from PyQt5.QtCore import Qt, QTimer, QPointF
 from PyQt5.QtGui import QPixmap, QPen
 from PyQt5.QtWidgets import (QGraphicsItemGroup, QGraphicsLineItem,
@@ -87,6 +88,7 @@ class Player(QGraphicsItemGroup):
         self.addToGroup(self.nametag)
         self.setZValue(10)
         self.z_level = 0
+        self.color = colorhash.ColorHash(self.name)
 
     def update_(self, scale):
         if self.previous_location:
@@ -102,7 +104,7 @@ class Player(QGraphicsItemGroup):
         self.setPos(self.location.x, self.location.y)
         self.nametag.setHtml(
             "<font color='{}' size='{}'>{}</font>".format(
-                "red" if self.name != "__you__" else "purple",
+                self.color.hex if self.name != "__you__" else "purple",
                 5,
                 self.name if self.name != "__you__" else "You"
             )

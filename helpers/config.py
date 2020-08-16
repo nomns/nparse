@@ -84,6 +84,10 @@ def verify_settings():
         data['sharing'].get('enabled', False),
         False
     )
+    data['sharing']['group_key'] = get_setting(
+        data['sharing'].get('group_key', "public"),
+        "public"
+    )
 
     # maps
     data['maps'] = data.get('maps', {})
