@@ -71,8 +71,8 @@ def verify_settings():
         "ConfigureMe"
     )
     data['sharing']['url'] = get_setting(
-        data['sharing'].get('url', "ws://localhost:8424"),
-        "ws://localhost:8424",
+        data['sharing'].get('url', "ws://sheeplauncher.net:8424"),
+        "ws://sheeplauncher.net:8424",
         lambda x: x.startswith('ws://')
     )
     data['sharing']['reconnect_delay'] = get_setting(
