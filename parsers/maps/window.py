@@ -72,6 +72,7 @@ class Maps(ParserWindow):
             x, y, z = [float(value) for value in text[17:].strip().split(',')]
             x, y = to_real_xy(x, y)
             self._map.add_player('__you__', timestamp, MapPoint(x=x, y=y, z=z))
+            self._map.record_path_loc((x, y, z))
 
             if location_service.get_location_service_connection().enabled:
                 share_payload = {
@@ -83,6 +84,18 @@ class Maps(ParserWindow):
                     'timestamp': timestamp.isoformat()
                 }
                 location_service.SIGNALS.send_loc.emit(share_payload)
+        if text[:16] == "start_recording_":
+            recording_name = text.split()[0][16:]
+            if recording_name:
+                recording_name = recording_name.replace('_', ' ')
+                self._map.start_path_recording(recording_name)
+        if text[:17] == "rename_recording_":
+            recording_name = text.split()[0][17:]
+            if recording_name:
+                recording_name = recording_name.replace('_', ' ')
+                self._map.rename_path_recording(new_name=recording_name)
+        if text[:14] == "stop_recording":
+            self._map.stop_path_recording()
 
     def update_locs(self, locations):
         for zone in locations:

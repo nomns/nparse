@@ -4,3 +4,4 @@ websocket-client-py3
 requests
 websocket
 colorhash
+pathvalidate

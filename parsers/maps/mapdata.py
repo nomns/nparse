@@ -1,5 +1,5 @@
-import os
 import math
+import pathlib
 from collections import Counter
 
 from PyQt5.QtGui import QColor, QPen, QPainterPath
@@ -11,6 +11,7 @@ from .mapclasses import MapPoint, MapGeometry, MapLine, PointOfInterest
 
 MAP_KEY_FILE = 'data/maps/map_keys.ini'
 MAP_FILES_LOCATION = 'data/maps/map_files'
+MAP_FILES_PATHLIB = pathlib.Path(MAP_FILES_LOCATION)
 
 
 class MapData(dict):
@@ -31,15 +32,15 @@ class MapData(dict):
     def _load(self):
         # Get list of all map files for current zone
         map_file_name = MapData.get_zone_dict()[self.zone.strip().lower()]
-        extensions = ['.txt', '_1.txt', '_2.txt', '_3.txt', '_4.txt', '_5.txt']
-        maps = [os.path.join(MAP_FILES_LOCATION, m) for m in [(map_file_name + e)
-                                                              for e in extensions] if os.path.exists(os.path.join(MAP_FILES_LOCATION, m))]
+        maps = MAP_FILES_PATHLIB.glob(
+            '**/{zone}*.txt'.format(zone=map_file_name))
 
         all_x, all_y, all_z = [], [], []
 
         # TODO: Remove the references to raw
         # Create Lines and Points
         for map_file in maps:
+            print("Loading: %s" % map_file)
             with open(map_file, 'r') as f:
                 for line in f.readlines():
                     line_type = line.lower()[0:1]

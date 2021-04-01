@@ -1,16 +1,21 @@
 # testing
 import traceback
 
+import os
 
-from PyQt5.QtCore import Qt, QPointF
-from PyQt5.QtGui import QPainter, QTransform
+import pathvalidate
+from PyQt5.QtCore import Qt
+# , QRegularExpression
+from PyQt5.QtGui import QPainter, QTransform, QColor, QPen
+# , QRegularExpressionValidator
 from PyQt5.QtWidgets import (QGraphicsScene, QGraphicsView, QInputDialog,
-                             QMenu)
+                             QMenu, QLineEdit, QAction, QGraphicsPathItem)
 
 from helpers import config, to_range, text_time_to_seconds
 
-from .mapclasses import MapPoint, WayPoint, Player, SpawnPoint, MouseLocation
-from .mapdata import MapData
+from .mapclasses import (MapPoint, WayPoint, Player, SpawnPoint, MouseLocation,
+                         PointOfInterest, MapLine)
+from .mapdata import MapData, MAP_FILES_PATHLIB
 
 
 class MapCanvas(QGraphicsView):
@@ -34,6 +39,10 @@ class MapCanvas(QGraphicsView):
         self.setScene(self._scene)
         self._scale = config.data['maps']['scale']
         self._mouse_location = MouseLocation()
+        self._path_recording = False
+        self._path_recording_name = ""
+        self._path_file = None
+        self._path_last_loc = None
 
     def load_map(self, map_name):
         try:
@@ -310,6 +319,18 @@ class MapCanvas(QGraphicsView):
         way_point_menu = menu.addMenu('Way Point')
         way_point_create = way_point_menu.addAction('Create on Cursor')
         way_point_delete = way_point_menu.addAction('Clear')
+        pathing_menu = menu.addMenu('Custom Pathing')
+        pathing_start_recording = QAction('Start Recording')
+        pathing_rename_recording = QAction('Rename Path')
+        pathing_stop_recording = QAction('Stop Recording')
+        if not self._path_recording:
+            pathing_menu.addAction(pathing_start_recording)
+        else:
+            current = pathing_menu.addAction(self._path_recording_name)
+            current.setEnabled(False)
+            pathing_menu.addSeparator()
+            pathing_menu.addAction(pathing_rename_recording)
+            pathing_menu.addAction(pathing_stop_recording)
         load_map = menu.addAction('Load Map')
 
         # execute
@@ -378,6 +399,15 @@ class MapCanvas(QGraphicsView):
                 self._scene.removeItem(self._data.way_point.line)
             self._data.way_point = None
 
+        if action == pathing_start_recording:
+            self.start_path_recording()
+
+        if action == pathing_rename_recording:
+            self.rename_path_recording()
+
+        if action == pathing_stop_recording:
+            self.stop_path_recording()
+
         if action == load_map:
             dialog = QInputDialog(self)
             dialog.setWindowTitle('Load Map')
@@ -388,4 +418,188 @@ class MapCanvas(QGraphicsView):
                 self.load_map(dialog.textValue().lower())
             dialog.deleteLater()
 
+        self.update_()
+
+    def _get_path_filename(self, custom_name=None, relative=False):
+        custom_name = custom_name or self._path_recording_name
+        clean_name = pathvalidate.sanitize_filename(custom_name)
+        clean_name = clean_name.replace(' ', '_')
+        if relative:
+            return clean_name
+        zone_key = MapData.get_zone_dict().get(self._data.zone)
+        filename = "{zone}_{recording}.txt".format(
+            zone=zone_key,
+            recording=clean_name)
+
+        # Make sure the directory exists
+        record_dir = MAP_FILES_PATHLIB.joinpath('recordings')
+        if not os.path.exists(record_dir):
+            try:
+                print("Creating custom map directory.")
+                os.makedirs(record_dir)
+            except Exception as e:
+                print("Failed to make custom map directory: %s" % e)
+        return record_dir.joinpath(filename)
+
+    def start_path_recording(self, name=None):
+        print("Start recording!")
+        if self._path_recording:
+            return
+
+        if name:
+            path_name = name
+            ok_pressed = True
+        else:
+            path_name, ok_pressed = QInputDialog.getText(
+                self,  # parent
+                "Start Recording Path",  # title
+                "Name of path to record:",  # label
+                echo=QLineEdit.Normal,
+                text="")
+        if ok_pressed:
+            self._path_recording_name = path_name
+            try:
+                self._path_file = open(self._get_path_filename(), 'a')
+                self._path_recording = True
+                self._path_last_loc = None
+            except Exception as e:
+                print("Failed to open pathfile: %s" % e)
+
+    def rename_path_recording(self, new_name=None):
+        print("Rename recording!")
+        if not self._path_recording:
+            return
+
+        if new_name:
+            path_name = new_name
+            ok_pressed = True
+        else:
+            path_name, ok_pressed = QInputDialog.getText(
+                self,  # parent
+                "Rename Path",  # title
+                "New path name:",  # label
+                echo=QLineEdit.Normal,
+                text=self._path_recording_name)
+
+        if ok_pressed:
+            old_path_name = self._path_recording_name
+            new_path_name = path_name
+            try:
+                self._path_file.close()
+                self._path_file = None
+            except Exception as e:
+                print("Failed to close path recording file: %s" % e)
+                return
+            try:
+                os.rename(self._get_path_filename(custom_name=old_path_name),
+                          self._get_path_filename(custom_name=new_path_name))
+                self._path_recording_name = new_path_name
+            except Exception as e:
+                print("Failed to rename path recording file: %s" % e)
+                self._path_recording = False
+                return
+            try:
+                self._path_file = open(self._get_path_filename(), 'a')
+            except Exception as e:
+                print("Failed to open renamed path recording file: %s" % e)
+                self._path_recording = False
+                return
+
+        # This is ... broken
+        # path_name_editor = QLineEdit()
+        # path_name_valid_regex = QRegularExpression(r"^\w+$")
+        # path_name_validator = QRegularExpressionValidator(
+        #     path_name_valid_regex, path_name_editor)
+        # path_name_editor.setValidator(path_name_validator)
+        #
+        # dialog = QInputDialog(self)
+        # dialog.setWindowTitle('Rename Path')
+        # dialog.setLabelText('New path name:')
+        #
+        # if dialog.exec_():
+        #     self._path_recording_name = dialog.textValue()
+        # dialog.deleteLater()
+
+    def stop_path_recording(self):
+        print("Stop recording!")
+        if not self._path_recording:
+            return
+
+        if self._path_last_loc is not None:
+            print("Recording final path point.")
+            self.record_path_point(
+                self._path_last_loc, "%s (end)" % self._path_recording_name)
+
+        try:
+            self._path_file.close()
+        except Exception as e:
+            print("Failed to stop recording: %s" % e)
+            return
+        self._path_file = None
+        self._path_recording = False
+        self._path_last_loc = None
+
+    def record_path_loc(self, loc):
+        if not self._path_recording:
+            return
+
+        print("Recording loc: %s" % str(loc))
+        if self._path_last_loc is None:
+            print("Recording first path point.")
+            self.record_path_point(
+                loc, "%s (start)" % self._path_recording_name)
+        else:
+            line = (
+                "L {x1}, {y1}, {z1}, {x2}, {y2}, {z2}, {r}, {g}, {b}\n".format(
+                    x1=self._path_last_loc[0],
+                    y1=self._path_last_loc[1],
+                    z1=self._path_last_loc[2],
+                    x2=loc[0], y2=loc[1], z2=loc[2],
+                    r=255, g=0, b=0
+                ))
+            try:
+                self._path_file.write(line)
+                self._path_file.flush()
+            except Exception as e:
+                print("Failed to write loc to pathfile: %s" % e)
+
+            # Also add line to the active map
+            z_group = self._data.get_closest_z_group(loc[2])
+            color = MapData.color_transform(QColor(255, 0, 0))
+            map_line = QGraphicsPathItem()
+            map_line.setPen(
+                QPen(color, config.data['maps']['line_width']))
+            map_path = map_line.path()
+            map_path.moveTo(self._path_last_loc[0], self._path_last_loc[1])
+            map_path.lineTo(loc[0], loc[1])
+            map_line.setPath(map_path)
+            self._data[z_group]['paths'].addToGroup(map_line)
+            self.update_()
+
+        # Update past loc to current loc
+        self._path_last_loc = loc
+
+    def record_path_point(self, loc, desc):
+        if not self._path_recording:
+            return
+        point = "P {x}, {y}, {z}, {r}, {g}, {b}, {size}, {desc}\n".format(
+            x=loc[0], y=loc[1], z=loc[2],
+            r=255, g=0, b=0,
+            size=3, desc=desc
+        )
+        try:
+            self._path_file.write(point)
+            self._path_file.flush()
+        except Exception as e:
+            print("Failed to write point to pathfile: %s" % e)
+
+        # Also add point to the active map
+        z_group = self._data.get_closest_z_group(loc[2])
+        color = MapData.color_transform(QColor(255, 0, 0))
+        map_poi = MapPoint(
+            x=loc[0], y=loc[1], z=loc[2],
+            color=color, size=3, text=desc)
+        self._data[z_group]['poi'].append(
+            PointOfInterest(location=map_poi))
+        self._draw()
         self.update_()
