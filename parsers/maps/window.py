@@ -65,10 +65,10 @@ class Maps(ParserWindow):
     def parse(self, timestamp, text):
         if text[:23] == 'LOADING, PLEASE WAIT...':
             pass
-        if text[:16] == 'You have entered':
+        elif text[:16] == 'You have entered':
             self.zone_name = text[17:-1]
             self._map.load_map(self.zone_name)
-        if text[:16] == 'Your Location is':
+        elif text[:16] == 'Your Location is':
             x, y, z = [float(value) for value in text[17:].strip().split(',')]
             x, y = to_real_xy(x, y)
             self._map.add_player('__you__', timestamp, MapPoint(x=x, y=y, z=z))
@@ -84,17 +84,17 @@ class Maps(ParserWindow):
                     'timestamp': timestamp.isoformat()
                 }
                 location_service.SIGNALS.send_loc.emit(share_payload)
-        if text[:16] == "start_recording_":
+        elif text[:16] == "start_recording_":
             recording_name = text.split()[0][16:]
             if recording_name:
                 recording_name = recording_name.replace('_', ' ')
                 self._map.start_path_recording(recording_name)
-        if text[:17] == "rename_recording_":
+        elif text[:17] == "rename_recording_":
             recording_name = text.split()[0][17:]
             if recording_name:
                 recording_name = recording_name.replace('_', ' ')
                 self._map.rename_path_recording(new_name=recording_name)
-        if text[:14] == "stop_recording":
+        elif text[:14] == "stop_recording":
             self._map.stop_path_recording()
 
     def update_locs(self, locations):
