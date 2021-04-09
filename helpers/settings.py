@@ -1,3 +1,5 @@
+import functools
+
 from PyQt5.QtWidgets import (QCheckBox, QDialog, QFormLayout, QFrame,
                              QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
                              QSpinBox, QStackedWidget, QPushButton,
@@ -33,6 +35,9 @@ WHATS_THIS_SHARING = """Your location can be shared with others via a central lo
 agree to send and receive location data via a third-party server. The only data other players can see is the display
 name you provide and the zone+loc you send. Nothing personally identifiable will be visible beyond what you provide.
 """.replace('\n', ' ')
+
+WHATS_THIS_SHARING_DISCORD = """Automatically share with other users in your configured discord channel.
+When this option is set, the sharing key specified above will be ignored."""
 
 
 class SettingsWindow(QDialog):
@@ -125,6 +130,9 @@ class SettingsWindow(QDialog):
                 if wt == QCheckBox:
                     key1, key2 = widget.objectName().split(':')
                     widget.setChecked(config.data[key1][key2])
+                    if key1 == 'sharing' and key2 == 'discord_channel' \
+                            and config.data[key1][key2]:
+                        self.sharing_group_key.setDisabled(True)
                 elif wt == QSpinBox:
                     key1, key2 = widget.objectName().split(':')
                     widget.setValue(config.data[key1][key2])
@@ -259,12 +267,20 @@ class SettingsWindow(QDialog):
             sharing_hostname
         )
 
-        sharing_group_key = QLineEdit()
-        sharing_group_key.setObjectName('sharing:group_key')
+        self.sharing_group_key = QLineEdit()
+        self.sharing_group_key.setObjectName('sharing:group_key')
         shsl.addRow(
             'Group Key',
-            sharing_group_key
+            self.sharing_group_key
         )
+        sharing_discord_channel = QCheckBox()
+        sharing_discord_channel.setObjectName('sharing:discord_channel')
+        sharing_discord_channel.setWhatsThis(WHATS_THIS_SHARING_DISCORD)
+        shsl.addRow('Use Discord Channel', sharing_discord_channel)
+        sharing_discord_channel.clicked.connect(
+            functools.partial(self._sharing_channel_checked,
+                              sharing_discord_channel,
+                              self.sharing_group_key))
 
         sharing_reconnect_delay = QSpinBox()
         sharing_reconnect_delay.setRange(1, 300)
@@ -280,6 +296,13 @@ class SettingsWindow(QDialog):
     def _get_custom_timers(self):
         dialog = CustomTriggerSettings()
         dialog.exec()
+
+    def _sharing_channel_checked(self, sharing_discord_channel,
+                                 sharing_group_key):
+        if sharing_discord_channel.isChecked():
+            sharing_group_key.setDisabled(True)
+        else:
+            sharing_group_key.setDisabled(False)
 
 
 class SettingsHeader(QLabel):

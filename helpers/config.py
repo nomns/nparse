@@ -92,6 +92,10 @@ def verify_settings():
         data['sharing'].get('group_key', "public"),
         "public"
     )
+    data['sharing']['discord_channel'] = get_setting(
+        data['sharing'].get('discord_channel', False),
+        False
+    )
 
     # maps
     data['maps'] = data.get('maps', {})
