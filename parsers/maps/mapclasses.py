@@ -72,9 +72,14 @@ class Player(QGraphicsItemGroup):
         self.previous_location = MapPoint()
         self.timestamp = None  # datetime
         self.__dict__.update(kwargs)
-        self.icon = QGraphicsPixmapItem(
-            QPixmap('data/maps/user.png')
-        )
+        if self.name == "__you__":
+            self.icon = QGraphicsPixmapItem(
+                QPixmap('data/maps/user.png')
+            )
+        else:
+            self.icon = QGraphicsPixmapItem(
+                QPixmap('data/maps/otheruser.png')
+            )
         self.icon.setOffset(-10, -10)
         self.directional = QGraphicsPixmapItem(
             QPixmap('data/maps/directional.png')
