@@ -94,6 +94,11 @@ class NomnsParse(QApplication):
                 self._log_reader.deleteLater()
                 self._log_reader = None
             location_service.stop_location_service()
+            for parser in self._parsers:
+                try:
+                    parser.shutdown()
+                except:
+                    print("Failed to shutdown parser: %s" % parser.name)
             self._toggled = False
 
     def _parse(self, new_line):

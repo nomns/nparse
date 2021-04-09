@@ -98,5 +98,8 @@ class ParserWindow(QFrame):
         self._menu.setVisible(False)
         QFrame.leaveEvent(self, event)
 
+    def shutdown(self):
+        pass
+
     def settings_updated(self):
         pass
