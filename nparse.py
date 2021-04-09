@@ -20,7 +20,7 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = '0.5.1-sharing4'
+CURRENT_VERSION = '0.5.1-sharing5'
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
@@ -66,7 +66,8 @@ class NomnsParse(QApplication):
     def _load_parsers(self):
         self._parsers = [
             parsers.Maps(),
-            parsers.Spells()
+            parsers.Spells(),
+            parsers.Discord(),
         ]
         for parser in self._parsers:
             if parser.name in config.data.keys() and 'geometry' in config.data[parser.name].keys():

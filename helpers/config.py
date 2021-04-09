@@ -54,6 +54,10 @@ def verify_settings():
         80,
         lambda x: (0 < x <= 100)
         )
+    data['general']['window_flush'] = get_setting(
+        data['general'].get('window_flush', True),
+        True
+    )
     data['general']['qt_scale_factor'] = get_setting(
         data['general'].get('qt_scale_factor', 100),
         100,
@@ -106,8 +110,8 @@ def verify_settings():
         lambda x: (1 <= x <= 100)
         )
     data['maps']['geometry'] = get_setting(
-        data['maps'].get('geometry', [100, 100, 400, 200]),
-        [100, 100, 400, 200],
+        data['maps'].get('geometry', [0, 0, 400, 400]),
+        [0, 0, 400, 400],
         lambda x: (
             len(x) == 4 and
             isinstance(x[0], int) and
@@ -182,8 +186,8 @@ def verify_settings():
         True
         )
     data['spells']['geometry'] = get_setting(
-        data['spells'].get('geometry', [550, 100, 200, 400]),
-        [550, 100, 200, 400],
+        data['spells'].get('geometry', [400, 0, 200, 400]),
+        [400, 0, 200, 400],
         lambda x: (
             len(x) == 4 and
             isinstance(x[0], int) and
@@ -218,6 +222,28 @@ def verify_settings():
         data['spells'].get('use_secondary_all', False),
         False
         )
+
+    # discord
+    data['discord'] = data.get('discord', {})
+    data['discord']['toggled'] = get_setting(
+        data['discord'].get('toggled', True),
+        True
+        )
+    data['discord']['geometry'] = get_setting(
+        data['discord'].get('geometry', [0, 400, 200, 400]),
+        [0, 400, 200, 400],
+        lambda x: (
+                len(x) == 4 and
+                isinstance(x[0], int) and
+                isinstance(x[1], int) and
+                isinstance(x[2], int) and
+                isinstance(x[3], int)
+        )
+    )
+    data['discord']['url'] = get_setting(
+        data['discord'].get('url', ''),
+        ''
+    )
 
  
 def get_setting(setting, default, func=None):

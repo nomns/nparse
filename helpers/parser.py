@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel,
+from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QStyle,
                              QPushButton, QVBoxLayout, QWidget)
 
 from helpers import config
@@ -52,7 +52,11 @@ class ParserWindow(QFrame):
 
     def _toggle_frame(self):
         current_geometry = self.geometry()
+        window_flush = config.data['general']['window_flush']
+        titlebar_height = self.style().pixelMetric(QStyle.PM_TitleBarHeight)
         if bool(self.windowFlags() & Qt.FramelessWindowHint):
+            if window_flush:
+                current_geometry.setTop(current_geometry.top() + titlebar_height)
             self.setWindowFlags(
                 Qt.WindowCloseButtonHint |
                 Qt.WindowMinMaxButtonsHint
@@ -60,13 +64,14 @@ class ParserWindow(QFrame):
             self.setGeometry(current_geometry)
             self.show()
         else:
+            if window_flush:
+                current_geometry.setTop(current_geometry.top() - titlebar_height)
             self.setWindowFlags(
                 Qt.FramelessWindowHint |
                 Qt.WindowStaysOnTopHint
             )
             self.setGeometry(current_geometry)
             self.show()
-        g = self.geometry()
 
     def set_title(self, title):
         self._title.setText(title)

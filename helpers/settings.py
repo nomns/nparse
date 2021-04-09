@@ -155,6 +155,9 @@ class SettingsWindow(QDialog):
         gsl_scaling.setSuffix('%')
         gsl_scaling.setObjectName('general:qt_scale_factor')
         gsl.addRow('Window Scaling Factor', gsl_scaling)
+        gsl_window_flush = QCheckBox()
+        gsl_window_flush.setObjectName('general:window_flush')
+        gsl.addRow('Flush Vertical Placement', gsl_window_flush)
         general_settings.setLayout(gsl)
 
         stacked_widgets.append(('General', general_settings))
