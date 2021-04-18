@@ -17,9 +17,21 @@ function() {
     }
     css.innerText='%(new_css)s';
 })()"""
-CSS_SMALLER_AVATARS = """
-.avatar { width: 20px !important; height: 20px !important;}
-.voice-container { line-height: 0px !important; }"""
+CSS_SMALLER_AVATARS = (
+    '.voice-container .voice-states .voice-state.small-avatar .avatar {'
+    '    height: 20px !important;'
+    '    width: 20px !important;'
+    '}'
+    '.voice-container .voice-states .voice-state.small-avatar .user {'
+    '    padding-top: 0px !important;'
+    '}'
+    '.voice-container .voice-states .voice-state .user {'
+    '    padding-top: 0px !important;'
+    '}'
+    '.voice-container .voice-states .voice-state.small-avatar {'
+    '    height: 20px !important;'
+    '}'
+)
 HTML_NO_CONFIG = """
 <html><font color='lightgrey' size='5px'>
 Hover this window and click the gear icon to configure your Discord overlay.
@@ -62,6 +74,7 @@ class Discord(ParserWindow):
         self.overlay.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
         self.overlay.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
         if self.url:
+            self.overlay.loadFinished.connect(self._applyTweaks)
             self.overlay.load(QtCore.QUrl(self.url))
         else:
             self.overlay.setHtml(HTML_NO_CONFIG)
@@ -111,6 +124,7 @@ class Discord(ParserWindow):
     def _on_get_url(self, url):
         self.url = url
         self.overlay.load(QtCore.QUrl(url))
+        self._applyTweaks()
 
         config.data['discord']['url'] = url
         config.save()
