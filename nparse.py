@@ -163,10 +163,10 @@ class NomnsParse(QApplication):
             if self._settings.exec_():
                 # Update required settings
                 for parser in self._parsers:
-                    if parser.windowOpacity() != config.data['general']['parser_opacity']:
-                        parser.setWindowOpacity(
-                            config.data['general']['parser_opacity'] / 100)
+                    if round(parser.windowOpacity(), 2) != config.data[parser.name]['opacity'] / 100:
+                        parser.update_window_opacity()
                         parser.settings_updated()
+                    parser.update_background_color()
             # some settings are saved within other settings automatically
             # force update
             for parser in self._parsers:

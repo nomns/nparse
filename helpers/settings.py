@@ -4,9 +4,10 @@ from PyQt5.QtWidgets import (QCheckBox, QDialog, QFormLayout, QFrame,
                              QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
                              QSpinBox, QStackedWidget, QPushButton,
                              QVBoxLayout, QWidget, QComboBox, QLineEdit,
-                             QMessageBox)
+                             QMessageBox, QColorDialog)
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
 
 from helpers import config, text_time_to_seconds
 
@@ -57,6 +58,7 @@ class SettingsWindow(QDialog):
         self._widget_stack.setObjectName('SettingsStack')
         top_layout.addWidget(self._list_widget, 0)
         top_layout.addWidget(self._widget_stack, 1)
+        self._color_dialogs = dict()
 
         settings = self._create_settings()
         if settings:
@@ -104,6 +106,12 @@ class SettingsWindow(QDialog):
                 elif wt == QLineEdit:
                     key1, key2 = widget.objectName().split(':')
                     config.data[key1][key2] = widget.text()
+        for widget in self._color_dialogs.values():
+            wt = type(widget)
+            if wt == QColorDialog:
+                key1, key2 = widget.objectName().split(':')
+                hexcolor = hex(widget.currentColor().rgb()).replace('0xff', '#')
+                config.data[key1][key2] = hexcolor
         config.save()
         self._config_update_triggers()
         self.accept()
@@ -139,6 +147,20 @@ class SettingsWindow(QDialog):
                 elif wt == QLineEdit:
                     key1, key2 = widget.objectName().split(':')
                     widget.setText(config.data[key1][key2])
+                elif wt == QPushButton and widget.objectName():
+                    # Using QPushButton as a poor-man's rectangle
+                    key1, key2 = widget.objectName().split(':')
+                    hexcolor = config.data[key1][key2]
+                    widget.setStyleSheet(
+                        "background-color: {0}; "
+                        "border: 4px solid {0};".format(hexcolor))
+        for widget in self._color_dialogs.values():
+            wt = type(widget)
+            if wt == QColorDialog:
+                key1, key2 = widget.objectName().split(':')
+                hexcolor = config.data[key1][key2]
+                intcolor = int(hexcolor.replace('#', '0xff'), 16)
+                widget.setCurrentColor(QColor(intcolor))
 
     def _create_settings(self):
         stacked_widgets = []
@@ -151,12 +173,6 @@ class SettingsWindow(QDialog):
         gsl_update_check.setObjectName('general:update_check')
         gsl.addRow('Check for Updates', gsl_update_check)
         gsl.addRow(SettingsHeader('parsers'))
-        gsl_opacity = QSpinBox()
-        gsl_opacity.setRange(1, 100)
-        gsl_opacity.setSingleStep(5)
-        gsl_opacity.setSuffix('%')
-        gsl_opacity.setObjectName('general:parser_opacity')
-        gsl.addRow('Parser Window Opacity (% 1-100)', gsl_opacity)
         gsl_scaling = QSpinBox()
         gsl_scaling.setRange(100, 300)
         gsl_scaling.setSingleStep(5)
@@ -291,7 +307,51 @@ class SettingsWindow(QDialog):
         sharing_settings.setLayout(shsl)
         stacked_widgets.append(('Sharing', sharing_settings))
 
+        # Appearance Settings
+        appearance_settings = QFrame()
+        appear_sl = QFormLayout()
+        for window in ("maps", "spells", "discord"):
+            appear_sl.addRow(SettingsHeader(window.title()))
+            opacity = QSpinBox()
+            opacity.setRange(0, 100)
+            opacity.setSingleStep(5)
+            opacity.setSuffix('%')
+            opacity.setObjectName('%s:opacity' % window)
+            appear_sl.addRow('Window Opacity (% 0-100)', opacity)
+            color_hbox = QHBoxLayout()
+            color_button = QPushButton('Set Color')
+            color_preview = QPushButton("")
+            color_preview.setObjectName('%s:color' % window)
+            color_hbox.addWidget(color_preview)
+            color_hbox.addWidget(color_button)
+            color_dialog = QColorDialog()
+            color_dialog.setObjectName('%s:color' % window)
+            color_dialog.setWindowTitle("Set %s Color" % window.title())
+            self._color_dialogs[window] = color_dialog
+            color_button.clicked.connect(functools.partial(
+                self.show_color_picker,
+                window=window, preview=color_preview))
+            color_preview.clicked.connect(functools.partial(
+                self.show_color_picker,
+                window=window, preview=color_preview))
+            appear_sl.addRow('Background Color', color_hbox)
+
+        appearance_settings.setLayout(appear_sl)
+        stacked_widgets.append(('Appearance', appearance_settings))
+
         return stacked_widgets
+
+    def show_color_picker(self, window, preview):
+        dialog = self._color_dialogs[window]
+        if dialog.exec():
+            current_color = dialog.currentColor()
+            hexcolor = hex(current_color.rgb()).replace('0xff', '#')
+            preview.setStyleSheet("background-color: {0}; "
+                                  "border: 4px solid {0};".format(hexcolor))
+        else:
+            hexcolor = config.data[window]['color']
+            intcolor = int(hexcolor.replace('#', '0x'), 16)
+            dialog.setCurrentColor(QColor(intcolor))
 
     def _get_custom_timers(self):
         dialog = CustomTriggerSettings()
@@ -495,4 +555,3 @@ class CustomTriggerSettings(QDialog):
     def closeEvent(self, _):
         self._save_to_config()
         self.accept()
-        

@@ -49,11 +49,6 @@ def verify_settings():
         data['general'].get('eq_log_dir', ''),
         ''
         )
-    data['general']['parser_opacity'] = get_setting(
-        data['general'].get('parser_opacity', 80),
-        80,
-        lambda x: (0 < x <= 100)
-        )
     data['general']['window_flush'] = get_setting(
         data['general'].get('window_flush', True),
         True
@@ -171,6 +166,12 @@ def verify_settings():
         data['maps'].get('use_z_layers', False),
         False
         )
+    data['maps']['opacity'] = get_setting(
+        data['maps'].get('opacity', 80),
+        80,
+        lambda x: (0 <= x <= 100)
+        )
+    data['maps']['color'] = data['maps'].get('color', '#000000')
 
     # spells
     data['spells'] = data.get('spells', {})
@@ -230,6 +231,12 @@ def verify_settings():
         data['spells'].get('use_secondary_all', False),
         False
         )
+    data['spells']['opacity'] = get_setting(
+        data['spells'].get('opacity', 80),
+        80,
+        lambda x: (0 <= x <= 100)
+        )
+    data['spells']['color'] = data['spells'].get('color', '#000000')
 
     # discord
     data['discord'] = data.get('discord', {})
@@ -252,6 +259,12 @@ def verify_settings():
         data['discord'].get('url', ''),
         ''
     )
+    data['discord']['opacity'] = get_setting(
+        data['discord'].get('opacity', 80),
+        80,
+        lambda x: (0 <= x <= 100)
+        )
+    data['discord']['color'] = data['discord'].get('color', '#000000')
 
  
 def get_setting(setting, default, func=None):

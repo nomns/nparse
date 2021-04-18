@@ -1,6 +1,7 @@
 import functools
 
 from PyQt5 import QtCore
+from PyQt5.QtGui import QColor
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import QScrollArea, QPushButton, QDialog, QGridLayout
 
@@ -46,6 +47,7 @@ class Discord(ParserWindow):
         self.name = 'discord'
         self.setWindowTitle(self.name.title())
         self.set_title(self.name.title())
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
         self.setMinimumWidth(125)
         self.overlay = None
         self.settings_dialog = None
@@ -60,9 +62,35 @@ class Discord(ParserWindow):
 
     def _applyTweaks(self):
         if self.overlay:
-            js = JS_ADD_CSS_TEMPLATE % {'name': 'smalleravatar',
-                                        'new_css': CSS_SMALLER_AVATARS}
-            self.overlay.page().runJavaScript(js)
+            small_avatars = JS_ADD_CSS_TEMPLATE % {
+                'name': 'smalleravatar', 'new_css': CSS_SMALLER_AVATARS}
+            self.overlay.page().runJavaScript(small_avatars)
+
+    def update_background_color(self):
+        opacity = config.data[self.name]['opacity'] / 100
+        hexcolor = config.data[self.name]['color']
+        intcolor = int(hexcolor.replace('#', '0x'), 16)
+        qcolor = QColor(intcolor)
+        qcolor.setAlpha(opacity * 255)
+        if opacity > 0:
+            overlay_color = qcolor
+        else:
+            overlay_color = QColor('transparent')
+        self.overlay.page().setBackgroundColor(overlay_color)
+        self._menu.setStyleSheet(
+            'background-color:rgba({red},{green},{blue},{alpha});'.format(
+                red=qcolor.red(),
+                green=qcolor.green(),
+                blue=qcolor.blue(),
+                # fix alpha at max for the menubar for now
+                # when it is less than max, the transparency isn't consistent
+                alpha=255
+                # alpha=qcolor.alpha()
+            ))
+
+    def update_window_opacity(self):
+        opacity = config.data[self.name]['opacity'] / 100
+        self._menu.setWindowOpacity(opacity)
 
     def _setup_webview(self):
         setup_button = QPushButton('\u2699')
@@ -70,9 +98,9 @@ class Discord(ParserWindow):
         self.menu_area.addWidget(setup_button)
 
         self.overlay = QWebEngineView()
-        self.overlay.page().setBackgroundColor(QtCore.Qt.black)
         self.overlay.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
         self.overlay.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
+        self.update_background_color()
         if self.url:
             self.overlay.loadFinished.connect(self._applyTweaks)
             self.overlay.load(QtCore.QUrl(self.url))

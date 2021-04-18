@@ -11,7 +11,6 @@ class ParserWindow(QFrame):
         super().__init__()
         self.name = ''
         self.setObjectName('ParserWindow')
-        self.setWindowOpacity(config.data['general']['parser_opacity'] / 100)
         self.content = QVBoxLayout()
         self.content.setContentsMargins(0, 0, 0, 0)
         self.content.setSpacing(0)
@@ -40,7 +39,15 @@ class ParserWindow(QFrame):
 
         button.clicked.connect(self._toggle_frame)
 
+    def update_background_color(self):
+        self.setStyleSheet("background-color : %s;" % config.data[self.name]['color'])
+
+    def update_window_opacity(self):
+        self.setWindowOpacity(config.data[self.name]['opacity'] / 100)
+
     def set_flags(self):
+        self.update_window_opacity()
+        self.update_background_color()
         self.setFocus()
         flags = (
             Qt.FramelessWindowHint |
