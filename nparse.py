@@ -104,8 +104,12 @@ class NomnsParse(QApplication):
     def _parse(self, new_line):
         if new_line:
             timestamp, text = new_line  # (datetime, text)
+            if text.startswith('toggle_clickthrough'):
+                config.data['general']['clickthrough'] = (
+                    not config.data['general']['clickthrough'])
+                self._set_clickthrough(config.data['general']['clickthrough'])
             #  don't send parse to non toggled items, except maps.  always parse maps
-            for parser in [parser for parser in self._parsers]:
+            for parser in self._parsers:
                 if text[:7] == 'toggle_' and text.split()[0][7:] == parser.name:
                     parser.toggle()
                 if config.data[parser.name]['toggled'] or parser.name == 'maps':
@@ -136,6 +140,9 @@ class NomnsParse(QApplication):
 
         menu.addSeparator()
         settings_action = menu.addAction('Settings')
+        clickthrough_action = menu.addAction('Click-through Windows')
+        clickthrough_action.setCheckable(True)
+        clickthrough_action.setChecked(config.data['general']['clickthrough'])
         menu.addSeparator()
         quit_action = menu.addAction('Quit')
 
@@ -185,6 +192,15 @@ class NomnsParse(QApplication):
             parser = [
                 parser for parser in self._parsers if parser.name == action.text().lower()][0]
             parser.toggle()
+
+        elif action == clickthrough_action:
+            self._set_clickthrough(action.isChecked())
+
+    def _set_clickthrough(self, clickthrough):
+        config.data['general']['clickthrough'] = clickthrough
+        config.save()
+        for parser in self._parsers:
+            parser.set_flags()
 
     def new_version_available(self):
         # this will only work if numbers go up

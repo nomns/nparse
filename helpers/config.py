@@ -67,6 +67,10 @@ def verify_settings():
         data['general'].get('update_check', True),
         True
     )
+    data['general']['clickthrough'] = get_setting(
+        data['general'].get('clickthrough', False),
+        False
+    )
 
     # sharing
     data['sharing'] = data.get('sharing', {})

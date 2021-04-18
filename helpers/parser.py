@@ -42,13 +42,16 @@ class ParserWindow(QFrame):
 
     def set_flags(self):
         self.setFocus()
-        self.setWindowFlags(
+        flags = (
             Qt.FramelessWindowHint |
             Qt.WindowStaysOnTopHint |
             Qt.WindowCloseButtonHint |
-            Qt.WindowMinMaxButtonsHint
-        )
-        self.show()
+            Qt.WindowMinMaxButtonsHint)
+        if config.data['general']['clickthrough']:
+            flags |= Qt.WindowTransparentForInput
+        self.setWindowFlags(flags)
+        if config.data[self.name]['toggled']:
+            self.show()
 
     def _toggle_frame(self):
         current_geometry = self.geometry()
