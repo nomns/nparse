@@ -98,10 +98,16 @@ class LocationServiceConnection(QRunnable):
     @pyqtSlot()
     def run(self):
         while RUN:
-            self.configure_socket()
+            try:
+                self.configure_socket()
+            except:
+                print("Failed to configure socket!")
             if self.enabled:
                 print("Starting connection to sharing host...")
-                self._socket.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+                try:
+                    self._socket.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+                except:
+                    print("Socket connection brokem continuing...")
             if RUN:
                 time.sleep(self.reconnect_delay)
 
