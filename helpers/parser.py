@@ -17,6 +17,7 @@ class ParserWindow(QFrame):
         self.setLayout(self.content)
         self._menu = QWidget()
         self._menu_content = QHBoxLayout()
+        self._menu.setObjectName('ParserWindowMenuReal')
         self._menu.setLayout(self._menu_content)
         self._menu_content.setSpacing(5)
         self._menu_content.setContentsMargins(3, 0, 0, 0)
@@ -40,7 +41,21 @@ class ParserWindow(QFrame):
         button.clicked.connect(self._toggle_frame)
 
     def update_background_color(self):
-        self.setStyleSheet("background-color : %s;" % config.data[self.name]['color'])
+        self.setStyleSheet("""
+#ParserWindow QFrame, #ParserWindowMenuReal, #ParserWindowMenuReal QPushButton
+{{
+    background-color: {0};
+}}
+#ParserWindowMenu QSpinBox {{
+    color:white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 3px;
+    border: none;
+    border-radius: 3px;
+    background-color: {0};
+}}
+""".format(config.data[self.name]['color']))
 
     def update_window_opacity(self):
         self.setWindowOpacity(config.data[self.name]['opacity'] / 100)

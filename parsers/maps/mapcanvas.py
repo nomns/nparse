@@ -410,6 +410,7 @@ class MapCanvas(QGraphicsView):
 
         if action == load_map:
             dialog = QInputDialog(self)
+            dialog.setStyleSheet("QFrame { background-color: #f0f0f0 }")
             dialog.setWindowTitle('Load Map')
             dialog.setLabelText('Select map to load:')
             dialog.setComboBoxItems(
