@@ -20,7 +20,7 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = '0.5.1-sharing6'
+CURRENT_VERSION = '0.6.0'
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
