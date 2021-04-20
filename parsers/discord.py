@@ -62,45 +62,85 @@ class Discord(ParserWindow):
 
     def _applyTweaks(self):
         if self.overlay:
+            # Make small avatars even smaller
             small_avatars = JS_ADD_CSS_TEMPLATE % {
                 'name': 'smalleravatar', 'new_css': CSS_SMALLER_AVATARS}
             self.overlay.page().runJavaScript(small_avatars)
 
+            # Fix background color/opacity to match settings
+            self._fix_background()
+
+    def _fix_background(self):
+        bg_opacity = config.data[self.name]['bg_opacity'] / 100
+        hexcolor = config.data[self.name]['color']
+        intcolor = int(hexcolor.replace('#', '0x'), 16)
+        qcolor = QColor(intcolor)
+        bg_color_set = JS_ADD_CSS_TEMPLATE % {
+            'name': 'bgcolor',
+            # 'new_css': "body { background-color: #ff000011 !important }"}
+            'new_css': "body {{ background-color: rgba({red},{green},{blue},{alpha}) !important }}".format(
+                red=qcolor.red(),
+                green=qcolor.green(),
+                blue=qcolor.blue(),
+                alpha=bg_opacity
+            )}
+        self.overlay.page().runJavaScript(bg_color_set)
+
     def update_background_color(self):
+        self._fix_background()
         opacity = config.data[self.name]['opacity'] / 100
         hexcolor = config.data[self.name]['color']
         intcolor = int(hexcolor.replace('#', '0x'), 16)
         qcolor = QColor(intcolor)
-        qcolor.setAlpha(opacity * 255)
-        if opacity > 0:
-            overlay_color = qcolor
-        else:
-            overlay_color = QColor('transparent')
-        self.overlay.page().setBackgroundColor(overlay_color)
         self._menu.setStyleSheet(
-            'background-color:rgba({red},{green},{blue},{alpha});'.format(
+            'background-color: %s' % hexcolor
+        )
+        self._menu.setStyleSheet(
+            """
+            #ParserWindowMenu QPushButton:hover {{
+                background: darkgreen;
+            }}
+            #ParserWindowMenu QPushButton:checked {{
+                color: white;
+            }}
+            #ParserWindowMenu QPushButton {{
+                color: rgb(255, 255, 255, {alpha2});
+            }}
+            #ParserWindowMenuReal {{
+                background-color:rgba({red},{green},{blue},{alpha})
+            }}
+            #ParserWindowMenuReal QPushButton {{
+                background-color:rgba({red},{green},{blue},0)
+            }}
+            #ParserWindowMoveButton {{
+                color: rgba(255,255,255,{alpha2})
+            }}
+            #ParserWindowTitle {{
+                color: rgb(200, 200, 200, {alpha2})
+            }}"""
+            .format(
                 red=qcolor.red(),
                 green=qcolor.green(),
                 blue=qcolor.blue(),
-                # fix alpha at max for the menubar for now
-                # when it is less than max, the transparency isn't consistent
-                alpha=255
-                # alpha=qcolor.alpha()
+                alpha=opacity,
+                alpha2=opacity
             ))
 
     def update_window_opacity(self):
-        opacity = config.data[self.name]['opacity'] / 100
-        self._menu.setWindowOpacity(opacity)
+        # This is special-cased as part of update_background_color for discord
+        return
 
     def _setup_webview(self):
         setup_button = QPushButton('\u2699')
+        setup_button.setObjectName('DiscordConfigButton')
+        setup_button.setToolTip('Configure Discord')
         setup_button.clicked.connect(self.show_settings)
         self.menu_area.addWidget(setup_button)
 
         self.overlay = QWebEngineView()
         self.overlay.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
         self.overlay.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
-        self.update_background_color()
+        self.overlay.page().setBackgroundColor(QColor('transparent'))
         if self.url:
             self.overlay.loadFinished.connect(self._applyTweaks)
             self.overlay.load(QtCore.QUrl(self.url))

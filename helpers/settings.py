@@ -38,7 +38,11 @@ name you provide and the zone+loc you send. Nothing personally identifiable will
 """.replace('\n', ' ')
 
 WHATS_THIS_SHARING_DISCORD = """Automatically share with other users in your configured discord channel.
-When this option is set, the sharing key specified above will be ignored."""
+When this option is set, the sharing key specified above will be ignored.""".replace('\n', ' ')
+
+WHATS_THIS_CLICKTHROUGH = """When set, the window will not capture mouse clicks, so your click will go through to
+whatever is below it. Practically, this means you can still interact with EverQuest *through* the nParse
+window.""".replace('\n', ' ')
 
 
 class SettingsWindow(QDialog):
@@ -318,23 +322,37 @@ class SettingsWindow(QDialog):
             opacity.setSuffix('%')
             opacity.setObjectName('%s:opacity' % window)
             appear_sl.addRow('Window Opacity (% 0-100)', opacity)
-            color_hbox = QHBoxLayout()
-            color_button = QPushButton('Set Color')
-            color_preview = QPushButton("")
-            color_preview.setObjectName('%s:color' % window)
-            color_hbox.addWidget(color_preview)
-            color_hbox.addWidget(color_button)
-            color_dialog = QColorDialog()
-            color_dialog.setObjectName('%s:color' % window)
-            color_dialog.setWindowTitle("Set %s Color" % window.title())
-            self._color_dialogs[window] = color_dialog
-            color_button.clicked.connect(functools.partial(
-                self.show_color_picker,
-                window=window, preview=color_preview))
-            color_preview.clicked.connect(functools.partial(
-                self.show_color_picker,
-                window=window, preview=color_preview))
-            appear_sl.addRow('Background Color', color_hbox)
+            if window == 'discord':
+                # Discord has a second opacity setting
+                bg_opacity = QSpinBox()
+                bg_opacity.setRange(0, 100)
+                bg_opacity.setSingleStep(5)
+                bg_opacity.setSuffix('%')
+                bg_opacity.setObjectName('%s:bg_opacity' % window)
+                appear_sl.addRow('Background Opacity (% 0-100)', bg_opacity)
+                # Color is also only discord for now
+                color_hbox = QHBoxLayout()
+                color_button = QPushButton('Set Color')
+                color_preview = QPushButton("")
+                color_preview.setObjectName('%s:color' % window)
+                color_hbox.addWidget(color_preview)
+                color_hbox.addWidget(color_button)
+                color_dialog = QColorDialog()
+                color_dialog.setObjectName('%s:color' % window)
+                color_dialog.setWindowTitle("Set %s Color" % window.title())
+                self._color_dialogs[window] = color_dialog
+                color_button.clicked.connect(functools.partial(
+                    self.show_color_picker,
+                    window=window, preview=color_preview))
+                color_preview.clicked.connect(functools.partial(
+                    self.show_color_picker,
+                    window=window, preview=color_preview))
+                appear_sl.addRow('Background Color', color_hbox)
+            enable_clickthrough = QCheckBox()
+            enable_clickthrough.setWhatsThis(WHATS_THIS_SHARING)
+            enable_clickthrough.setObjectName('%s:clickthrough' % window)
+            enable_clickthrough.setWhatsThis(WHATS_THIS_CLICKTHROUGH)
+            appear_sl.addRow('Enable Click-through', enable_clickthrough)
 
         appearance_settings.setLayout(appear_sl)
         stacked_widgets.append(('Appearance', appearance_settings))

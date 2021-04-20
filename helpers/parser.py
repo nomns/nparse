@@ -41,10 +41,17 @@ class ParserWindow(QFrame):
         button.clicked.connect(self._toggle_frame)
 
     def update_background_color(self):
+        return
         self.setStyleSheet("""
 #ParserWindow QFrame, #ParserWindowMenuReal, #ParserWindowMenuReal QPushButton
 {{
     background-color: {0};
+}}
+#ParserWindowMenu QPushButton:hover {{
+    background: darkgreen;
+}}
+#ParserWindowMenu QPushButton:checked {{
+    color: white;
 }}
 #ParserWindowMenu QSpinBox {{
     color:white;
@@ -69,7 +76,7 @@ class ParserWindow(QFrame):
             Qt.WindowStaysOnTopHint |
             Qt.WindowCloseButtonHint |
             Qt.WindowMinMaxButtonsHint)
-        if config.data['general']['clickthrough']:
+        if config.data[self.name]['clickthrough']:
             flags |= Qt.WindowTransparentForInput
         self.setWindowFlags(flags)
         if config.data[self.name]['toggled']:

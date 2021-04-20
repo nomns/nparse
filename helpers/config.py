@@ -62,10 +62,6 @@ def verify_settings():
         data['general'].get('update_check', True),
         True
     )
-    data['general']['clickthrough'] = get_setting(
-        data['general'].get('clickthrough', False),
-        False
-    )
 
     # sharing
     data['sharing'] = data.get('sharing', {})
@@ -172,6 +168,10 @@ def verify_settings():
         lambda x: (0 <= x <= 100)
         )
     data['maps']['color'] = data['maps'].get('color', '#000000')
+    data['maps']['clickthrough'] = get_setting(
+        data['maps'].get('clickthrough', False),
+        False
+    )
 
     # spells
     data['spells'] = data.get('spells', {})
@@ -237,6 +237,10 @@ def verify_settings():
         lambda x: (0 <= x <= 100)
         )
     data['spells']['color'] = data['spells'].get('color', '#000000')
+    data['spells']['clickthrough'] = get_setting(
+        data['spells'].get('clickthrough', False),
+        False
+    )
 
     # discord
     data['discord'] = data.get('discord', {})
@@ -264,7 +268,16 @@ def verify_settings():
         80,
         lambda x: (0 <= x <= 100)
         )
+    data['discord']['bg_opacity'] = get_setting(
+        data['discord'].get('bg_opacity', 25),
+        25,
+        lambda x: (0 <= x <= 100)
+        )
     data['discord']['color'] = data['discord'].get('color', '#000000')
+    data['discord']['clickthrough'] = get_setting(
+        data['discord'].get('clickthrough', False),
+        False
+    )
 
  
 def get_setting(setting, default, func=None):

@@ -104,15 +104,16 @@ class NomnsParse(QApplication):
     def _parse(self, new_line):
         if new_line:
             timestamp, text = new_line  # (datetime, text)
-            if text.startswith('toggle_clickthrough'):
-                config.data['general']['clickthrough'] = (
-                    not config.data['general']['clickthrough'])
-                self._set_clickthrough(config.data['general']['clickthrough'])
             #  don't send parse to non toggled items, except maps.  always parse maps
             for parser in self._parsers:
-                if text[:7] == 'toggle_' and text.split()[0][7:] == parser.name:
+                if text.startswith('toggle_clickthrough_%s' % parser.name):
+                    config.data[parser.name]['clickthrough'] = (
+                        not config.data[parser.name]['clickthrough'])
+                    config.save()
+                    parser.set_flags()
+                elif text.startswith('toggle_%s' % parser.name):
                     parser.toggle()
-                if config.data[parser.name]['toggled'] or parser.name == 'maps':
+                elif config.data[parser.name]['toggled'] or parser.name == 'maps':
                     parser.parse(timestamp, text)
 
     def _menu(self, event):
@@ -140,9 +141,6 @@ class NomnsParse(QApplication):
 
         menu.addSeparator()
         settings_action = menu.addAction('Settings')
-        clickthrough_action = menu.addAction('Click-through Windows')
-        clickthrough_action.setCheckable(True)
-        clickthrough_action.setChecked(config.data['general']['clickthrough'])
         menu.addSeparator()
         quit_action = menu.addAction('Quit')
 
@@ -163,10 +161,8 @@ class NomnsParse(QApplication):
             if self._settings.exec_():
                 # Update required settings
                 for parser in self._parsers:
-                    if round(parser.windowOpacity(), 2) != config.data[parser.name]['opacity'] / 100:
-                        parser.update_window_opacity()
-                        parser.settings_updated()
-                    parser.update_background_color()
+                    parser.set_flags()
+                    parser.settings_updated()
             # some settings are saved within other settings automatically
             # force update
             for parser in self._parsers:
@@ -192,15 +188,6 @@ class NomnsParse(QApplication):
             parser = [
                 parser for parser in self._parsers if parser.name == action.text().lower()][0]
             parser.toggle()
-
-        elif action == clickthrough_action:
-            self._set_clickthrough(action.isChecked())
-
-    def _set_clickthrough(self, clickthrough):
-        config.data['general']['clickthrough'] = clickthrough
-        config.save()
-        for parser in self._parsers:
-            parser.set_flags()
 
     def new_version_available(self):
         # this will only work if numbers go up
