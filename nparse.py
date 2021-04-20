@@ -33,7 +33,6 @@ class NomnsParse(QApplication):
     def __init__(self, *args):
         super().__init__(*args)
 
-
         # Updates
         self._toggled = False
         self._log_reader = None
@@ -158,6 +157,7 @@ class NomnsParse(QApplication):
                 self._toggle()
 
         elif action == settings_action:
+            self._settings._set_values()
             if self._settings.exec_():
                 # Update required settings
                 for parser in self._parsers:
