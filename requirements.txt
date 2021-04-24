@@ -1,6 +1,6 @@
 pyqt5
 websockets
-websocket-client-py3
+websocket-client
 requests
 websocket
 colorhash

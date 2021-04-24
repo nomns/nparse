@@ -33,6 +33,28 @@ CSS_SMALLER_AVATARS = (
     '    height: 20px !important;'
     '}'
 )
+CSS_MENU = """
+#ParserWindowMenu QPushButton:hover {{
+    background: darkgreen;
+}}
+#ParserWindowMenu QPushButton:checked {{
+    color: white;
+}}
+#ParserWindowMenu QPushButton {{
+    color: rgb(255, 255, 255, {alpha});
+}}
+#ParserWindowMenuReal {{
+    background-color:rgba({red},{green},{blue},{alpha})
+}}
+#ParserWindowMenuReal QPushButton {{
+    background-color:rgba({red},{green},{blue},0)
+}}
+#ParserWindowMoveButton {{
+    color: rgba(255,255,255,{alpha})
+}}
+#ParserWindowTitle {{
+    color: rgb(200, 200, 200, {alpha})
+}}"""
 HTML_NO_CONFIG = """
 <html><font color='lightgrey' size='5px'>
 Hover this window and click the gear icon to configure your Discord overlay.
@@ -77,7 +99,6 @@ class Discord(ParserWindow):
         qcolor = QColor(intcolor)
         bg_color_set = JS_ADD_CSS_TEMPLATE % {
             'name': 'bgcolor',
-            # 'new_css': "body { background-color: #ff000011 !important }"}
             'new_css': "body {{ background-color: rgba({red},{green},{blue},{alpha}) !important }}".format(
                 red=qcolor.red(),
                 green=qcolor.green(),
@@ -93,37 +114,11 @@ class Discord(ParserWindow):
         intcolor = int(hexcolor.replace('#', '0x'), 16)
         qcolor = QColor(intcolor)
         self._menu.setStyleSheet(
-            'background-color: %s' % hexcolor
-        )
-        self._menu.setStyleSheet(
-            """
-            #ParserWindowMenu QPushButton:hover {{
-                background: darkgreen;
-            }}
-            #ParserWindowMenu QPushButton:checked {{
-                color: white;
-            }}
-            #ParserWindowMenu QPushButton {{
-                color: rgb(255, 255, 255, {alpha2});
-            }}
-            #ParserWindowMenuReal {{
-                background-color:rgba({red},{green},{blue},{alpha})
-            }}
-            #ParserWindowMenuReal QPushButton {{
-                background-color:rgba({red},{green},{blue},0)
-            }}
-            #ParserWindowMoveButton {{
-                color: rgba(255,255,255,{alpha2})
-            }}
-            #ParserWindowTitle {{
-                color: rgb(200, 200, 200, {alpha2})
-            }}"""
-            .format(
+            CSS_MENU.format(
                 red=qcolor.red(),
                 green=qcolor.green(),
                 blue=qcolor.blue(),
-                alpha=opacity,
-                alpha2=opacity
+                alpha=opacity
             ))
 
     def update_window_opacity(self):
