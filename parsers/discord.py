@@ -185,11 +185,10 @@ class Discord(ParserWindow):
         frame.close()
 
     def _on_get_url(self, url):
-        self.url = url
-        self.overlay.load(QtCore.QUrl(url))
+        self.url = url.replace("true", "True")
+        self.overlay.load(QtCore.QUrl(self.url))
         self._applyTweaks()
-
-        config.data['discord']['url'] = url
+        config.data['discord']['url'] = self.url
         config.save()
 
     def _skip_stream_button(self, webview):
