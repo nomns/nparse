@@ -20,7 +20,7 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = '0.6.1'
+CURRENT_VERSION = '0.6.2-rc1'
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
@@ -63,10 +63,15 @@ class NomnsParse(QApplication):
             )
 
     def _load_parsers(self):
+        self._parsers_dict = {
+            "maps": parsers.Maps(),
+            "spells": parsers.Spells(),
+            "discord": parsers.Discord(),
+        }
         self._parsers = [
-            parsers.Maps(),
-            parsers.Spells(),
-            parsers.Discord(),
+            self._parsers_dict["maps"],
+            self._parsers_dict["spells"],
+            self._parsers_dict["discord"],
         ]
         for parser in self._parsers:
             if parser.name in config.data.keys() and 'geometry' in config.data[parser.name].keys():
@@ -140,6 +145,7 @@ class NomnsParse(QApplication):
 
         menu.addSeparator()
         settings_action = menu.addAction('Settings')
+        discord_conf_action = menu.addAction('Configure Discord')
         menu.addSeparator()
         quit_action = menu.addAction('Quit')
 
@@ -168,6 +174,9 @@ class NomnsParse(QApplication):
             for parser in self._parsers:
                 if parser.name == "spells":
                     parser.load_custom_timers()
+
+        elif action == discord_conf_action:
+            self._parsers_dict["discord"].show_settings()
 
         elif action == quit_action:
             if self._toggled:
