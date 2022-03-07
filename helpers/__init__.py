@@ -97,6 +97,6 @@ def text_time_to_seconds(text_time):
     except IndexError:
         pass
     except ValueError:
-        return
+        pass
 
     return timedelta(hours=hours, minutes=minutes, seconds=seconds).total_seconds()
