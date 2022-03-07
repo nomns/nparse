@@ -76,10 +76,12 @@ class Player(QGraphicsItemGroup):
             self.icon = QGraphicsPixmapItem(
                 QPixmap('data/maps/user.png')
             )
+            self.setZValue(15)
         else:
             self.icon = QGraphicsPixmapItem(
                 QPixmap('data/maps/otheruser.png')
             )
+            self.setZValue(10)
         self.icon.setOffset(-10, -10)
         self.directional = QGraphicsPixmapItem(
             QPixmap('data/maps/directional.png')
@@ -91,7 +93,6 @@ class Player(QGraphicsItemGroup):
         self.addToGroup(self.icon)
         self.addToGroup(self.directional)
         self.addToGroup(self.nametag)
-        self.setZValue(10)
         self.z_level = 0
         self.color = colorhash.ColorHash(self.name)
 
