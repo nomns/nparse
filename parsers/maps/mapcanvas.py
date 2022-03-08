@@ -339,28 +339,26 @@ class MapCanvas(QGraphicsView):
         # parse response
 
         if action == spawn_point_create:
-            spawn_time = text_time_to_seconds('6:40')
             dialog = QInputDialog(self)
             dialog.setWindowTitle('Create Spawn Point')
             dialog.setLabelText('Respawn Time (hh:mm:ss):')
-            dialog.setTextValue('6:40')
+            dialog.setTextValue(self._data.get_default_spawn_timer())
 
             if dialog.exec_():
                 spawn_time = text_time_to_seconds(dialog.textValue())
+                spawn = SpawnPoint(
+                    location=MapPoint(
+                        x=pos.x(),
+                        y=pos.y(),
+                        z=self._data.geometry.z_groups[self._z_index]
+                    ),
+                    length=spawn_time
+                )
+
+                self._scene.addItem(spawn)
+                self._data.spawns.append(spawn)
+                spawn.start()
             dialog.deleteLater()
-
-            spawn = SpawnPoint(
-                location=MapPoint(
-                    x=pos.x(),
-                    y=pos.y(),
-                    z=self._data.geometry.z_groups[self._z_index]
-                ),
-                length=spawn_time
-            )
-
-            self._scene.addItem(spawn)
-            self._data.spawns.append(spawn)
-            spawn.start()
 
         if action == spawn_point_delete:
             pixmap = self._scene.itemAt(

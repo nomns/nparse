@@ -1,3 +1,4 @@
+import csv
 import math
 import pathlib
 from collections import Counter
@@ -10,6 +11,7 @@ from helpers import config
 from .mapclasses import MapPoint, MapGeometry, MapLine, PointOfInterest
 
 MAP_KEY_FILE = 'data/maps/map_keys.ini'
+MAP_SPAWNTIMES_FILE = 'data/maps/map_timers.csv'
 MAP_FILES_LOCATION = 'data/maps/map_files'
 MAP_FILES_PATHLIB = pathlib.Path(MAP_FILES_LOCATION)
 
@@ -186,6 +188,11 @@ class MapData(dict):
             z_groups=z_groups
         )
 
+        # Load Spawn Timer Pairs from map_timers.csv
+        with open(MAP_SPAWNTIMES_FILE, 'r') as file:
+            reader = csv.reader(file)
+            self.spawn_timer_dict = dict(reader)
+
     def get_closest_z_group(self, z):
         closest = min(self._z_groups, key=lambda x: abs(x - z))
         if z < closest:
@@ -203,6 +210,10 @@ class MapData(dict):
                 values = line.split('=')
                 zone_dict[values[0].strip()] = values[1].strip()
         return zone_dict
+
+    def get_default_spawn_timer(self):
+        short_zone = MapData.get_zone_dict()[self.zone.strip().lower()]
+        return self.spawn_timer_dict.get(short_zone, '6:40')
 
     @staticmethod
     def color_transform(color):
