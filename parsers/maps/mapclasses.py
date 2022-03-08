@@ -194,6 +194,37 @@ class MapPoint:
         self.__dict__.update(kwargs)
 
 
+class UserWaypoint(QGraphicsItemGroup):
+    def __init__(self, name, icon, location):
+        super().__init__()
+        self.location = location
+        self.name = name
+        self.z_level = 0
+        self.color = colorhash.ColorHash(self.name)
+
+        self.pixmap = QGraphicsPixmapItem(QPixmap(icon))
+        self.pixmap.setOffset(-10, -10)
+        self.text = QGraphicsTextItem()
+        self.text.setHtml(
+            "<font color='{}' size='{}'>{}</font>".format(
+                self.color.hex,
+                5,
+                self.name
+            )
+        )
+        self.text.setPos(10, -15)
+        self.setToolTip(self.name)
+
+        self.addToGroup(self.pixmap)
+        self.addToGroup(self.text)
+        self.setPos(self.location.x, self.location.y)
+
+        self.setZValue(12)
+
+    def update_(self, scale):
+        self.setScale(scale)
+
+
 class WayPoint:
 
     def __init__(self, **kwargs):

@@ -14,6 +14,7 @@ MAP_KEY_FILE = 'data/maps/map_keys.ini'
 MAP_SPAWNTIMES_FILE = 'data/maps/map_timers.csv'
 MAP_FILES_LOCATION = 'data/maps/map_files'
 MAP_FILES_PATHLIB = pathlib.Path(MAP_FILES_LOCATION)
+ICON_MAP = {'corpse': 'data/maps/spawn.png'}
 
 
 class MapData(dict):
@@ -25,6 +26,7 @@ class MapData(dict):
         self.geometry = None  # MapGeometry
         self.players = {}
         self.spawns = []
+        self.waypoints = {}
         self.way_point = None
         self.grid = None
 

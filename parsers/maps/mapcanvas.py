@@ -14,8 +14,8 @@ from PyQt5.QtWidgets import (QGraphicsScene, QGraphicsView, QInputDialog,
 from helpers import config, to_range, text_time_to_seconds
 
 from .mapclasses import (MapPoint, WayPoint, Player, SpawnPoint, MouseLocation,
-                         PointOfInterest, MapLine)
-from .mapdata import MapData, MAP_FILES_PATHLIB
+                         PointOfInterest, UserWaypoint)
+from .mapdata import MapData, MAP_FILES_PATHLIB, ICON_MAP
 
 
 class MapCanvas(QGraphicsView):
@@ -175,6 +175,17 @@ class MapCanvas(QGraphicsView):
             else:
                 self._data.way_point.pixmap.setOpacity(current_alpha)
 
+        # user waypoints
+        for waypoint in self._data.waypoints.values():
+            waypoint.update_(self.to_scale())
+            if config.data['maps']['use_z_layers']:
+                if waypoint.z_level == current_z_level:
+                    waypoint.setOpacity(current_alpha)
+                else:
+                    waypoint.setOpacity(other_alpha)
+            else:
+                waypoint.setOpacity(current_alpha)
+
         # spawns
         for spawn in self._data.spawns:
             spawn.setScale(self.to_scale())
@@ -248,7 +259,27 @@ class MapCanvas(QGraphicsView):
 
         if name == '__you__' and config.data['maps']['auto_follow']:
             self.center()
-    
+
+    def remove_waypoint(self, name):
+        waypoint = self._data.waypoints.pop(name)
+        if waypoint:
+            self._scene.removeItem(waypoint)
+
+    def add_waypoint(self, name, location, icon):
+        if name not in self._data.waypoints:
+            self._data.waypoints[name] = UserWaypoint(
+                name=name.rsplit(":", 1)[0],
+                icon=ICON_MAP.get(icon, 'data/maps/waypoint.png'),
+                location=location
+            )
+            self._scene.addItem(self._data.waypoints[name])
+
+        self._data.waypoints[name].z_level = self._data.get_closest_z_group(
+            self._data.waypoints[name].location.z
+        )
+
+        self.update_()
+
     def enterEvent(self, event):
         if config.data['maps']['show_mouse_location']:
             self._mouse_location.setVisible(True)

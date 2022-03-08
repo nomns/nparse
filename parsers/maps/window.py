@@ -96,8 +96,23 @@ class Maps(ParserWindow):
                 self._map.rename_path_recording(new_name=recording_name)
         elif text[:14] == "stop_recording":
             self._map.stop_path_recording()
+        elif text[:19] == "You have been slain":
+            if location_service.get_location_service_connection().enabled:
+                share_payload = {
+                    'x': self._map._data.players['__you__'].location.x,
+                    'y': self._map._data.players['__you__'].location.y,
+                    'z': self._map._data.players['__you__'].location.z,
+                    'zone': self._map._data.zone,
+                    'player': config.data['sharing']['player_name'],
+                    'timestamp': timestamp.isoformat(),
+                    'timeout': 60,
+                    'icon': 'corpse'
+                }
+                location_service.SIGNALS.death.emit(share_payload)
 
-    def update_locs(self, locations):
+    def update_locs(self, locations, waypoints):
+        print(f"Locations: {locations}")
+        print(f"Waypoints: {waypoints}")
         for zone in locations:
             # Check which *map is loaded*, not character zone
             if zone != self._map._data.zone.lower():
@@ -121,6 +136,25 @@ class Maps(ParserWindow):
                     players_to_remove.append(player)
             for player in players_to_remove:
                 self._map.remove_player(player)
+        for zone in waypoints:
+            # Check which *map is loaded*, not character zone
+            if zone != self._map._data.zone.lower():
+                continue
+            for waypoint in waypoints[zone]:
+                print("waypoint found: %s" % waypoint)
+                w_data = waypoints[zone][waypoint]
+                w_point = MapPoint(
+                    x=w_data['x'], y=w_data['y'], z=w_data['z'])
+                w_icon = w_data.get('icon')
+                self._map.add_waypoint(waypoint, w_point, w_icon)
+
+            # Remove waypoints that aren't in the zone
+            waypoints_to_remove = []
+            for waypoint in self._map._data.waypoints:
+                if waypoint not in waypoints[zone]:
+                    waypoints_to_remove.append(waypoint)
+            for waypoint in waypoints_to_remove:
+                self._map.remove_waypoint(waypoint)
 
     # events
     def _toggle_show_poi(self, _):

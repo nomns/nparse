@@ -18,8 +18,9 @@ logger.setLevel(logging.WARNING)
 
 
 class LocationSignals(QObject):
-    locs_recieved = pyqtSignal(dict)
+    locs_recieved = pyqtSignal(dict, dict)
     send_loc = pyqtSignal(dict)
+    death = pyqtSignal(dict)
     config_updated = pyqtSignal()
 
 
@@ -77,6 +78,7 @@ class LocationServiceConnection(QRunnable):
         except TypeError:
             pass
         SIGNALS.send_loc.connect(self.send_loc)
+        SIGNALS.death.connect(self.player_death)
 
     def configure_socket(self):
         if self._socket:
@@ -111,19 +113,35 @@ class LocationServiceConnection(QRunnable):
             if RUN:
                 time.sleep(self.reconnect_delay)
 
-    def send_loc(self, loc):
-        if not self.enabled:
-            return
-        group_key = config.data['sharing']['group_key']
+    @property
+    def group_key(self):
+        key = config.data['sharing']['group_key']
         if config.data['sharing']['discord_channel']:
             try:
-                group_key = config.data['discord']['url'].split('?')[0].split('/')[-1]
+                key = config.data['discord']['url'].split('?')[0].split('/')[-1]
             except:
                 print("Failed to parse discord channel ID, falling back to "
                       "configured group_key.")
+        return key
+
+    def send_loc(self, loc):
+        if not self.enabled:
+            return
 
         message = {'type': "location",
-                   'group_key': group_key,
+                   'group_key': self.group_key,
+                   'location': loc}
+        try:
+            self._socket.send(json.dumps(message))
+        except:
+            print("Unable to send location to server.")
+
+    def player_death(self, loc):
+        if not self.enabled:
+            return
+
+        message = {'type': "waypoint",
+                   'group_key': self.group_key,
                    'location': loc}
         try:
             self._socket.send(json.dumps(message))
@@ -134,7 +152,8 @@ class LocationServiceConnection(QRunnable):
         message = json.loads(message)
         if message['type'] == "state":
             print("Message received: %s" % message)
-            SIGNALS.locs_recieved.emit(message['locations'])
+            SIGNALS.locs_recieved.emit(message['locations'],
+                                       message.get('waypoints', {}))
 
     def _on_error(self, ws, error):
         print("Connection error: %s" % error)
