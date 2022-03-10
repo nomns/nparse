@@ -1,11 +1,15 @@
 """Map parser for nparse."""
 import datetime
+import re
+
 from PyQt5.QtWidgets import QHBoxLayout, QPushButton
 
 from helpers import config, to_real_xy, ParserWindow, location_service
 
 from .mapcanvas import MapCanvas
 from .mapclasses import MapPoint
+
+ZONE_MATCHER = re.compile(r"There (is|are) \d+ players? in (?P<zone>[\w ]+).")
 
 
 class Maps(ParserWindow):
@@ -56,18 +60,19 @@ class Maps(ParserWindow):
 
         if config.data['maps']['last_zone']:
             self._map.load_map(config.data['maps']['last_zone'])
-            self.zone_name = config.data['maps']['last_zone']
         else:
             self._map.load_map('west freeport')
-            self.zone_name = 'west freeport'
         location_service.start_location_service(self.update_locs)
 
     def parse(self, timestamp, text):
         if text[:23] == 'LOADING, PLEASE WAIT...':
             pass
         elif text[:16] == 'You have entered':
-            self.zone_name = text[17:-1]
-            self._map.load_map(self.zone_name)
+            self._map.load_map(text[17:-1])
+        elif ZONE_MATCHER.match(text):
+            new_zone = ZONE_MATCHER.match(text).groupdict()['zone']
+            if new_zone.lower() != self._map._data.zone:
+                self._map.load_map(new_zone)
         elif text[:16] == 'Your Location is':
             x, y, z = [float(value) for value in text[17:].strip().split(',')]
             x, y = to_real_xy(x, y)
