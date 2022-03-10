@@ -37,9 +37,15 @@ class LogReader(QFileSystemWatcher):
     def _file_changed(self, changed_file):
         if changed_file != self._stats['log_file']:
             self._stats['log_file'] = changed_file
-            with open(self._stats['log_file']) as log:
+            with open(self._stats['log_file'], 'rb') as log:
                 log.seek(0, os.SEEK_END)
-                self._stats['last_read'] = log.tell()
+                current_end = log.tell()
+                log.seek(max(log.tell() - 500, 0), os.SEEK_SET)
+                for line in log:
+                    if line.endswith(b'] Welcome to EverQuest!\r\n'):
+                        break
+                self._stats['last_read'] = min(log.tell(), current_end)
+
         with open(self._stats['log_file']) as log:
             try:
                 log.seek(self._stats['last_read'], os.SEEK_SET)
