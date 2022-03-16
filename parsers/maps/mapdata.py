@@ -11,6 +11,7 @@ from helpers import config
 from .mapclasses import MapPoint, MapGeometry, MapLine, PointOfInterest
 
 MAP_KEY_FILE = 'data/maps/map_keys.ini'
+MAP_KEY_FILE_WHO = 'data/maps/map_keys_who.ini'
 MAP_SPAWNTIMES_FILE = 'data/maps/map_timers.csv'
 MAP_FILES_LOCATION = 'data/maps/map_files'
 MAP_FILES_PATHLIB = pathlib.Path(MAP_FILES_LOCATION)
@@ -35,7 +36,12 @@ class MapData(dict):
 
     def _load(self):
         # Get list of all map files for current zone
-        map_file_name = MapData.get_zone_dict()[self.zone.strip().lower()]
+        try:
+            map_file_name = MapData.get_zone_dict()[
+                self.zone.strip().lower()]
+        except KeyError:
+            map_file_name = MapData.get_zone_dict_who()[
+                self.zone.strip().lower()]
         maps = MAP_FILES_PATHLIB.glob(
             '**/{zone}*.txt'.format(zone=map_file_name))
 
@@ -208,6 +214,16 @@ class MapData(dict):
         # Load Map Pairs from map_keys.ini
         zone_dict = {}
         with open(MAP_KEY_FILE, 'r') as file:
+            for line in file.readlines():
+                values = line.split('=')
+                zone_dict[values[0].strip()] = values[1].strip()
+        return zone_dict
+
+    @staticmethod
+    def get_zone_dict_who():
+        # Load Map Pairs from map_keys.ini
+        zone_dict = {}
+        with open(MAP_KEY_FILE_WHO, 'r') as file:
             for line in file.readlines():
                 values = line.split('=')
                 zone_dict[values[0].strip()] = values[1].strip()

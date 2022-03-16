@@ -71,7 +71,7 @@ class Maps(ParserWindow):
             self._map.load_map(text[17:-1])
         elif ZONE_MATCHER.match(text):
             new_zone = ZONE_MATCHER.match(text).groupdict()['zone']
-            if new_zone.lower() != self._map._data.zone:
+            if new_zone.lower() != self._map._data.zone.lower():
                 self._map.load_map(new_zone)
         elif text[:16] == 'Your Location is':
             x, y, z = [float(value) for value in text[17:].strip().split(',')]
