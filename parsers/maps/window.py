@@ -8,8 +8,9 @@ from helpers import config, to_real_xy, ParserWindow, location_service
 
 from .mapcanvas import MapCanvas
 from .mapclasses import MapPoint
+from .mapdata import MapData
 
-ZONE_MATCHER = re.compile(r"There (is|are) \d+ players? in (?P<zone>[\w ]+).")
+ZONE_MATCHER = re.compile(r"There (is|are) \d+ players? in (?P<zone>.+)\.")
 
 
 class Maps(ParserWindow):
@@ -70,8 +71,9 @@ class Maps(ParserWindow):
         elif text[:16] == 'You have entered':
             self._map.load_map(text[17:-1])
         elif ZONE_MATCHER.match(text):
-            new_zone = ZONE_MATCHER.match(text).groupdict()['zone']
-            if new_zone.lower() != self._map._data.zone.lower():
+            new_zone = ZONE_MATCHER.match(text).groupdict()['zone'].lower()
+            new_zone = MapData.translate_who_zone(new_zone)
+            if new_zone != self._map._data.zone.lower():
                 self._map.load_map(new_zone)
         elif text[:16] == 'Your Location is':
             x, y, z = [float(value) for value in text[17:].strip().split(',')]

@@ -36,12 +36,7 @@ class MapData(dict):
 
     def _load(self):
         # Get list of all map files for current zone
-        try:
-            map_file_name = MapData.get_zone_dict()[
-                self.zone.strip().lower()]
-        except KeyError:
-            map_file_name = MapData.get_zone_dict_who()[
-                self.zone.strip().lower()]
+        map_file_name = MapData.get_zone_dict()[self.zone.strip().lower()]
         maps = MAP_FILES_PATHLIB.glob(
             '**/{zone}*.txt'.format(zone=map_file_name))
 
@@ -220,17 +215,20 @@ class MapData(dict):
         return zone_dict
 
     @staticmethod
-    def get_zone_dict_who():
+    def translate_who_zone(zone_name):
         # Load Map Pairs from map_keys.ini
         zone_dict = {}
         with open(MAP_KEY_FILE_WHO, 'r') as file:
             for line in file.readlines():
                 values = line.split('=')
                 zone_dict[values[0].strip()] = values[1].strip()
-        return zone_dict
+        return zone_dict.get(zone_name, zone_name)
 
     def get_default_spawn_timer(self):
-        short_zone = MapData.get_zone_dict()[self.zone.strip().lower()]
+        try:
+            short_zone = MapData.get_zone_dict().get(self.zone.strip().lower())
+        except KeyError:
+            short_zone = None
         return self.spawn_timer_dict.get(short_zone, '6:40')
 
     @staticmethod
