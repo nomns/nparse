@@ -218,6 +218,10 @@ def verify_settings():
         data['spells'].get('use_casting_window', True),
         True
         )
+    data['spells']['use_item_triggers'] = get_setting(
+        data['spells'].get('use_item_triggers', False),
+        False
+        )
     data['spells']['use_custom_triggers'] = get_setting(
         data['spells'].get('use_custom_triggers', True),
         True

@@ -32,6 +32,11 @@ on Red.  Using the 'PvP Duration' will use the secondary timers for non benefici
 durations for all good buffs.
 """.replace('\n', ' ')
 
+WHATS_THIS_ITEM_TRIGGERS = """Certain items don't have a casting message, which prevents them from registering. Enabling
+this option allows nParse to attempt to catch these spells anyway. This may also cause nParse to detect spells cast on
+you by other players.
+""".replace('\n', ' ')
+
 WHATS_THIS_SHARING = """Your location can be shared with others via a central location server. If you enable this, you
 agree to send and receive location data via a third-party server. The only data other players can see is the display
 name you provide and the zone+loc you send. Nothing personally identifiable will be visible beyond what you provide.
@@ -217,6 +222,10 @@ class SettingsWindow(QDialog):
         ssl_secondary_duration.setWhatsThis(WHATS_THIS_PVP_DURATION)
         ssl_secondary_duration.setObjectName('spells:use_secondary_all')
         ssl.addRow('Use PvP Durations', ssl_secondary_duration)
+        ssl_item_trigger_mode = QCheckBox()
+        ssl_item_trigger_mode.setWhatsThis(WHATS_THIS_ITEM_TRIGGERS)
+        ssl_item_trigger_mode.setObjectName('spells:use_item_triggers')
+        ssl.addRow('Permissive Item Triggers', ssl_item_trigger_mode)
         spells_settings.setLayout(ssl)
 
         stacked_widgets.append(('Spells', spells_settings))
