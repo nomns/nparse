@@ -5,9 +5,7 @@ import os
 
 import pathvalidate
 from PyQt5.QtCore import Qt
-# , QRegularExpression
 from PyQt5.QtGui import QPainter, QTransform, QColor, QPen
-# , QRegularExpressionValidator
 from PyQt5.QtWidgets import (QGraphicsScene, QGraphicsView, QInputDialog,
                              QMenu, QLineEdit, QAction, QGraphicsPathItem)
 
@@ -534,21 +532,6 @@ class MapCanvas(QGraphicsView):
                 print("Failed to open renamed path recording file: %s" % e)
                 self._path_recording = False
                 return
-
-        # This is ... broken
-        # path_name_editor = QLineEdit()
-        # path_name_valid_regex = QRegularExpression(r"^\w+$")
-        # path_name_validator = QRegularExpressionValidator(
-        #     path_name_valid_regex, path_name_editor)
-        # path_name_editor.setValidator(path_name_validator)
-        #
-        # dialog = QInputDialog(self)
-        # dialog.setWindowTitle('Rename Path')
-        # dialog.setLabelText('New path name:')
-        #
-        # if dialog.exec_():
-        #     self._path_recording_name = dialog.textValue()
-        # dialog.deleteLater()
 
     def stop_path_recording(self):
         print("Stop recording!")

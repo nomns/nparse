@@ -11,7 +11,7 @@ from .parser import ParserWindow  # noqa: F401
 def get_version():
     version = None
     try:
-        r = requests.get('http://nparse.nomns.com/info/version')
+        r = requests.get('http://sheeplauncher.net/~adam/nparse_version.json')
         version = json.loads(r.text)['version']
     except:
         pass

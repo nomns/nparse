@@ -20,9 +20,8 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = '0.6.3'
-# Disable the update check for now until I do a release and update with nomns
-if config.data['general']['update_check'] and False:
+CURRENT_VERSION = '0.6.4'
+if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
     ONLINE_VERSION = CURRENT_VERSION
