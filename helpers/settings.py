@@ -34,12 +34,13 @@ durations for all good buffs.
 
 WHATS_THIS_ITEM_TRIGGERS = """Certain items don't have a casting message, which prevents them from registering. Enabling
 this option allows nParse to attempt to catch these spells anyway. This may also cause nParse to detect spells cast on
-you by other players.
+you by other players. WARNING: This option is very buggy. Use it at your own risk, and only if you absolutely need item
+spell durations at all costs. There will be other strange behavior.
 """.replace('\n', ' ')
 
 WHATS_THIS_SHARING = """Your location can be shared with others via a central location server. If you enable this, you
-agree to send and receive location data via a third-party server. The only data other players can see is the display
-name you provide and the zone+loc you send. Nothing personally identifiable will be visible beyond what you provide.
+agree to send and receive location data via a third-party server. The only data other players can see is your character
+name and the zone+loc you send. Nothing personally identifiable will be visible beyond this.
 """.replace('\n', ' ')
 
 WHATS_THIS_SHARING_DISCORD = """Automatically share with other users in your configured discord channel.
@@ -288,6 +289,7 @@ class SettingsWindow(QDialog):
             'Display Name',
             sharing_player_name
         )
+        sharing_player_name.setDisabled(True)
 
         sharing_hostname = QLineEdit()
         sharing_hostname.setObjectName('sharing:url')

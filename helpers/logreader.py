@@ -4,6 +4,7 @@ from glob import glob
 
 from PyQt5.QtCore import QFileSystemWatcher, pyqtSignal
 
+from helpers import config
 from helpers import strip_timestamp
 
 
@@ -37,10 +38,12 @@ class LogReader(QFileSystemWatcher):
     def _file_changed(self, changed_file):
         if changed_file != self._stats['log_file']:
             self._stats['log_file'] = changed_file
+            char_name = os.path.basename(changed_file).split("_")[1]
+            config.data['sharing']['player_name'] = char_name
             with open(self._stats['log_file'], 'rb') as log:
                 log.seek(0, os.SEEK_END)
                 current_end = log.tell()
-                log.seek(max(log.tell() - 500, 0), os.SEEK_SET)
+                log.seek(max(log.tell() - 1000, 0), os.SEEK_SET)
                 for line in log:
                     if line.endswith(b'] Welcome to EverQuest!\r\n'):
                         break
