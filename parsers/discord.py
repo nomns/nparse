@@ -218,6 +218,11 @@ class Discord(ParserWindow):
             "for(i=0;i<labels.length;i++){"
             "   if(labels[i].innerHTML=='Small Avatars'){"
             "       labels[i].parentElement.getElementsByClassName('switch')[0].click()}}")
+        toggleSpeakingOnly = (
+            "labels = document.getElementsByTagName('label');"
+            "for(i=0;i<labels.length;i++){"
+            "   if(labels[i].innerHTML=='Show Speaking Users Only'){"
+            "       labels[i].parentElement.getElementsByClassName('switch')[0].click()}}")
         webview.page().runJavaScript(skipIntro)
         webview.page().runJavaScript(hideHeader)
         webview.page().runJavaScript(resizeContents)
@@ -225,6 +230,7 @@ class Discord(ParserWindow):
         webview.page().runJavaScript(hideClose)
         webview.page().runJavaScript(chooseVoice)
         webview.page().runJavaScript(toggleSmallAvatars)
+        webview.page().runJavaScript(toggleSpeakingOnly)
 
     def parse(self, timestamp, text):
         pass
