@@ -5,6 +5,7 @@ from glob import glob
 from PyQt5.QtCore import QFileSystemWatcher, pyqtSignal
 
 from helpers import config
+from helpers import location_service
 from helpers import strip_timestamp
 
 
@@ -39,7 +40,9 @@ class LogReader(QFileSystemWatcher):
         if changed_file != self._stats['log_file']:
             self._stats['log_file'] = changed_file
             char_name = os.path.basename(changed_file).split("_")[1]
-            config.data['sharing']['player_name'] = char_name
+            if not config.data['sharing']['player_name_override']:
+                config.data['sharing']['player_name'] = char_name
+                location_service.SIGNALS.config_updated.emit()
             with open(self._stats['log_file'], 'rb') as log:
                 log.seek(0, os.SEEK_END)
                 current_end = log.tell()

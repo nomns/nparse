@@ -69,6 +69,10 @@ def verify_settings():
         data['sharing'].get('player_name', "ConfigureMe"),
         "ConfigureMe"
     )
+    data['sharing']['player_name_override'] = get_setting(
+        data['sharing'].get('player_name_override', False),
+        False
+    )
     data['sharing']['url'] = get_setting(
         data['sharing'].get('url', "ws://sheeplauncher.net:8424"),
         "ws://sheeplauncher.net:8424",

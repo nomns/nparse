@@ -151,6 +151,9 @@ class SettingsWindow(QDialog):
                     if key1 == 'sharing' and key2 == 'discord_channel' \
                             and config.data[key1][key2]:
                         self.sharing_group_key.setDisabled(True)
+                    if key1 == 'sharing' and key2 == 'player_name_override' \
+                            and not config.data[key1][key2]:
+                        self.sharing_player_name.setDisabled(True)
                 elif wt == QSpinBox:
                     key1, key2 = widget.objectName().split(':')
                     widget.setValue(config.data[key1][key2])
@@ -283,13 +286,24 @@ class SettingsWindow(QDialog):
         enable_sharing.setObjectName('sharing:enabled')
         shsl.addRow('Enable Sharing', enable_sharing)
 
-        sharing_player_name = QLineEdit()
-        sharing_player_name.setObjectName('sharing:player_name')
+        self.sharing_player_name = QLineEdit()
+        self.sharing_player_name.setObjectName('sharing:player_name')
         shsl.addRow(
             'Display Name',
-            sharing_player_name
+            self.sharing_player_name
         )
-        sharing_player_name.setDisabled(True)
+
+        sharing_player_name_override = QCheckBox()
+        sharing_player_name_override.setObjectName(
+            'sharing:player_name_override')
+        shsl.addRow(
+            'Display Name Override',
+            sharing_player_name_override
+        )
+        sharing_player_name_override.clicked.connect(
+            functools.partial(self._dynamic_field_toggle,
+                              sharing_player_name_override,
+                              self.sharing_player_name, True))
 
         sharing_hostname = QLineEdit()
         sharing_hostname.setObjectName('sharing:url')
@@ -309,9 +323,9 @@ class SettingsWindow(QDialog):
         sharing_discord_channel.setWhatsThis(WHATS_THIS_SHARING_DISCORD)
         shsl.addRow('Use Discord Channel', sharing_discord_channel)
         sharing_discord_channel.clicked.connect(
-            functools.partial(self._sharing_channel_checked,
+            functools.partial(self._dynamic_field_toggle,
                               sharing_discord_channel,
-                              self.sharing_group_key))
+                              self.sharing_group_key, False))
 
         sharing_reconnect_delay = QSpinBox()
         sharing_reconnect_delay.setRange(1, 300)
@@ -386,12 +400,11 @@ class SettingsWindow(QDialog):
         dialog = CustomTriggerSettings()
         dialog.exec()
 
-    def _sharing_channel_checked(self, sharing_discord_channel,
-                                 sharing_group_key):
-        if sharing_discord_channel.isChecked():
-            sharing_group_key.setDisabled(True)
+    def _dynamic_field_toggle(self, toggle_field, dynamic_field, invert=False):
+        if toggle_field.isChecked():
+            dynamic_field.setDisabled(False if invert else True)
         else:
-            sharing_group_key.setDisabled(False)
+            dynamic_field.setDisabled(True if invert else False)
 
 
 class SettingsHeader(QLabel):
