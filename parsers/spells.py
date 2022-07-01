@@ -126,7 +126,7 @@ class Spells(ParserWindow):
               text[:26] == 'You try to cast a spell on'):
             self._remove_spell_trigger()
 
-            # Elongate self buff timers by time zoning
+        # Elongate self buff timers by time zoning
         elif text[:23] == 'LOADING, PLEASE WAIT...':
             self._spell_triggered()
             self._remove_spell_trigger()
@@ -138,12 +138,16 @@ class Spells(ParserWindow):
                     spell_widget.pause()
         elif self._zoning and text[:16] == 'You have entered':
             delay = (timestamp - self._zoning).total_seconds()
-            spell_target = self._spell_container.get_spell_target_by_name(
-                '__you__')
-            if spell_target:
-                for spell_widget in spell_target.spell_widgets():
-                    spell_widget.elongate(delay)
-                    spell_widget.resume()
+            # If zoning took longer than like two minutes, likely false alarm
+            if delay > 120:
+                self._zoning = None
+            else:
+                spell_target = self._spell_container.get_spell_target_by_name(
+                    '__you__')
+                if spell_target:
+                    for spell_widget in spell_target.spell_widgets():
+                        spell_widget.elongate(delay)
+                        spell_widget.resume()
 
     def _remove_spell_trigger(self):
         if self._spell_trigger:
