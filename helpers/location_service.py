@@ -77,6 +77,10 @@ class LocationServiceConnection(QRunnable):
             SIGNALS.send_loc.disconnect()
         except TypeError:
             pass
+        try:
+            SIGNALS.death.disconnect()
+        except TypeError:
+            pass
         SIGNALS.send_loc.connect(self.send_loc)
         SIGNALS.death.connect(self.player_death)
 

@@ -104,7 +104,8 @@ class Maps(ParserWindow):
         elif text[:14] == "stop_recording":
             self._map.stop_path_recording()
         elif text[:19] == "You have been slain":
-            if location_service.get_location_service_connection().enabled:
+            if (location_service.get_location_service_connection().enabled and
+                    '__you__' in self._map._data.players):
                 share_payload = {
                     'x': self._map._data.players['__you__'].location.x,
                     'y': self._map._data.players['__you__'].location.y,
