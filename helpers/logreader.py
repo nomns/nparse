@@ -19,7 +19,7 @@ class LogReader(QFileSystemWatcher):
         self._eq_directory = eq_directory
         self._files = glob(os.path.join(eq_directory, 'eqlog*.txt'))
         self._watcher = QFileSystemWatcher(self._files)
-        self._watcher.fileChanged.connect(self._file_changed)
+        self._watcher.fileChanged.connect(self._file_changed_safe_wrap)
         self._dir_watcher = QFileSystemWatcher([eq_directory])
         self._dir_watcher.directoryChanged.connect(self._dir_changed)
 
@@ -35,6 +35,12 @@ class LogReader(QFileSystemWatcher):
             updated_files = set(new_files) - set(self._files)
             self._watcher.addPaths(updated_files)
             self._files = new_files
+
+    def _file_changed_safe_wrap(self, changed_file):
+        try:
+            self._file_changed(changed_file)
+        except FileNotFoundError:
+            print("File not found: %s; did it move?")
 
     def _file_changed(self, changed_file):
         if changed_file != self._stats['log_file']:
