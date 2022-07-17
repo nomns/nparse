@@ -1,0 +1,7 @@
+pyqt5==5.15.4
+websockets==8.1
+websocket-client==0.58.0
+requests
+colorhash
+pathvalidate
+PyQtWebEngine

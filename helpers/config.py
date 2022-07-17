@@ -49,19 +49,51 @@ def verify_settings():
         data['general'].get('eq_log_dir', ''),
         ''
         )
-    data['general']['parser_opacity'] = get_setting(
-        data['general'].get('parser_opacity', 80),
-        80,
-        lambda x: (x > 0 and x <= 100)
-        )
+    data['general']['window_flush'] = get_setting(
+        data['general'].get('window_flush', True),
+        True
+    )
     data['general']['qt_scale_factor'] = get_setting(
         data['general'].get('qt_scale_factor', 100),
         100,
-        lambda x: (x >= 100 and x <= 300)
+        lambda x: (100 <= x <= 300)
         )
     data['general']['update_check'] = get_setting(
         data['general'].get('update_check', True),
         True
+    )
+
+    # sharing
+    data['sharing'] = data.get('sharing', {})
+    data['sharing']['player_name'] = get_setting(
+        data['sharing'].get('player_name', "ConfigureMe"),
+        "ConfigureMe"
+    )
+    data['sharing']['player_name_override'] = get_setting(
+        data['sharing'].get('player_name_override', False),
+        False
+    )
+    data['sharing']['url'] = get_setting(
+        data['sharing'].get('url', "ws://sheeplauncher.net:8424"),
+        "ws://sheeplauncher.net:8424",
+        lambda x: x.startswith('ws://')
+    )
+    data['sharing']['reconnect_delay'] = get_setting(
+        data['sharing'].get('reconnect_delay', 5),
+        5,
+        lambda x: (type(x) == int and x >= 1)
+    )
+    data['sharing']['enabled'] = get_setting(
+        data['sharing'].get('enabled', False),
+        False
+    )
+    data['sharing']['group_key'] = get_setting(
+        data['sharing'].get('group_key', "public"),
+        "public"
+    )
+    data['sharing']['discord_channel'] = get_setting(
+        data['sharing'].get('discord_channel', False),
+        False
     )
 
     # maps
@@ -73,16 +105,16 @@ def verify_settings():
     data['maps']['closest_z_alpha'] = get_setting(
         data['maps'].get('closest_z_alpha', 20),
         20,
-        lambda x: (x >= 1 and x <= 100)
+        lambda x: (1 <= x <= 100)
         )
     data['maps']['current_z_alpha'] = get_setting(
         data['maps'].get('current_z_alpha', 100),
         100,
-        lambda x: (x >= 1 and x <= 100)
+        lambda x: (1 <= x <= 100)
         )
     data['maps']['geometry'] = get_setting(
-        data['maps'].get('geometry', [100, 100, 400, 200]),
-        [100, 100, 400, 200],
+        data['maps'].get('geometry', [0, 0, 400, 400]),
+        [0, 0, 400, 400],
         lambda x: (
             len(x) == 4 and
             isinstance(x[0], int) and
@@ -94,7 +126,7 @@ def verify_settings():
     data['maps']['grid_line_width'] = get_setting(
         data['maps'].get('grid_line_width', 1),
         1,
-        lambda x: (x >= 1 and x <= 10)
+        lambda x: (1 <= x <= 10)
         )
     data['maps']['last_zone'] = get_setting(
         data['maps'].get('last_zone', ''),
@@ -103,12 +135,12 @@ def verify_settings():
     data['maps']['line_width'] = get_setting(
         data['maps'].get('line_width', 1),
         1,
-        lambda x: (x >= 1 and x <= 10)
+        lambda x: (1 <= x <= 10)
         )
     data['maps']['other_z_alpha'] = get_setting(
         data['maps'].get('other_z_alpha', 10),
         10,
-        lambda x: (x >= 1 and x <= 100)
+        lambda x: (1 <= x <= 100)
         )
     data['maps']['scale'] = get_setting(
         data['maps'].get('scale', 0.07),
@@ -134,13 +166,23 @@ def verify_settings():
         data['maps'].get('use_z_layers', False),
         False
         )
+    data['maps']['opacity'] = get_setting(
+        data['maps'].get('opacity', 80),
+        80,
+        lambda x: (0 <= x <= 100)
+        )
+    data['maps']['color'] = data['maps'].get('color', '#000000')
+    data['maps']['clickthrough'] = get_setting(
+        data['maps'].get('clickthrough', False),
+        False
+    )
 
     # spells
     data['spells'] = data.get('spells', {})
     data['spells']['casting_window_buffer'] = get_setting(
         data['spells'].get('casting_window_buffer', 1000),
         1000,
-        lambda x: (x >= 1 and x <= 4000)
+        lambda x: (1 <= x <= 4000)
         )
     data['spells']['custom_timers'] = get_setting(
         data['spells'].get('custom_timers', [[]]),
@@ -157,8 +199,8 @@ def verify_settings():
         True
         )
     data['spells']['geometry'] = get_setting(
-        data['spells'].get('geometry', [550, 100, 200, 400]),
-        [550, 100, 200, 400],
+        data['spells'].get('geometry', [400, 0, 200, 400]),
+        [400, 0, 200, 400],
         lambda x: (
             len(x) == 4 and
             isinstance(x[0], int) and
@@ -170,7 +212,7 @@ def verify_settings():
     data['spells']['level'] = get_setting(
         data['spells'].get('level', 1),
         1,
-        lambda x: (x >= 1 and x <= 65)
+        lambda x: (1 <= x <= 65)
         )
     data['spells']['toggled'] = get_setting(
         data['spells'].get('toggled', True),
@@ -179,6 +221,10 @@ def verify_settings():
     data['spells']['use_casting_window'] = get_setting(
         data['spells'].get('use_casting_window', True),
         True
+        )
+    data['spells']['use_item_triggers'] = get_setting(
+        data['spells'].get('use_item_triggers', False),
+        False
         )
     data['spells']['use_custom_triggers'] = get_setting(
         data['spells'].get('use_custom_triggers', True),
@@ -193,6 +239,53 @@ def verify_settings():
         data['spells'].get('use_secondary_all', False),
         False
         )
+    data['spells']['opacity'] = get_setting(
+        data['spells'].get('opacity', 80),
+        80,
+        lambda x: (0 <= x <= 100)
+        )
+    data['spells']['color'] = data['spells'].get('color', '#000000')
+    data['spells']['clickthrough'] = get_setting(
+        data['spells'].get('clickthrough', False),
+        False
+    )
+
+    # discord
+    data['discord'] = data.get('discord', {})
+    data['discord']['toggled'] = get_setting(
+        data['discord'].get('toggled', True),
+        True
+        )
+    data['discord']['geometry'] = get_setting(
+        data['discord'].get('geometry', [0, 400, 200, 400]),
+        [0, 400, 200, 400],
+        lambda x: (
+                len(x) == 4 and
+                isinstance(x[0], int) and
+                isinstance(x[1], int) and
+                isinstance(x[2], int) and
+                isinstance(x[3], int)
+        )
+    )
+    data['discord']['url'] = get_setting(
+        data['discord'].get('url', ''),
+        ''
+    )
+    data['discord']['opacity'] = get_setting(
+        data['discord'].get('opacity', 80),
+        80,
+        lambda x: (0 <= x <= 100)
+        )
+    data['discord']['bg_opacity'] = get_setting(
+        data['discord'].get('bg_opacity', 25),
+        25,
+        lambda x: (0 <= x <= 100)
+        )
+    data['discord']['color'] = data['discord'].get('color', '#000000')
+    data['discord']['clickthrough'] = get_setting(
+        data['discord'].get('clickthrough', False),
+        False
+    )
 
  
 def get_setting(setting, default, func=None):

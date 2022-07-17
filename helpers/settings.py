@@ -1,14 +1,18 @@
+import functools
+
 from PyQt5.QtWidgets import (QCheckBox, QDialog, QFormLayout, QFrame,
                              QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
                              QSpinBox, QStackedWidget, QPushButton,
                              QVBoxLayout, QWidget, QComboBox, QLineEdit,
-                             QMessageBox)
+                             QMessageBox, QColorDialog)
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
 
 from helpers import config, text_time_to_seconds
 
 from parsers.spells import CustomTrigger
+from helpers import location_service
 
 
 WHATS_THIS_CASTING_WINDOW = """The Casting Window is a range of time in which the spell you are casting will land.
@@ -28,6 +32,24 @@ on Red.  Using the 'PvP Duration' will use the secondary timers for non benefici
 durations for all good buffs.
 """.replace('\n', ' ')
 
+WHATS_THIS_ITEM_TRIGGERS = """Certain items don't have a casting message, which prevents them from registering. Enabling
+this option allows nParse to attempt to catch these spells anyway. This may also cause nParse to detect spells cast on
+you by other players. WARNING: This option is very buggy. Use it at your own risk, and only if you absolutely need item
+spell durations at all costs. There will be other strange behavior.
+""".replace('\n', ' ')
+
+WHATS_THIS_SHARING = """Your location can be shared with others via a central location server. If you enable this, you
+agree to send and receive location data via a third-party server. The only data other players can see is your character
+name and the zone+loc you send. Nothing personally identifiable will be visible beyond this.
+""".replace('\n', ' ')
+
+WHATS_THIS_SHARING_DISCORD = """Automatically share with other users in your configured discord channel.
+When this option is set, the sharing key specified above will be ignored.""".replace('\n', ' ')
+
+WHATS_THIS_CLICKTHROUGH = """When set, the window will not capture mouse clicks, so your click will go through to
+whatever is below it. Practically, this means you can still interact with EverQuest *through* the nParse
+window.""".replace('\n', ' ')
+
 
 class SettingsWindow(QDialog):
 
@@ -46,6 +68,7 @@ class SettingsWindow(QDialog):
         self._widget_stack.setObjectName('SettingsStack')
         top_layout.addWidget(self._list_widget, 0)
         top_layout.addWidget(self._widget_stack, 1)
+        self._color_dialogs = dict()
 
         settings = self._create_settings()
         if settings:
@@ -87,11 +110,24 @@ class SettingsWindow(QDialog):
                 if wt == QCheckBox:
                     key1, key2 = widget.objectName().split(':')
                     config.data[key1][key2] = widget.isChecked()
-                if wt == QSpinBox:
+                elif wt == QSpinBox:
                     key1, key2 = widget.objectName().split(':')
                     config.data[key1][key2] = widget.value()
+                elif wt == QLineEdit:
+                    key1, key2 = widget.objectName().split(':')
+                    config.data[key1][key2] = widget.text()
+        for widget in self._color_dialogs.values():
+            wt = type(widget)
+            if wt == QColorDialog:
+                key1, key2 = widget.objectName().split(':')
+                hexcolor = hex(widget.currentColor().rgb()).replace('0xff', '#')
+                config.data[key1][key2] = hexcolor
         config.save()
+        self._config_update_triggers()
         self.accept()
+
+    def _config_update_triggers(self):
+        location_service.SIGNALS.config_updated.emit()
 
     def _cancelled(self):
         self._set_values()
@@ -112,9 +148,32 @@ class SettingsWindow(QDialog):
                 if wt == QCheckBox:
                     key1, key2 = widget.objectName().split(':')
                     widget.setChecked(config.data[key1][key2])
-                if wt == QSpinBox:
+                    if key1 == 'sharing' and key2 == 'discord_channel' \
+                            and config.data[key1][key2]:
+                        self.sharing_group_key.setDisabled(True)
+                    if key1 == 'sharing' and key2 == 'player_name_override' \
+                            and not config.data[key1][key2]:
+                        self.sharing_player_name.setDisabled(True)
+                elif wt == QSpinBox:
                     key1, key2 = widget.objectName().split(':')
                     widget.setValue(config.data[key1][key2])
+                elif wt == QLineEdit:
+                    key1, key2 = widget.objectName().split(':')
+                    widget.setText(config.data[key1][key2])
+                elif wt == QPushButton and widget.objectName():
+                    # Using QPushButton as a poor-man's rectangle
+                    key1, key2 = widget.objectName().split(':')
+                    hexcolor = config.data[key1][key2]
+                    widget.setStyleSheet(
+                        "background-color: {0}; "
+                        "border: 4px solid {0};".format(hexcolor))
+        for widget in self._color_dialogs.values():
+            wt = type(widget)
+            if wt == QColorDialog:
+                key1, key2 = widget.objectName().split(':')
+                hexcolor = config.data[key1][key2]
+                intcolor = int(hexcolor.replace('#', '0xff'), 16)
+                widget.setCurrentColor(QColor(intcolor))
 
     def _create_settings(self):
         stacked_widgets = []
@@ -127,18 +186,15 @@ class SettingsWindow(QDialog):
         gsl_update_check.setObjectName('general:update_check')
         gsl.addRow('Check for Updates', gsl_update_check)
         gsl.addRow(SettingsHeader('parsers'))
-        gsl_opacity = QSpinBox()
-        gsl_opacity.setRange(1, 100)
-        gsl_opacity.setSingleStep(5)
-        gsl_opacity.setSuffix('%')
-        gsl_opacity.setObjectName('general:parser_opacity')
-        gsl.addRow('Parser Window Opacity (% 1-100)', gsl_opacity)
         gsl_scaling = QSpinBox()
         gsl_scaling.setRange(100, 300)
         gsl_scaling.setSingleStep(5)
         gsl_scaling.setSuffix('%')
         gsl_scaling.setObjectName('general:qt_scale_factor')
         gsl.addRow('Window Scaling Factor', gsl_scaling)
+        gsl_window_flush = QCheckBox()
+        gsl_window_flush.setObjectName('general:window_flush')
+        gsl.addRow('Flush Vertical Placement', gsl_window_flush)
         general_settings.setLayout(gsl)
 
         stacked_widgets.append(('General', general_settings))
@@ -170,6 +226,10 @@ class SettingsWindow(QDialog):
         ssl_secondary_duration.setWhatsThis(WHATS_THIS_PVP_DURATION)
         ssl_secondary_duration.setObjectName('spells:use_secondary_all')
         ssl.addRow('Use PvP Durations', ssl_secondary_duration)
+        ssl_item_trigger_mode = QCheckBox()
+        ssl_item_trigger_mode.setWhatsThis(WHATS_THIS_ITEM_TRIGGERS)
+        ssl_item_trigger_mode.setObjectName('spells:use_item_triggers')
+        ssl.addRow('Permissive Item Triggers', ssl_item_trigger_mode)
         spells_settings.setLayout(ssl)
 
         stacked_widgets.append(('Spells', spells_settings))
@@ -216,11 +276,135 @@ class SettingsWindow(QDialog):
         map_settings.setLayout(msl)
         stacked_widgets.append(('Maps', map_settings))
 
+        # Sharing Settings
+        sharing_settings = QFrame()
+        shsl = QFormLayout()
+        shsl.addRow(SettingsHeader('general'))
+
+        enable_sharing = QCheckBox()
+        enable_sharing.setWhatsThis(WHATS_THIS_SHARING)
+        enable_sharing.setObjectName('sharing:enabled')
+        shsl.addRow('Enable Sharing', enable_sharing)
+
+        self.sharing_player_name = QLineEdit()
+        self.sharing_player_name.setObjectName('sharing:player_name')
+        shsl.addRow(
+            'Display Name',
+            self.sharing_player_name
+        )
+
+        sharing_player_name_override = QCheckBox()
+        sharing_player_name_override.setObjectName(
+            'sharing:player_name_override')
+        shsl.addRow(
+            'Display Name Override',
+            sharing_player_name_override
+        )
+        sharing_player_name_override.clicked.connect(
+            functools.partial(self._dynamic_field_toggle,
+                              sharing_player_name_override,
+                              self.sharing_player_name, True))
+
+        sharing_hostname = QLineEdit()
+        sharing_hostname.setObjectName('sharing:url')
+        shsl.addRow(
+            'Sharing Hostname',
+            sharing_hostname
+        )
+
+        self.sharing_group_key = QLineEdit()
+        self.sharing_group_key.setObjectName('sharing:group_key')
+        shsl.addRow(
+            'Group Key',
+            self.sharing_group_key
+        )
+        sharing_discord_channel = QCheckBox()
+        sharing_discord_channel.setObjectName('sharing:discord_channel')
+        sharing_discord_channel.setWhatsThis(WHATS_THIS_SHARING_DISCORD)
+        shsl.addRow('Use Discord Channel', sharing_discord_channel)
+        sharing_discord_channel.clicked.connect(
+            functools.partial(self._dynamic_field_toggle,
+                              sharing_discord_channel,
+                              self.sharing_group_key, False))
+
+        sharing_reconnect_delay = QSpinBox()
+        sharing_reconnect_delay.setRange(1, 300)
+        sharing_reconnect_delay.setSingleStep(1)
+        sharing_reconnect_delay.setSuffix(' seconds')
+        sharing_reconnect_delay.setObjectName('sharing:reconnect_delay')
+        shsl.addRow('Reconnect Delay', sharing_reconnect_delay)
+        sharing_settings.setLayout(shsl)
+        stacked_widgets.append(('Sharing', sharing_settings))
+
+        # Appearance Settings
+        appearance_settings = QFrame()
+        appear_sl = QFormLayout()
+        for window in ("maps", "spells", "discord"):
+            appear_sl.addRow(SettingsHeader(window.title()))
+            opacity = QSpinBox()
+            opacity.setRange(0, 100)
+            opacity.setSingleStep(5)
+            opacity.setSuffix('%')
+            opacity.setObjectName('%s:opacity' % window)
+            appear_sl.addRow('Window Opacity (% 0-100)', opacity)
+            if window == 'discord':
+                # Discord has a second opacity setting
+                bg_opacity = QSpinBox()
+                bg_opacity.setRange(0, 100)
+                bg_opacity.setSingleStep(5)
+                bg_opacity.setSuffix('%')
+                bg_opacity.setObjectName('%s:bg_opacity' % window)
+                appear_sl.addRow('Background Opacity (% 0-100)', bg_opacity)
+                # Color is also only discord for now
+                color_hbox = QHBoxLayout()
+                color_button = QPushButton('Set Color')
+                color_preview = QPushButton("")
+                color_preview.setObjectName('%s:color' % window)
+                color_hbox.addWidget(color_preview)
+                color_hbox.addWidget(color_button)
+                color_dialog = QColorDialog()
+                color_dialog.setObjectName('%s:color' % window)
+                color_dialog.setWindowTitle("Set %s Color" % window.title())
+                self._color_dialogs[window] = color_dialog
+                color_button.clicked.connect(functools.partial(
+                    self.show_color_picker,
+                    window=window, preview=color_preview))
+                color_preview.clicked.connect(functools.partial(
+                    self.show_color_picker,
+                    window=window, preview=color_preview))
+                appear_sl.addRow('Background Color', color_hbox)
+            enable_clickthrough = QCheckBox()
+            enable_clickthrough.setWhatsThis(WHATS_THIS_SHARING)
+            enable_clickthrough.setObjectName('%s:clickthrough' % window)
+            enable_clickthrough.setWhatsThis(WHATS_THIS_CLICKTHROUGH)
+            appear_sl.addRow('Enable Click-through', enable_clickthrough)
+
+        appearance_settings.setLayout(appear_sl)
+        stacked_widgets.append(('Appearance', appearance_settings))
+
         return stacked_widgets
+
+    def show_color_picker(self, window, preview):
+        dialog = self._color_dialogs[window]
+        if dialog.exec():
+            current_color = dialog.currentColor()
+            hexcolor = hex(current_color.rgb()).replace('0xff', '#')
+            preview.setStyleSheet("background-color: {0}; "
+                                  "border: 4px solid {0};".format(hexcolor))
+        else:
+            hexcolor = config.data[window]['color']
+            intcolor = int(hexcolor.replace('#', '0x'), 16)
+            dialog.setCurrentColor(QColor(intcolor))
 
     def _get_custom_timers(self):
         dialog = CustomTriggerSettings()
         dialog.exec()
+
+    def _dynamic_field_toggle(self, toggle_field, dynamic_field, invert=False):
+        if toggle_field.isChecked():
+            dynamic_field.setDisabled(False if invert else True)
+        else:
+            dynamic_field.setDisabled(True if invert else False)
 
 
 class SettingsHeader(QLabel):
@@ -413,4 +597,3 @@ class CustomTriggerSettings(QDialog):
     def closeEvent(self, _):
         self._save_to_config()
         self.accept()
-        

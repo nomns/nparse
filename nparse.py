@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFileDialog, QMenu, QMessageBox,
                              QSystemTrayIcon)
 
 import parsers
-from helpers import config, logreader, resource_path, get_version
+from helpers import config, logreader, resource_path, get_version, location_service
 from helpers.settings import SettingsWindow
 
 config.load('nparse.config.json')
@@ -20,7 +20,7 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = '0.5.1'
+CURRENT_VERSION = '0.6.4'
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
@@ -32,7 +32,6 @@ class NomnsParse(QApplication):
 
     def __init__(self, *args):
         super().__init__(*args)
-
 
         # Updates
         self._toggled = False
@@ -64,9 +63,15 @@ class NomnsParse(QApplication):
             )
 
     def _load_parsers(self):
+        self._parsers_dict = {
+            "maps": parsers.Maps(),
+            "spells": parsers.Spells(),
+            "discord": parsers.Discord(),
+        }
         self._parsers = [
-            parsers.Maps(),
-            parsers.Spells()
+            self._parsers_dict["maps"],
+            self._parsers_dict["spells"],
+            self._parsers_dict["discord"],
         ]
         for parser in self._parsers:
             if parser.name in config.data.keys() and 'geometry' in config.data[parser.name].keys():
@@ -92,14 +97,28 @@ class NomnsParse(QApplication):
             if self._log_reader:
                 self._log_reader.deleteLater()
                 self._log_reader = None
+            location_service.stop_location_service()
+            for parser in self._parsers:
+                try:
+                    parser.shutdown()
+                except:
+                    print("Failed to shutdown parser: %s" % parser.name)
             self._toggled = False
 
     def _parse(self, new_line):
         if new_line:
             timestamp, text = new_line  # (datetime, text)
             #  don't send parse to non toggled items, except maps.  always parse maps
-            for parser in [parser for parser in self._parsers if config.data[parser.name]['toggled'] or parser.name == 'maps']:
-                parser.parse(timestamp, text)
+            for parser in self._parsers:
+                if text.startswith('toggle_clickthrough_%s' % parser.name):
+                    config.data[parser.name]['clickthrough'] = (
+                        not config.data[parser.name]['clickthrough'])
+                    config.save()
+                    parser.set_flags()
+                elif text.startswith('toggle_%s' % parser.name):
+                    parser.toggle()
+                elif config.data[parser.name]['toggled'] or parser.name == 'maps':
+                    parser.parse(timestamp, text)
 
     def _menu(self, event):
         """Returns a new QMenu for system tray."""
@@ -126,6 +145,7 @@ class NomnsParse(QApplication):
 
         menu.addSeparator()
         settings_action = menu.addAction('Settings')
+        discord_conf_action = menu.addAction('Configure Discord')
         menu.addSeparator()
         quit_action = menu.addAction('Quit')
 
@@ -143,18 +163,20 @@ class NomnsParse(QApplication):
                 self._toggle()
 
         elif action == settings_action:
+            self._settings._set_values()
             if self._settings.exec_():
                 # Update required settings
                 for parser in self._parsers:
-                    if parser.windowOpacity() != config.data['general']['parser_opacity']:
-                        parser.setWindowOpacity(
-                            config.data['general']['parser_opacity'] / 100)
-                        parser.settings_updated()
+                    parser.set_flags()
+                    parser.settings_updated()
             # some settings are saved within other settings automatically
             # force update
             for parser in self._parsers:
                 if parser.name == "spells":
                     parser.load_custom_timers()
+
+        elif action == discord_conf_action:
+            self._parsers_dict["discord"].show_settings()
 
         elif action == quit_action:
             if self._toggled:

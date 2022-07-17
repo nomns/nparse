@@ -11,7 +11,7 @@ from .parser import ParserWindow  # noqa: F401
 def get_version():
     version = None
     try:
-        r = requests.get('http://nparse.nomns.com/info/version')
+        r = requests.get('http://sheeplauncher.net/~adam/nparse_version.json')
         version = json.loads(r.text)['version']
     except:
         pass
@@ -97,6 +97,6 @@ def text_time_to_seconds(text_time):
     except IndexError:
         pass
     except ValueError:
-        return
+        pass
 
     return timedelta(hours=hours, minutes=minutes, seconds=seconds).total_seconds()

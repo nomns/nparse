@@ -1,5 +1,6 @@
-import os
+import csv
 import math
+import pathlib
 from collections import Counter
 
 from PyQt5.QtGui import QColor, QPen, QPainterPath
@@ -10,7 +11,11 @@ from helpers import config
 from .mapclasses import MapPoint, MapGeometry, MapLine, PointOfInterest
 
 MAP_KEY_FILE = 'data/maps/map_keys.ini'
+MAP_KEY_FILE_WHO = 'data/maps/map_keys_who.ini'
+MAP_SPAWNTIMES_FILE = 'data/maps/map_timers.csv'
 MAP_FILES_LOCATION = 'data/maps/map_files'
+MAP_FILES_PATHLIB = pathlib.Path(MAP_FILES_LOCATION)
+ICON_MAP = {'corpse': 'data/maps/spawn.png'}
 
 
 class MapData(dict):
@@ -22,6 +27,7 @@ class MapData(dict):
         self.geometry = None  # MapGeometry
         self.players = {}
         self.spawns = []
+        self.waypoints = {}
         self.way_point = None
         self.grid = None
 
@@ -31,15 +37,15 @@ class MapData(dict):
     def _load(self):
         # Get list of all map files for current zone
         map_file_name = MapData.get_zone_dict()[self.zone.strip().lower()]
-        extensions = ['.txt', '_1.txt', '_2.txt', '_3.txt', '_4.txt', '_5.txt']
-        maps = [os.path.join(MAP_FILES_LOCATION, m) for m in [(map_file_name + e)
-                                                              for e in extensions] if os.path.exists(os.path.join(MAP_FILES_LOCATION, m))]
+        maps = MAP_FILES_PATHLIB.glob(
+            '**/{zone}*.txt'.format(zone=map_file_name))
 
         all_x, all_y, all_z = [], [], []
 
         # TODO: Remove the references to raw
         # Create Lines and Points
         for map_file in maps:
+            print("Loading: %s" % map_file)
             with open(map_file, 'r') as f:
                 for line in f.readlines():
                     line_type = line.lower()[0:1]
@@ -185,6 +191,11 @@ class MapData(dict):
             z_groups=z_groups
         )
 
+        # Load Spawn Timer Pairs from map_timers.csv
+        with open(MAP_SPAWNTIMES_FILE, 'r') as file:
+            reader = csv.reader(file)
+            self.spawn_timer_dict = dict(reader)
+
     def get_closest_z_group(self, z):
         closest = min(self._z_groups, key=lambda x: abs(x - z))
         if z < closest:
@@ -202,6 +213,23 @@ class MapData(dict):
                 values = line.split('=')
                 zone_dict[values[0].strip()] = values[1].strip()
         return zone_dict
+
+    @staticmethod
+    def translate_who_zone(zone_name):
+        # Load Map Pairs from map_keys.ini
+        zone_dict = {}
+        with open(MAP_KEY_FILE_WHO, 'r') as file:
+            for line in file.readlines():
+                values = line.split('=')
+                zone_dict[values[0].strip()] = values[1].strip()
+        return zone_dict.get(zone_name, zone_name)
+
+    def get_default_spawn_timer(self):
+        try:
+            short_zone = MapData.get_zone_dict().get(self.zone.strip().lower())
+        except KeyError:
+            short_zone = None
+        return self.spawn_timer_dict.get(short_zone, '6:40')
 
     @staticmethod
     def color_transform(color):

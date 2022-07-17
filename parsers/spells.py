@@ -22,7 +22,7 @@ class Spells(ParserWindow):
 
         self._setup_ui()
 
-        self.spell_book = create_spell_book()
+        self.spell_book, self.text_you, self.text_other = create_spell_book()
         self._custom_timers = {}  # regex : CustomTimer
         self.load_custom_timers()
         self._casting = None  # holds Spell when casting
@@ -79,6 +79,28 @@ class Spells(ParserWindow):
                         '__custom__'
                     )
 
+        # There are three main cases:
+        # 1) Items that have cast messages like "<item> begins to glow."
+        # 2) Items that have no cast message, cast on you (mostly insta-clickies)
+        # 3) Items that have no cast message, cast on others
+        # Case 1 may require either compiling a list of these items and detecting
+        # them as triggers, or else opening it up entirely like this does.
+        # Case 2 requires completely opening up detection, but will also detect
+        # any other buff cast on you, which may include things you wouldn't expect
+        # but can also NOT include many spells (when text is shared with an AoE
+        # version). It would also not properly detect level of spell when cast
+        # by other people.
+        # Case 3 is essentially impossible to deal with.
+        if config.data['spells']['use_item_triggers'] and not self._spell_trigger:
+            if text in self.text_you:
+                spell = self.text_you[text]
+                spell_trigger = SpellTrigger(
+                    spell=spell,
+                    timestamp=timestamp
+                )
+                spell_trigger.spell_triggered.connect(self._spell_triggered)
+                self._spell_trigger = spell_trigger
+
         if self._spell_trigger:
             self._spell_trigger.parse(timestamp, text)
 
@@ -104,7 +126,7 @@ class Spells(ParserWindow):
               text[:26] == 'You try to cast a spell on'):
             self._remove_spell_trigger()
 
-            # Elongate self buff timers by time zoning
+        # Elongate self buff timers by time zoning
         elif text[:23] == 'LOADING, PLEASE WAIT...':
             self._spell_triggered()
             self._remove_spell_trigger()
@@ -116,12 +138,16 @@ class Spells(ParserWindow):
                     spell_widget.pause()
         elif self._zoning and text[:16] == 'You have entered':
             delay = (timestamp - self._zoning).total_seconds()
-            spell_target = self._spell_container.get_spell_target_by_name(
-                '__you__')
-            if spell_target:
-                for spell_widget in spell_target.spell_widgets():
-                    spell_widget.elongate(delay)
-                    spell_widget.resume()
+            # If zoning took longer than like two minutes, likely false alarm
+            if delay > 120:
+                self._zoning = None
+            else:
+                spell_target = self._spell_container.get_spell_target_by_name(
+                    '__you__')
+                if spell_target:
+                    for spell_widget in spell_target.spell_widgets():
+                        spell_widget.elongate(delay)
+                        spell_widget.resume()
 
     def _remove_spell_trigger(self):
         if self._spell_trigger:
@@ -445,10 +471,12 @@ class SpellTrigger(QObject):
 def create_spell_book():
     """ Returns a dictionary of Spell by k, v -> spell_name, Spell() """
     spell_book = {}
+    text_lookup_self = {}
+    text_lookup_other = {}
     with open('data/spells/spells_us.txt') as spell_file:
         for line in spell_file:
             values = line.strip().split('^')
-            spell_book[values[1]] = Spell(
+            spell = Spell(
                 id=int(values[0]),
                 name=values[1].lower(),
                 effect_text_you=values[6],
@@ -465,7 +493,10 @@ def create_spell_book():
                 type=int(values[83]),
                 spell_icon=int(values[144])
             )
-    return spell_book
+            spell_book[values[1]] = spell
+            text_lookup_self[spell.effect_text_you] = spell
+            text_lookup_other[spell.effect_text_other] = spell
+    return spell_book, text_lookup_self, text_lookup_other
 
 
 def get_spell_duration(spell, level):

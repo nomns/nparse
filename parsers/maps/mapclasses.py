@@ -1,5 +1,6 @@
 import datetime
 
+import colorhash
 from PyQt5.QtCore import Qt, QTimer, QPointF
 from PyQt5.QtGui import QPixmap, QPen
 from PyQt5.QtWidgets import (QGraphicsItemGroup, QGraphicsLineItem,
@@ -71,19 +72,29 @@ class Player(QGraphicsItemGroup):
         self.previous_location = MapPoint()
         self.timestamp = None  # datetime
         self.__dict__.update(kwargs)
-        self.icon = QGraphicsPixmapItem(
-            QPixmap('data/maps/user.png')
-        )
+        if self.name == "__you__":
+            self.icon = QGraphicsPixmapItem(
+                QPixmap('data/maps/user.png')
+            )
+            self.setZValue(15)
+        else:
+            self.icon = QGraphicsPixmapItem(
+                QPixmap('data/maps/otheruser.png')
+            )
+            self.setZValue(10)
         self.icon.setOffset(-10, -10)
         self.directional = QGraphicsPixmapItem(
             QPixmap('data/maps/directional.png')
         )
         self.directional.setOffset(-15, -15)
         self.directional.setVisible(False)
+        self.nametag = QGraphicsTextItem()
+        self.nametag.setPos(10, -15)
         self.addToGroup(self.icon)
         self.addToGroup(self.directional)
-        self.setZValue(10)
+        self.addToGroup(self.nametag)
         self.z_level = 0
+        self.color = colorhash.ColorHash(self.name)
 
     def update_(self, scale):
         if self.previous_location:
@@ -97,6 +108,13 @@ class Player(QGraphicsItemGroup):
             self.setPos(self.location.x, self.location.y)
             self.directional.setVisible(True)
         self.setPos(self.location.x, self.location.y)
+        self.nametag.setHtml(
+            "<font color='{}' size='{}'>{}</font>".format(
+                self.color.hex if self.name != "__you__" else "purple",
+                5,
+                self.name if self.name != "__you__" else "You"
+            )
+        )
 
 
 class SpawnPoint(QGraphicsItemGroup):
@@ -174,6 +192,37 @@ class MapPoint:
         self.size = 0
         self.text = ''
         self.__dict__.update(kwargs)
+
+
+class UserWaypoint(QGraphicsItemGroup):
+    def __init__(self, name, icon, location):
+        super().__init__()
+        self.location = location
+        self.name = name
+        self.z_level = 0
+        self.color = colorhash.ColorHash(self.name)
+
+        self.pixmap = QGraphicsPixmapItem(QPixmap(icon))
+        self.pixmap.setOffset(-10, -10)
+        self.text = QGraphicsTextItem()
+        self.text.setHtml(
+            "<font color='{}' size='{}'>{}</font>".format(
+                self.color.hex,
+                5,
+                self.name
+            )
+        )
+        self.text.setPos(10, -15)
+        self.setToolTip(self.name)
+
+        self.addToGroup(self.pixmap)
+        self.addToGroup(self.text)
+        self.setPos(self.location.x, self.location.y)
+
+        self.setZValue(12)
+
+    def update_(self, scale):
+        self.setScale(scale)
 
 
 class WayPoint:
