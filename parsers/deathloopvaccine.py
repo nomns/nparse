@@ -61,7 +61,6 @@ class DeathLoopVaccine(Parser):
         # flag indicating whether the "process killer" gun is armed
         self._kill_armed = True
 
-
     def reset(self) -> None:
         """
         Utility function to clear the death_list and reset the armed flag

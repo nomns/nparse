@@ -6,7 +6,7 @@ from helpers import config
 from datetime import datetime
 
 
-class Parser():
+class Parser:
 
     def __init__(self):
         super().__init__()
@@ -30,7 +30,7 @@ class Parser():
         line = f'[{timestamp.strftime("%a %b %d %H:%M:%S %Y")}] ' + text
         print(f'[{self.name}]:{line}')
 
-    def toggle(self, _=None):
+    def toggle(self, _=None) -> None:
         if self.isVisible():
             self.hide()
             config.data[self.name]['toggled'] = False
@@ -40,13 +40,13 @@ class Parser():
             config.data[self.name]['toggled'] = True
         config.save()
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         pass
 
-    def set_flags(self):
+    def set_flags(self) -> None:
         pass
 
-    def settings_updated(self):
+    def settings_updated(self) -> None:
         pass
 
 
@@ -152,7 +152,6 @@ class ParserWindow(QFrame, Parser):
 
     def set_title(self, title):
         self._title.setText(title)
-
 
     def closeEvent(self, _):
         config.data[self.name]['toggled'] = False

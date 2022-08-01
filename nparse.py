@@ -67,7 +67,7 @@ class NomnsParse(QApplication):
             "maps": parsers.Maps(),
             "spells": parsers.Spells(),
             "discord": parsers.Discord(),
-            "deathloopvaccine" : parsers.DeathLoopVaccine(),
+            "deathloopvaccine": parsers.DeathLoopVaccine(),
         }
         self._parsers = [
             self._parsers_dict["maps"],

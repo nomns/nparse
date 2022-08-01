@@ -306,6 +306,7 @@ def verify_settings():
         120
         )
 
+
 def get_setting(setting, default, func=None):
     try:
         assert(type(setting) == type(default))
