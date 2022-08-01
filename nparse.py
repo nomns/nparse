@@ -91,8 +91,7 @@ class NomnsParse(QApplication):
                     error.args[0], error.args[1], msecs=3000)
 
             else:
-                self._log_reader = \
-                    logreader.LogReader(
+                self._log_reader = logreader.LogReader(
                     config.data['general']['eq_log_dir'])
                 self._log_reader.new_line.connect(self._parse)
                 self._toggled = True
