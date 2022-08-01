@@ -5,6 +5,7 @@ import requests
 import json
 from datetime import datetime, timedelta
 
+from .parser import Parser  # noqa: F401
 from .parser import ParserWindow  # noqa: F401
 
 

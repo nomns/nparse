@@ -3,8 +3,6 @@
 .idea/
 .vscode/
 working/
-act.bat
-deact.bat
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

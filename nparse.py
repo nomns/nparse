@@ -91,7 +91,8 @@ class NomnsParse(QApplication):
                     error.args[0], error.args[1], msecs=3000)
 
             else:
-                self._log_reader = logreader.LogReader(
+                self._log_reader = \
+                    logreader.LogReader(
                     config.data['general']['eq_log_dir'])
                 self._log_reader.new_line.connect(self._parse)
                 self._toggled = True
@@ -186,10 +187,11 @@ class NomnsParse(QApplication):
 
             # save parser geometry
             for parser in self._parsers:
-                g = parser.geometry()
-                config.data[parser.name]['geometry'] = [
-                    g.x(), g.y(), g.width(), g.height()
-                ]
+                if parser.name in config.data.keys() and 'geometry' in config.data[parser.name].keys():
+                    g = parser.geometry()
+                    config.data[parser.name]['geometry'] = [
+                        g.x(), g.y(), g.width(), g.height()
+                    ]
                 config.save()
 
             self._system_tray.setVisible(False)

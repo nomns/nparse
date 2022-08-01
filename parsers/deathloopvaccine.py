@@ -6,7 +6,7 @@ import signal
 import psutil
 
 from datetime import datetime
-from helpers import ParserWindow, config
+from helpers import Parser, config
 
 
 #
@@ -33,11 +33,12 @@ from helpers import ParserWindow, config
 #                   player deaths trigger the simulated process kill, or after any simulated
 #                   player death events "scroll off" the death loop monitoring window.
 #
-class DeathLoopVaccine(ParserWindow):
+class DeathLoopVaccine(Parser):
 
     """Tracks for DL symptoms"""
 
     def __init__(self):
+
         super().__init__()
         self.name = 'deathloopvaccine'
 
@@ -59,6 +60,7 @@ class DeathLoopVaccine(ParserWindow):
 
         # flag indicating whether the "process killer" gun is armed
         self._kill_armed = True
+
 
     def reset(self) -> None:
         """
@@ -190,9 +192,8 @@ class DeathLoopVaccine(ParserWindow):
 
             # does this line contain a proof of life - communication
             # this captures tells, say, group, auction, and shout channels
-            # todo - get character name for use in this regexp
-            charname = 'Unknown'
-            regexp = f'^(You told|You say|You tell|You auction|You shout|{charname} ->)'
+            char_name = config.data['general']['char_name']
+            regexp = f'^(You told|You say|You tell|You auction|You shout|{char_name} ->)'
             m = re.match(regexp, trunc_line)
             if m:
                 # player is not AFK
