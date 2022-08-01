@@ -287,7 +287,53 @@ def verify_settings():
         False
     )
 
- 
+    # deathloopvaccine
+    # note - many of these settings are completely unused, and are only here to satisfy the underlying
+    # assumption that they are to be manipulated on startup/shutdown
+    data['deathloopvaccine'] = data.get('deathloopvaccine', {})
+    data['deathloopvaccine']['toggled'] = get_setting(
+        data['deathloopvaccine'].get('toggled', True),
+        True
+        )
+    data['deathloopvaccine']['geometry'] = get_setting(
+        data['deathloopvaccine'].get('geometry', [0, 400, 200, 400]),
+        [0, 400, 200, 400],
+        lambda x: (
+                len(x) == 4 and
+                isinstance(x[0], int) and
+                isinstance(x[1], int) and
+                isinstance(x[2], int) and
+                isinstance(x[3], int)
+        )
+    )
+    data['deathloopvaccine']['url'] = get_setting(
+        data['deathloopvaccine'].get('url', ''),
+        ''
+    )
+    data['deathloopvaccine']['opacity'] = get_setting(
+        data['deathloopvaccine'].get('opacity', 0),
+        0,
+        lambda x: (0 <= x <= 100)
+        )
+    data['deathloopvaccine']['bg_opacity'] = get_setting(
+        data['deathloopvaccine'].get('bg_opacity', 0),
+        0,
+        lambda x: (0 <= x <= 100)
+        )
+    data['deathloopvaccine']['color'] = data['deathloopvaccine'].get('color', '#000000')
+    data['deathloopvaccine']['clickthrough'] = get_setting(
+        data['deathloopvaccine'].get('clickthrough', True),
+        True
+    )
+    data['deathloopvaccine']['deaths'] = get_setting(
+        data['deathloopvaccine'].get('deaths', 4),
+        4
+        )
+    data['deathloopvaccine']['seconds'] = get_setting(
+        data['deathloopvaccine'].get('seconds', 120),
+        120
+        )
+
 def get_setting(setting, default, func=None):
     try:
         assert(type(setting) == type(default))

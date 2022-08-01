@@ -19,8 +19,8 @@ config.verify_settings()
 os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
-
-CURRENT_VERSION = '0.6.4'
+# todo - set this to appropriate value
+CURRENT_VERSION = '0.6.4-DLV'
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
@@ -67,11 +67,13 @@ class NomnsParse(QApplication):
             "maps": parsers.Maps(),
             "spells": parsers.Spells(),
             "discord": parsers.Discord(),
+            "deathloopvaccine" : parsers.DeathLoopVaccine(),
         }
         self._parsers = [
             self._parsers_dict["maps"],
             self._parsers_dict["spells"],
             self._parsers_dict["discord"],
+            self._parsers_dict["deathloopvaccine"],
         ]
         for parser in self._parsers:
             if parser.name in config.data.keys() and 'geometry' in config.data[parser.name].keys():
