@@ -47,9 +47,9 @@ class LogReader(QFileSystemWatcher):
             self._stats['log_file'] = changed_file
             char_name = os.path.basename(changed_file).split("_")[1]
             config.data['general']['char_name'] = char_name
+            config.save()
             if not config.data['sharing']['player_name_override']:
                 config.data['sharing']['player_name'] = char_name
-                config.save()
                 location_service.SIGNALS.config_updated.emit()
             with open(self._stats['log_file'], 'rb') as log:
                 log.seek(0, os.SEEK_END)
