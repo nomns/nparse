@@ -7,6 +7,7 @@ import signal
 from datetime import datetime
 from helpers import Parser, config, get_eqgame_pid_list, starprint
 
+
 #
 # simple utility to prevent Everquest Death Loop
 #
@@ -42,9 +43,7 @@ class DeathLoopVaccine(Parser):
 
         # parameters that define a deathloop condition, i.e. D deaths in T seconds,
         # with no player activity in the interim
-        # todo - make these configarable via the UI?
-        self.deathloop_deaths = config.data['deathloopvaccine']['deaths']
-        self.deathloop_seconds = config.data['deathloopvaccine']['seconds']
+        # todo - make the deathloop.deaths and deathloop.seconds values configarable via the UI?
 
         # list of death messages
         # this will function as a scrolling queue, with the oldest message at position 0,
@@ -52,7 +51,7 @@ class DeathLoopVaccine(Parser):
         # than deathloop_seconds have elapsed.  The list is also flushed any time
         # player activity is detected (i.e. player is not AFK).
         #
-        # if/when the length of this list meets or exceeds deathloop_deaths, then
+        # if/when the length of this list meets or exceeds deathloop.deaths, then
         # the deathloop response is triggered
         self._death_list = list()
 
@@ -99,13 +98,8 @@ class DeathLoopVaccine(Parser):
             None:
         """
 
-        # reconstruct the full logfile line
-        # this is a bit counter-intuitive, but the rest of the logic in this function was
-        # developed assuming the line was the full line, including the time stamp
+        trunc_line = text
         line = f'[{timestamp.strftime("%a %b %d %H:%M:%S %Y")}] ' + text
-
-        # cut off the leading date-time stamp info
-        trunc_line = line[27:]
 
         # does this line contain a death message
         slain_regexp = r'^You have been slain'
@@ -129,7 +123,7 @@ class DeathLoopVaccine(Parser):
         if len(self._death_list) > 0:
 
             # create a datetime object for this line, using the very capable datetime.strptime()
-            now = datetime.strptime(line[0:26], '[%a %b %d %H:%M:%S %Y]')
+            now = timestamp
 
             # now purge any death messages that are too old
             done = False
@@ -144,7 +138,7 @@ class DeathLoopVaccine(Parser):
                     oldest_time = datetime.strptime(oldest_line[0:26], '[%a %b %d %H:%M:%S %Y]')
                     elapsed_seconds = now - oldest_time
 
-                    if elapsed_seconds.total_seconds() > self.deathloop_seconds:
+                    if elapsed_seconds.total_seconds() > config.data['deathloopvaccine']['seconds']:
                         # that death message is too old, purge it
                         self._death_list.pop(0)
                         starprint(f'DeathLoopVaccine:  Death count = {len(self._death_list)}')
@@ -164,11 +158,6 @@ class DeathLoopVaccine(Parser):
             None:
         """
 
-        # reconstruct the full logfile line
-        # this is a bit counter-intuitive, but the rest of the logic in this function was
-        # developed assuming the line was the full line, including the time stamp
-        line = f'[{timestamp.strftime("%a %b %d %H:%M:%S %Y")}] ' + text
-
         # only do the proof of life checks if there are already some death messages in the list, else skip this
         if len(self._death_list) > 0:
 
@@ -176,8 +165,8 @@ class DeathLoopVaccine(Parser):
             # begin by assuming the player is AFK
             afk = True
 
-            # cut off the leading date-time stamp info
-            trunc_line = line[27:]
+            trunc_line = text
+            line = f'[{timestamp.strftime("%a %b %d %H:%M:%S %Y")}] ' + text
 
             # does this line contain a proof of life - casting
             regexp = r'^You begin casting'
@@ -189,8 +178,7 @@ class DeathLoopVaccine(Parser):
 
             # does this line contain a proof of life - communication
             # this captures tells, say, group, auction, and shout channels
-            char_name = config._char_name
-            regexp = f'^(You told|You say|You tell|You auction|You shout|{char_name} ->)'
+            regexp = f'^(You told|You say|You tell|You auction|You shout|{config.char_name} ->)'
             m = re.match(regexp, trunc_line)
             if m:
                 # player is not AFK
@@ -217,14 +205,17 @@ class DeathLoopVaccine(Parser):
             None:
         """
 
+        deaths = config.data['deathloopvaccine']['deaths']
+        seconds = config.data['deathloopvaccine']['seconds']
+
         # if the death_list contains more deaths than the limit, then trigger the process kill
-        if len(self._death_list) >= self.deathloop_deaths:
+        if len(self._death_list) >= deaths:
 
             starprint('---------------------------------------------------')
             starprint('DeathLoopVaccine - Killing all eqgame.exe processes')
             starprint('---------------------------------------------------')
             starprint('DeathLoopVaccine has detected deathloop symptoms:')
-            starprint(f'    {self.deathloop_deaths} deaths in less than {self.deathloop_seconds} seconds, with no player activity')
+            starprint(f'    {deaths} deaths in less than {seconds} seconds, with no player activity')
 
             # show all the death messages
             starprint('Death Messages:')
@@ -248,4 +239,3 @@ class DeathLoopVaccine(Parser):
 
             # purge any death messages from the list
             self.reset()
-

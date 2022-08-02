@@ -5,9 +5,10 @@ import os
 from glob import glob
 import json
 
+# global data
 data = {}
 _filename = ''
-_char_name = ''
+char_name = ''
 
 
 def load(filename):

@@ -19,8 +19,7 @@ config.verify_settings()
 os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
-# todo - set this to appropriate value
-CURRENT_VERSION = '0.6.4-DLV'
+CURRENT_VERSION = '0.6.4'
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
