@@ -46,8 +46,7 @@ class LogReader(QFileSystemWatcher):
         if changed_file != self._stats['log_file']:
             self._stats['log_file'] = changed_file
             char_name = os.path.basename(changed_file).split("_")[1]
-            config.data['general']['char_name'] = char_name
-            config.save()
+            config._char_name = char_name
             if not config.data['sharing']['player_name_override']:
                 config.data['sharing']['player_name'] = char_name
                 location_service.SIGNALS.config_updated.emit()

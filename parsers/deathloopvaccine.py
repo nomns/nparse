@@ -3,11 +3,9 @@ import re
 import os
 import signal
 
-import psutil
 
 from datetime import datetime
-from helpers import Parser, config
-
+from helpers import Parser, config, get_eqgame_pid_list, starprint
 
 #
 # simple utility to prevent Everquest Death Loop
@@ -191,7 +189,7 @@ class DeathLoopVaccine(Parser):
 
             # does this line contain a proof of life - communication
             # this captures tells, say, group, auction, and shout channels
-            char_name = config.data['general']['char_name']
+            char_name = config._char_name
             regexp = f'^(You told|You say|You tell|You auction|You shout|{char_name} ->)'
             m = re.match(regexp, trunc_line)
             if m:
@@ -251,36 +249,3 @@ class DeathLoopVaccine(Parser):
             # purge any death messages from the list
             self.reset()
 
-
-#################################################################################################
-#
-# standalone functions
-#
-
-
-def get_eqgame_pid_list() -> list[int]:
-    """
-    get list of process ID's for eqgame.exe, using psutil module
-
-    Returns:
-        object: list of process ID's (in case multiple versions of eqgame.exe are somehow running)
-    """
-
-    pid_list = list()
-    for p in psutil.process_iter(['name']):
-        if p.info['name'] == 'eqgame.exe':
-            pid_list.append(p.pid)
-    return pid_list
-
-
-def starprint(line: str) -> None:
-    """
-    utility function to print with leading and trailing ** indicators
-
-    Args:
-        line: line to be printed
-
-    Returns:
-        None:
-    """
-    print(f'** {line.rstrip():<100} **')

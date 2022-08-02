@@ -7,6 +7,7 @@ import json
 
 data = {}
 _filename = ''
+_char_name = ''
 
 
 def load(filename):
@@ -47,10 +48,6 @@ def verify_settings():
     data['general'] = data.get('general', {})
     data['general']['eq_log_dir'] = get_setting(
         data['general'].get('eq_log_dir', ''),
-        ''
-        )
-    data['general']['char_name'] = get_setting(
-        data['general'].get('char_name', ''),
         ''
         )
     data['general']['window_flush'] = get_setting(

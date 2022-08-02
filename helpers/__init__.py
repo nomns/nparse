@@ -3,6 +3,9 @@ import os
 import math
 import requests
 import json
+
+import psutil
+
 from datetime import datetime, timedelta
 
 from .parser import Parser  # noqa: F401
@@ -101,3 +104,31 @@ def text_time_to_seconds(text_time):
         pass
 
     return timedelta(hours=hours, minutes=minutes, seconds=seconds).total_seconds()
+
+
+def get_eqgame_pid_list() -> list[int]:
+    """
+    get list of process ID's for eqgame.exe, using psutil module
+
+    Returns:
+        object: list of process ID's (in case multiple versions of eqgame.exe are somehow running)
+    """
+
+    pid_list = list()
+    for p in psutil.process_iter(['name']):
+        if p.info['name'] == 'eqgame.exe':
+            pid_list.append(p.pid)
+    return pid_list
+
+
+def starprint(line: str) -> None:
+    """
+    utility function to print with leading and trailing ** indicators
+
+    Args:
+        line: line to be printed
+
+    Returns:
+        None:
+    """
+    print(f'** {line.rstrip():<100} **')
