@@ -186,7 +186,7 @@ class DeathLoopVaccine(Parser):
                 starprint(f'DeathLoopVaccine:  Player Not AFK: {line}')
 
             # does this line contain a proof of life - melee
-            regexp = r'^You( try to)? (hit|slash|pierce|crush|claw|bite|sting|maul|gore|punch|kick|backstab|bash)'
+            regexp = r'^You( try to)? (hit|slash|pierce|crush|claw|bite|sting|maul|gore|punch|kick|backstab|bash|slice)'
             m = re.match(regexp, trunc_line)
             if m:
                 # player is not AFK
