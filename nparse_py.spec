@@ -4,12 +4,11 @@ block_cipher = None
 
 
 a = Analysis(['nparse.py'],
-             pathex=['D:\\nomns.github.com\\nparse'],
+             pathex=[],
              binaries=[],
              datas=[],
              hiddenimports=[],
              hookspath=[],
-             runtime_hooks=['set_qt_conf.py'],
              excludes=[],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
