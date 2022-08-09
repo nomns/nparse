@@ -167,5 +167,5 @@ class LocationServiceConnection(QRunnable):
     def _on_open(self, ws):
         print("Connection opened.")
 
-    def _on_close(self, ws):
-        print("Connection closed.")
+    def _on_close(self, ws, status_code, close_message):
+        print(f"Connection closed: ({status_code}) {close_message}")
