@@ -1,6 +1,7 @@
 import json
 import logging
 import ssl
+import threading
 import time
 
 from PyQt5.QtCore import QObject, QRunnable, pyqtSignal, pyqtSlot
@@ -24,7 +25,8 @@ class LocationSignals(QObject):
     config_updated = pyqtSignal()
 
 
-RUN = True
+RUN = threading.Event()
+RUN.set()
 SIGNALS = LocationSignals()
 THREADPOOL = QThreadPool()
 _LSC = None
@@ -50,8 +52,8 @@ def start_location_service(update_func):
 
 
 def stop_location_service():
-    global RUN
-    RUN = False
+    RUN.clear()
+    print("Stopping location service.")
     lsc = get_location_service_connection()
     lsc.enabled = False
     lsc.configure_socket()
@@ -103,7 +105,7 @@ class LocationServiceConnection(QRunnable):
 
     @pyqtSlot()
     def run(self):
-        while RUN:
+        while RUN.is_set():
             try:
                 self.configure_socket()
             except:
@@ -113,8 +115,8 @@ class LocationServiceConnection(QRunnable):
                 try:
                     self._socket.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
                 except:
-                    print("Socket connection brokem continuing...")
-            if RUN:
+                    print("Socket connection broken, continuing...")
+            if RUN.is_set():
                 time.sleep(self.reconnect_delay)
 
     @property
