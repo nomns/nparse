@@ -2,7 +2,7 @@
 import datetime
 import re
 
-from PyQt5.QtWidgets import QHBoxLayout, QPushButton
+from PyQt6.QtWidgets import QHBoxLayout, QPushButton
 
 from helpers import config, to_real_xy, ParserWindow, location_service
 

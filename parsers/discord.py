@@ -1,9 +1,9 @@
 import functools
 
-from PyQt5 import QtCore
-from PyQt5.QtGui import QColor
-from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtWidgets import QScrollArea, QPushButton, QDialog, QGridLayout
+from PyQt6 import QtCore
+from PyQt6.QtGui import QColor
+from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWidgets import QScrollArea, QPushButton, QDialog, QGridLayout
 
 from helpers import ParserWindow, config
 
@@ -69,7 +69,8 @@ class Discord(ParserWindow):
         self.name = 'discord'
         self.setWindowTitle(self.name.title())
         self.set_title(self.name.title())
-        self.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
+        self.setAttribute(
+            QtCore.Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setMinimumWidth(125)
         self.overlay = None
         self.settings_dialog = None
@@ -133,8 +134,10 @@ class Discord(ParserWindow):
         self.menu_area.addWidget(setup_button)
 
         self.overlay = QWebEngineView()
-        self.overlay.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
-        self.overlay.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
+        self.overlay.setAttribute(
+            QtCore.Qt.WidgetAttribute.WA_TranslucentBackground, True)
+        self.overlay.setAttribute(
+            QtCore.Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
         self.overlay.page().setBackgroundColor(QColor('transparent'))
         if self.url:
             self.overlay.loadFinished.connect(self._applyTweaks)

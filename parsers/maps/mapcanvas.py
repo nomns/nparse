@@ -4,10 +4,10 @@ import traceback
 import os
 
 import pathvalidate
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPainter, QTransform, QColor, QPen
-from PyQt5.QtWidgets import (QGraphicsScene, QGraphicsView, QInputDialog,
-                             QMenu, QLineEdit, QAction, QGraphicsPathItem)
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPainter, QTransform, QColor, QPen, QAction
+from PyQt6.QtWidgets import (QGraphicsScene, QGraphicsView, QInputDialog,
+                             QMenu, QLineEdit, QGraphicsPathItem)
 
 from helpers import config, to_range, text_time_to_seconds
 
@@ -26,13 +26,13 @@ class MapCanvas(QGraphicsView):
         super().__init__()
         self.setObjectName('MapCanvas')
         self.setAutoFillBackground(True)
-        self.setAttribute(Qt.WA_StyledBackground)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setContentsMargins(0, 0, 0, 0)
-        self.setTransformationAnchor(self.AnchorViewCenter)
-        self.setFocusPolicy(Qt.StrongFocus)
-        self.setRenderHint(QPainter.Antialiasing)
+        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self._scene = QGraphicsScene()
         self.setScene(self._scene)
         self._scale = config.data['maps']['scale']
@@ -115,18 +115,18 @@ class MapCanvas(QGraphicsView):
             for path in self._data[z]['paths'].childItems():
                 if z == current_z_level or not config.data['maps']['use_z_layers']:
                     pen = path.pen()
-                    pen.setWidth(max(
+                    pen.setWidth(int(max(
                         config.data['maps']['line_width'] + bolded,
                         (config.data['maps']['line_width'] +
                          bolded) / self._scale
-                    ))
+                    )))
                     path.setPen(pen)
                 else:
                     pen = path.pen()
-                    pen.setWidth(max(
+                    pen.setWidth(int(max(
                         config.data['maps']['line_width'] - 0.8,
                         (config.data['maps']['line_width'] - 0.8) / self._scale
-                    ))
+                    )))
                     path.setPen(pen)
 
             self._data[z]['paths'].setOpacity(alpha)
@@ -199,10 +199,10 @@ class MapCanvas(QGraphicsView):
         # grid lines
         if config.data['maps']['show_grid']:
             pen = self._data.grid.pen()
-            pen.setWidth(max(
+            pen.setWidth(int(max(
                 config.data['maps']['grid_line_width'],
                 self.to_scale(config.data['maps']['grid_line_width'])
-            ))
+            )))
             self._data.grid.setPen(pen)
             self._data.grid.setVisible(True)
         else:
@@ -282,7 +282,7 @@ class MapCanvas(QGraphicsView):
         if config.data['maps']['show_mouse_location']:
             self._mouse_location.setVisible(True)
         QGraphicsView.enterEvent(self, event)
-    
+
     def leaveEvent(self, event):
         self._mouse_location.setVisible(False)
         QGraphicsView.leaveEvent(self, event)
@@ -298,7 +298,7 @@ class MapCanvas(QGraphicsView):
     def wheelEvent(self, event):
         # Scale based on scroll wheel direction
         movement = event.angleDelta().y()
-        if self.dragMode() == self.NoDrag:
+        if self.dragMode() == QGraphicsView.DragMode.NoDrag:
             if movement > 0:
                 self.update_(self._scale + self._scale * 0.1)
             else:
@@ -311,24 +311,25 @@ class MapCanvas(QGraphicsView):
                     self._z_index = min(
                         self._z_index + 1, len(self._data.geometry.z_groups) - 1)
                 self.update_()
-        
+
         # Update Mouse Location
+        mouse_pos = int(event.position().x()), int(event.position().y())
         self._mouse_location.set_value(
-            self.mapToScene(event.pos()),
+            self.mapToScene(*mouse_pos),
             self._scale,
             self
-            )
+        )
 
     def keyPressEvent(self, event):
         # Enable drag mode while control button is being held down
-        if event.modifiers() == Qt.ControlModifier:
-            self.setDragMode(self.ScrollHandDrag)
+        if event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
         QGraphicsView.keyPressEvent(self, event)
 
     def keyReleaseEvent(self, event):
         # Disable drag mode when control button released
-        if event.key() == Qt.Key_Control:
-            self.setDragMode(self.NoDrag)
+        if event.key() == Qt.Key.Key_Control:
+            self.setDragMode(QGraphicsView.DragMode.NoDrag)
         QGraphicsView.keyPressEvent(self, event)
 
     def resizeEvent(self, event):
@@ -340,7 +341,7 @@ class MapCanvas(QGraphicsView):
         pos = self.mapToScene(event.pos())
         menu = QMenu(self)
         # remove from memory after usage
-        menu.setAttribute(Qt.WA_DeleteOnClose)  # remove from memory
+        menu.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)  # remove from memory
         spawn_point_menu = menu.addMenu('Spawn Point')
         spawn_point_create = spawn_point_menu.addAction('Create on Cursor')
         spawn_point_delete = spawn_point_menu.addAction('Delete on Cursor')
@@ -363,7 +364,7 @@ class MapCanvas(QGraphicsView):
         load_map = menu.addAction('Load Map')
 
         # execute
-        action = menu.exec_(self.mapToGlobal(event.pos()))
+        action = menu.exec(self.mapToGlobal(event.pos()))
 
         # parse response
 
@@ -373,7 +374,7 @@ class MapCanvas(QGraphicsView):
             dialog.setLabelText('Respawn Time (hh:mm:ss):')
             dialog.setTextValue(self._data.get_default_spawn_timer())
 
-            if dialog.exec_():
+            if dialog.exec():
                 spawn_time = text_time_to_seconds(dialog.textValue())
                 spawn = SpawnPoint(
                     location=MapPoint(
@@ -441,8 +442,8 @@ class MapCanvas(QGraphicsView):
             dialog.setWindowTitle('Load Map')
             dialog.setLabelText('Select map to load:')
             dialog.setComboBoxItems(
-                sorted([map.title() for map in MapData.get_zone_dict().keys()]))
-            if dialog.exec_():
+                sorted([map.title() for map in MapData.get_zone_dict()]))
+            if dialog.exec():
                 self.load_map(dialog.textValue().lower())
             dialog.deleteLater()
 
@@ -482,7 +483,7 @@ class MapCanvas(QGraphicsView):
                 self,  # parent
                 "Start Recording Path",  # title
                 "Name of path to record:",  # label
-                echo=QLineEdit.Normal,
+                echo=QLineEdit.EchoMode.Normal,
                 text="")
         if ok_pressed:
             self._path_recording_name = path_name
@@ -506,7 +507,7 @@ class MapCanvas(QGraphicsView):
                 self,  # parent
                 "Rename Path",  # title
                 "New path name:",  # label
-                echo=QLineEdit.Normal,
+                echo=QLineEdit.EchoMode.Normal,
                 text=self._path_recording_name)
 
         if ok_pressed:

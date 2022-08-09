@@ -4,8 +4,8 @@ import ssl
 import threading
 import time
 
-from PyQt5.QtCore import QObject, QRunnable, pyqtSignal, pyqtSlot
-from PyQt5.QtCore import QThreadPool
+from PyQt6.QtCore import QObject, QRunnable, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QThreadPool
 import websocket
 
 from helpers import config
@@ -74,7 +74,7 @@ class LocationServiceConnection(QRunnable):
     reconnect_delay = 5
 
     def __init__(self):
-        super(LocationServiceConnection, self).__init__()
+        super().__init__()
         try:
             SIGNALS.send_loc.disconnect()
         except TypeError:

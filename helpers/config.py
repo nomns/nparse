@@ -7,6 +7,7 @@ import json
 
 data = {}
 _filename = ''
+APP_EXIT = False
 
 
 def load(filename):
@@ -32,14 +33,11 @@ def save():
     """
     Saves json to previously opened location.
     """
-    global data
-    global _filename
     with open(_filename, mode='w') as f:
         f.write(json.dumps(data, indent=4, sort_keys=True))
 
 
 def verify_settings():
-    global data
     # verify nparse.config.json contains what it should and
     # set defaults if appropriate
 
@@ -81,7 +79,7 @@ def verify_settings():
     data['sharing']['reconnect_delay'] = get_setting(
         data['sharing'].get('reconnect_delay', 5),
         5,
-        lambda x: (type(x) == int and x >= 1)
+        lambda x: (isinstance(x, int) and x >= 1)
     )
     data['sharing']['enabled'] = get_setting(
         data['sharing'].get('enabled', False),
@@ -287,7 +285,7 @@ def verify_settings():
         False
     )
 
- 
+
 def get_setting(setting, default, func=None):
     try:
         assert(type(setting) == type(default))
@@ -300,15 +298,14 @@ def get_setting(setting, default, func=None):
 
 
 def verify_paths():
-    global data
     # verify eq log directory exists
     try:
         assert(os.path.isdir(os.path.join(data['general']['eq_log_dir'])))
-    except:
+    except Exception as e:
         raise ValueError(
             'Everquest Log Directory Error',
             'Everquest log directory needs to be set before proceeding.  Use systemtray icon menu to set.'
-        )
+        ) from e
 
     # verify eq log directory contains log files for reading.
     log_filter = os.path.join(data['general']['eq_log_dir'], 'eqlog*.*')

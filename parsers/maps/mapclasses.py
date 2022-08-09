@@ -1,17 +1,17 @@
 import datetime
 
 import colorhash
-from PyQt5.QtCore import Qt, QTimer, QPointF
-from PyQt5.QtGui import QPixmap, QPen
-from PyQt5.QtWidgets import (QGraphicsItemGroup, QGraphicsLineItem,
+from PyQt6.QtCore import Qt, QTimer, QPointF
+from PyQt6.QtGui import QPixmap, QPen
+from PyQt6.QtWidgets import (QGraphicsItemGroup, QGraphicsLineItem,
                              QGraphicsPixmapItem, QGraphicsTextItem)
 
-from helpers import format_time, get_degrees_from_line, to_eq_xy, to_real_xy
+from helpers import format_time, get_degrees_from_line, to_eq_xy
 
 
 class MouseLocation(QGraphicsTextItem):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **_):
         super().__init__()
         self.setZValue(100)
 
@@ -238,7 +238,7 @@ class WayPoint:
         self.line = QGraphicsLineItem(
             0.0, 0.0, self.location.x, self.location.y)
         self.line.setPen(QPen(
-            Qt.green, 1, Qt.DashLine
+            Qt.GlobalColor.green, 1, Qt.PenStyle.DashLine
         ))
         self.line.setVisible(False)
 
