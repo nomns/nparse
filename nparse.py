@@ -181,6 +181,8 @@ class NomnsParse(QApplication):
         elif action == quit_action:
             if self._toggled:
                 self._toggle()
+            else:
+                location_service.stop_location_service()
 
             # save parser geometry
             for parser in self._parsers:
