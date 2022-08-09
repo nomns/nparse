@@ -12,6 +12,14 @@ import parsers
 from helpers import config, logreader, resource_path, get_version, location_service
 from helpers.settings import SettingsWindow
 
+try:
+    import pyi_splash  # noqa
+
+    pyi_splash.update_text('Done!')
+    pyi_splash.close()
+except:  # noqa
+    pass
+
 config.load('nparse.config.json')
 # validate settings file
 config.verify_settings()
@@ -20,7 +28,7 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = '0.6.4'
+CURRENT_VERSION = '0.6.5'
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
@@ -31,6 +39,7 @@ class NomnsParse(QApplication):
     """Application Control."""
 
     def __init__(self, *args):
+        self.setAttribute(Qt.AA_EnableHighDpiScaling)
         super().__init__(*args)
 
         # Updates
@@ -125,7 +134,6 @@ class NomnsParse(QApplication):
         menu = QMenu()
         menu.setAttribute(Qt.WA_DeleteOnClose)
         # check online for new version
-        new_version_text = ""
         if self.new_version_available():
             new_version_text = "Update Available {}".format(ONLINE_VERSION)
         else:
@@ -181,6 +189,8 @@ class NomnsParse(QApplication):
         elif action == quit_action:
             if self._toggled:
                 self._toggle()
+            else:
+                location_service.stop_location_service()
 
             # save parser geometry
             for parser in self._parsers:
@@ -220,7 +230,6 @@ if __name__ == "__main__":
     APP.setStyleSheet(open(resource_path('data/ui/_.css')).read())
     APP.setWindowIcon(QIcon(resource_path('data/ui/icon.png')))
     APP.setQuitOnLastWindowClosed(False)
-    APP.setAttribute(Qt.AA_EnableHighDpiScaling)
     QFontDatabase.addApplicationFont(
         resource_path('data/fonts/NotoSans-Regular.ttf'))
     QFontDatabase.addApplicationFont(
