@@ -127,10 +127,10 @@ class Maps(ParserWindow):
                 continue
             # Add players in the zone
             for player in locations[zone]:
-                print("player found: %s" % player)
                 if player == config.data['sharing']['player_name']:
-                    print("player is self")
+                    print(f"player found: {player} (self)")
                     continue
+                print(f"player found: {player}")
                 p_data = locations[zone][player]
                 p_timestamp = datetime.datetime.fromisoformat(
                     p_data.get('timestamp'))
