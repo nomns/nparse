@@ -41,7 +41,7 @@ CSS_MENU = """
     color: white;
 }}
 #ParserWindowMenu QPushButton {{
-    color: rgb(255, 255, 255, {alpha});
+    color: rgba(255, 255, 255, {alpha});
 }}
 #ParserWindowMenuReal {{
     background-color:rgba({red},{green},{blue},{alpha})
@@ -53,7 +53,7 @@ CSS_MENU = """
     color: rgba(255,255,255,{alpha})
 }}
 #ParserWindowTitle {{
-    color: rgb(200, 200, 200, {alpha})
+    color: rgba(200, 200, 200, {alpha})
 }}"""
 HTML_NO_CONFIG = """
 <html><font color='lightgrey' size='5px'>

@@ -11,6 +11,6 @@ Building
 ========
 
 Currently only python 3.8.x is supported. Python 3.10.x has known issues that must be resolved.
-Install `pyinstaller==4.3` and `pyinstaller-hooks-contrib==2020.7`
+Install `pyinstaller==5.3`
 
-Run: `pyinstaller --onefile nparse_py.spec`
+Run: `pyinstaller nparse_py.spec`
