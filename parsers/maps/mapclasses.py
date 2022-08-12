@@ -255,7 +255,7 @@ class WayPoint:
             self.line.setLine(line)
 
             pen = self.line.pen()
-            pen.setWidth(1 / scale)
+            pen.setWidth(int(1 / scale))
             self.line.setPen(pen)
 
             self.line.setVisible(True)
