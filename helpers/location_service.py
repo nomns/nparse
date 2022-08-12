@@ -1,5 +1,4 @@
 import json
-import logging
 import ssl
 import threading
 import time
@@ -9,13 +8,6 @@ from PyQt6.QtCore import QThreadPool
 import websocket
 
 from helpers import config
-
-logger = logging.getLogger(__name__)
-hdlr = logging.FileHandler('nparse_loc.log')
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-hdlr.setFormatter(formatter)
-logger.addHandler(hdlr)
-logger.setLevel(logging.WARNING)
 
 
 class LocationSignals(QObject):
