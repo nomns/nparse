@@ -10,7 +10,10 @@ Please see the [Wiki](https://github.com/nomns/nparse/wiki) for more information
 Building
 ========
 
-Currently only python 3.8.x is supported. Python 3.10.x has known issues that must be resolved.
+Install Python 3.10.x and install requirements with `pip install -r requirements.txt`
+
+Note: Currently it seems problematic to build PyQt6 on 32-bit Python.
+
 Install `pyinstaller==5.3`
 
 Run: `pyinstaller nparse_py.spec`

@@ -1,18 +1,16 @@
 import functools
 
-from PyQt5.QtWidgets import (QCheckBox, QDialog, QFormLayout, QFrame,
+from PyQt6.QtWidgets import (QCheckBox, QDialog, QFormLayout, QFrame,
                              QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
                              QSpinBox, QStackedWidget, QPushButton,
                              QVBoxLayout, QWidget, QComboBox, QLineEdit,
                              QMessageBox, QColorDialog)
-
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor
 
 from helpers import config, text_time_to_seconds
-
-from parsers.spells import CustomTrigger
 from helpers import location_service
+from parsers.spells import CustomTrigger
 
 
 WHATS_THIS_CASTING_WINDOW = """The Casting Window is a range of time in which the spell you are casting will land.
@@ -62,7 +60,7 @@ class SettingsWindow(QDialog):
         top_layout = QHBoxLayout()
         self._list_widget = QListWidget()
         self._list_widget.setObjectName('SettingsList')
-        self._list_widget.setSelectionMode(QListWidget.SingleSelection)
+        self._list_widget.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
         self._list_widget.currentItemChanged.connect(self._switch_stack)
         self._widget_stack = QStackedWidget()
         self._widget_stack.setObjectName('SettingsStack')
@@ -80,7 +78,7 @@ class SettingsWindow(QDialog):
         self._list_widget.setMaximumWidth(
             self._list_widget.minimumSizeHint().width())
 
-        self._list_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._list_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         buttons = QWidget()
         buttons.setObjectName('SettingsButtons')
@@ -219,7 +217,7 @@ class SettingsWindow(QDialog):
             )
         ssl_open_custom = QPushButton("Edit")
         ssl_open_custom.clicked.connect(self._get_custom_timers)
-        row = ssl.addRow('Custom Timers', ssl_open_custom)
+        ssl.addRow('Custom Timers', ssl_open_custom)
 
         ssl.addRow(SettingsHeader('experimental'))
         ssl_secondary_duration = QCheckBox()
@@ -402,9 +400,9 @@ class SettingsWindow(QDialog):
 
     def _dynamic_field_toggle(self, toggle_field, dynamic_field, invert=False):
         if toggle_field.isChecked():
-            dynamic_field.setDisabled(False if invert else True)
+            dynamic_field.setDisabled(not invert)
         else:
-            dynamic_field.setDisabled(True if invert else False)
+            dynamic_field.setDisabled(bool(invert))
 
 
 class SettingsHeader(QLabel):
@@ -412,21 +410,21 @@ class SettingsHeader(QLabel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setObjectName('SettingsLabel')
-        self.setAlignment(Qt.AlignCenter)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
 
 class CustomTriggerSettings(QDialog):
 
     def __init__(self):
         super().__init__()
-        
+
         self._custom_triggers = {}
         self._current_trigger = ''
 
         self.setWindowTitle("Custom Timers")
         self._setup_ui()
         self._load_from_config()
-    
+
     def _setup_ui(self):
 
         layout = QVBoxLayout()
@@ -435,7 +433,7 @@ class CustomTriggerSettings(QDialog):
         self._triggers.setObjectName("TriggersCombo")
         self._triggers.activated.connect(self._activated)
         layout.addWidget(self._triggers, 1)
-        
+
         button_layout = QHBoxLayout()
         self._add_trigger_button = QPushButton()
         self._add_trigger_button.setText('add')
@@ -462,7 +460,7 @@ class CustomTriggerSettings(QDialog):
         self._trigger_name = QLineEdit()
         self._trigger_name.setMaxLength(50)
         trigger_layout.addRow('Name', self._trigger_name)
-        
+
         self._trigger_text = QLineEdit()
         trigger_layout.addRow('Text', self._trigger_text)
 
@@ -491,7 +489,7 @@ class CustomTriggerSettings(QDialog):
             ct = CustomTrigger(*item)
             self._custom_triggers[ct.name] = ct
             self._triggers.addItem(ct.name)
-        
+
         if self._custom_triggers:
             ct = self._custom_triggers[self._triggers.currentText()]
             self._trigger_name.setText(ct.name)
@@ -501,7 +499,7 @@ class CustomTriggerSettings(QDialog):
         else:
             self._current_trigger = None
             self._clear()
-    
+
     def _save_to_config(self):
         config.data['spells']['custom_timers'] =\
             [
@@ -521,7 +519,7 @@ class CustomTriggerSettings(QDialog):
         self._trigger_name.setFocus()
         self._trigger_text.setPlaceholderText('match*me')
         self._trigger_time.setPlaceholderText('hh:mm:ss')
-    
+
     def _remove_trigger(self):
         if self._triggers.currentText():
             self._custom_triggers.pop(self._triggers.currentText())
@@ -530,19 +528,19 @@ class CustomTriggerSettings(QDialog):
         else:
             self._triggers.removeItem(self._triggers.currentIndex())
         self._load_from_config()
-    
+
     def _save_trigger(self):
         if self._trigger_name.text():
             # validate text and time
-            if self._trigger_text.text() and\
-                text_time_to_seconds(self._trigger_time.text()):
-                if self._trigger_name.text() in self._custom_triggers.keys() and \
+            if self._trigger_text.text() and \
+                    text_time_to_seconds(self._trigger_time.text()):
+                if self._trigger_name.text() in self._custom_triggers and \
                         not self._trigger_name.text() == self._current_trigger:
                     m = QMessageBox()
                     m.setText("A custom trigger with this name already exists.")
                     m.exec()
                 elif not self._trigger_name.text() == self._current_trigger and \
-                        not self._current_trigger == '':
+                        self._current_trigger != '':
                     # update name and info
                     ct = self._custom_triggers.pop(self._current_trigger)
                     ct.name = self._trigger_name.text()
@@ -563,7 +561,7 @@ class CustomTriggerSettings(QDialog):
                     ct.text = self._trigger_text.text()
                     ct.time = self._trigger_time.text()
                     self._custom_triggers[self._current_trigger] = ct
-                
+
                 # save and reload
                 current_index = self._triggers.currentIndex()
                 self._save_to_config()
@@ -575,7 +573,7 @@ class CustomTriggerSettings(QDialog):
                 m = QMessageBox()
                 m.setText("Both the text and time (hh:mm:ss) need to be filled out.")
                 m.exec()
-    
+
     def _activated(self, _):
         self._current_trigger = name = self._triggers.currentText()
         if name != "":
@@ -584,7 +582,7 @@ class CustomTriggerSettings(QDialog):
             self._trigger_time.setText(self._custom_triggers[name].time)
         else:
             self._clear()
-    
+
     def _clear(self):
         self._trigger_name.clear()
         self._trigger_text.clear()

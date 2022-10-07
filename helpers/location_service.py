@@ -1,21 +1,13 @@
 import json
-import logging
 import ssl
 import threading
 import time
 
-from PyQt5.QtCore import QObject, QRunnable, pyqtSignal, pyqtSlot
-from PyQt5.QtCore import QThreadPool
+from PyQt6.QtCore import QObject, QRunnable, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QThreadPool
 import websocket
 
 from helpers import config
-
-logger = logging.getLogger(__name__)
-hdlr = logging.FileHandler('nparse_loc.log')
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-hdlr.setFormatter(formatter)
-logger.addHandler(hdlr)
-logger.setLevel(logging.WARNING)
 
 
 class LocationSignals(QObject):
@@ -74,7 +66,7 @@ class LocationServiceConnection(QRunnable):
     reconnect_delay = 5
 
     def __init__(self):
-        super(LocationServiceConnection, self).__init__()
+        super().__init__()
         try:
             SIGNALS.send_loc.disconnect()
         except TypeError:
@@ -167,5 +159,5 @@ class LocationServiceConnection(QRunnable):
     def _on_open(self, ws):
         print("Connection opened.")
 
-    def _on_close(self, ws):
-        print("Connection closed.")
+    def _on_close(self, ws, status_code, close_message):
+        print(f"Connection closed: ({status_code}) {close_message}")
