@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QStyle,
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QStyle,
                              QPushButton, QVBoxLayout, QWidget)
 
 from helpers import config
@@ -71,7 +71,7 @@ class ParserWindow(QFrame, Parser):
         self._title = QLabel()
         self._title.setObjectName('ParserWindowTitle')
 
-        button = QPushButton(u'\u2637')
+        button = QPushButton('\u2637')
         button.setObjectName('ParserWindowMoveButton')
         self._menu_content.addWidget(button, 0)
         self._menu_content.addWidget(self._title, 1)
@@ -86,28 +86,7 @@ class ParserWindow(QFrame, Parser):
         button.clicked.connect(self._toggle_frame)
 
     def update_background_color(self):
-        return
-        self.setStyleSheet("""
-#ParserWindow QFrame, #ParserWindowMenuReal, #ParserWindowMenuReal QPushButton
-{{
-    background-color: {0};
-}}
-#ParserWindowMenu QPushButton:hover {{
-    background: darkgreen;
-}}
-#ParserWindowMenu QPushButton:checked {{
-    color: white;
-}}
-#ParserWindowMenu QSpinBox {{
-    color:white;
-    font-size: 14px;
-    font-weight: bold;
-    padding: 3px;
-    border: none;
-    border-radius: 3px;
-    background-color: {0};
-}}
-""".format(config.data[self.name]['color']))
+        pass
 
     def update_window_opacity(self):
         self.setWindowOpacity(config.data[self.name]['opacity'] / 100)
@@ -115,14 +94,12 @@ class ParserWindow(QFrame, Parser):
     def set_flags(self):
         self.update_window_opacity()
         self.update_background_color()
-        self.setFocus()
-        flags = (
-            Qt.FramelessWindowHint |
-            Qt.WindowStaysOnTopHint |
-            Qt.WindowCloseButtonHint |
-            Qt.WindowMinMaxButtonsHint)
+        flags = Qt.WindowType.FramelessWindowHint
+        flags |= Qt.WindowType.WindowStaysOnTopHint
+        flags |= Qt.WindowType.WindowCloseButtonHint
+        flags |= Qt.WindowType.WindowMinMaxButtonsHint
         if config.data[self.name]['clickthrough']:
-            flags |= Qt.WindowTransparentForInput
+            flags |= Qt.WindowType.WindowTransparentForInput
         self.setWindowFlags(flags)
         if config.data[self.name]['toggled']:
             self.show()
@@ -130,30 +107,48 @@ class ParserWindow(QFrame, Parser):
     def _toggle_frame(self):
         current_geometry = self.geometry()
         window_flush = config.data['general']['window_flush']
-        titlebar_height = self.style().pixelMetric(QStyle.PM_TitleBarHeight)
-        if bool(self.windowFlags() & Qt.FramelessWindowHint):
+        titlebar_height = self.style().pixelMetric(QStyle.PixelMetric.PM_TitleBarHeight)
+        titlebar_margin = self.style().pixelMetric(QStyle.PixelMetric.PM_DockWidgetTitleMargin)
+        tb_total_height = titlebar_height + titlebar_margin
+        if bool(self.windowFlags() & Qt.WindowType.FramelessWindowHint):
             if window_flush:
-                current_geometry.setTop(current_geometry.top() + titlebar_height)
-            self.setWindowFlags(
-                Qt.WindowCloseButtonHint |
-                Qt.WindowMinMaxButtonsHint
-            )
+                current_geometry.setTop(current_geometry.top() + tb_total_height)
+            flags = Qt.WindowType.WindowCloseButtonHint
+            flags |= Qt.WindowType.WindowMinMaxButtonsHint
+            self.setWindowFlags(flags)
             self.setGeometry(current_geometry)
             self.show()
         else:
             if window_flush:
-                current_geometry.setTop(current_geometry.top() - titlebar_height)
-            self.setWindowFlags(
-                Qt.FramelessWindowHint |
-                Qt.WindowStaysOnTopHint
-            )
+                current_geometry.setTop(current_geometry.top() - tb_total_height)
+            flags = Qt.WindowType.FramelessWindowHint
+            flags |= Qt.WindowType.WindowStaysOnTopHint
+            self.setWindowFlags(flags)
             self.setGeometry(current_geometry)
             self.show()
+            config.data[self.name]['geometry'] = [
+                current_geometry.x(), current_geometry.y(),
+                current_geometry.width(), current_geometry.height()
+            ]
+            config.save()
 
     def set_title(self, title):
         self._title.setText(title)
 
     def closeEvent(self, _):
+        if config.APP_EXIT:
+            return
+        if not bool(self.windowFlags() & Qt.WindowType.FramelessWindowHint):
+            # Preserve correct position/height when closing
+            titlebar_height = self.style().pixelMetric(QStyle.PixelMetric.PM_TitleBarHeight)
+            titlebar_margin = self.style().pixelMetric(QStyle.PixelMetric.PM_DockWidgetTitleMargin)
+            tb_total_height = titlebar_height + titlebar_margin
+            current_geometry = self.geometry()
+            current_geometry.setTop(max(current_geometry.top() - tb_total_height, 0))
+            config.data[self.name]['geometry'] = [
+                current_geometry.x(), current_geometry.y(),
+                current_geometry.width(), current_geometry.height()]
+            self.setGeometry(current_geometry)
         config.data[self.name]['toggled'] = False
         config.save()
 

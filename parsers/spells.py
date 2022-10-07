@@ -3,9 +3,9 @@ import math
 import string
 import re
 
-from PyQt5.QtCore import QEvent, QObject, QRect, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QProgressBar,
+from PyQt6.QtCore import QEvent, QObject, QRect, Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QProgressBar,
                              QScrollArea, QSpinBox, QVBoxLayout, QPushButton)
 
 from helpers import ParserWindow, config, format_time, text_time_to_seconds
@@ -158,7 +158,7 @@ class Spells(ParserWindow):
     def _level_change(self, _):
         config.data['spells']['level'] = self._level_widget.value()
         config.save()
-    
+
     def load_custom_timers(self):
         self._custom_timers = {}
         for item in config.data['spells']['custom_timers']:
@@ -179,10 +179,11 @@ class SpellContainer(QFrame):
 
     def __init__(self):
         super().__init__()
-        self.setLayout(QVBoxLayout())
+        self._layout = QVBoxLayout()
+        self.setLayout(self._layout)
         self.setObjectName('SpellContainer')
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().addStretch(1)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.addStretch(1)
 
     def add_spell(self, spell, timestamp, target='__you__'):
         spell_target = None
@@ -193,14 +194,14 @@ class SpellContainer(QFrame):
         if not spell_target:
             new = True
             spell_target = SpellTarget(target=target)
-            self.layout().addWidget(spell_target, 0)
+            self._layout.addWidget(spell_target, 0)
 
         spell_target.add_spell(spell, timestamp)
 
         if new:
             for x, widget in enumerate(sorted(self.findChildren(SpellTarget),
                                               key=lambda x: (int(x.target_label.property('TargetType')), x.name))):
-                self.layout().insertWidget(x, widget, 0)  # + 1 - skip target label
+                self._layout.insertWidget(x, widget, 0)  # + 1 - skip target label
 
     def spell_targets(self):
         """Returns a list of all SpellTargets."""
@@ -231,16 +232,17 @@ class SpellTarget(QFrame):
         self._setup_ui()
 
     def _setup_ui(self):
-        self.setLayout(QVBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(0)
+        self._layout = QVBoxLayout()
+        self.setLayout(self._layout)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(0)
         self.target_label = QLabel(self.title.title())
         self.target_label.setObjectName('SpellTargetLabel')
         self.target_label.setMaximumHeight(20)
-        self.target_label.setAlignment(Qt.AlignCenter)
+        self.target_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.target_label.mouseDoubleClickEvent = self._remove
-        self.layout().addWidget(self.target_label, 0)
-        self.layout().addStretch()
+        self._layout.addWidget(self.target_label, 0)
+        self._layout.addStretch()
 
     def _remove(self, event=None):
         self.setParent(None)
@@ -251,8 +253,8 @@ class SpellTarget(QFrame):
         return self.findChildren(SpellWidget)
 
     def childEvent(self, event):
-        if event.type() == QEvent.ChildRemoved:
-            if type(event.child()) == SpellWidget:
+        if event.type() == QEvent.Type.ChildRemoved:
+            if isinstance(event.child(), SpellWidget):
                 if not self.findChildren(SpellWidget):
                     self._remove()
         event.accept()
@@ -266,8 +268,8 @@ class SpellTarget(QFrame):
                 recast = True
                 sw.recast(timestamp)
         if not recast:
-            self.layout().addWidget(SpellWidget(spell, timestamp))
-        if self.name == '__you__' or self.name == '__custom__':
+            self._layout.addWidget(SpellWidget(spell, timestamp))
+        if self.name in ('__you__', '__custom__'):
             self.target_label.setProperty('TargetType', 0)  # user
         elif not target_type:  # treat target like enemy
             self.target_label.setProperty('TargetType', 2)  # enemy
@@ -277,7 +279,7 @@ class SpellTarget(QFrame):
 
         now = datetime.datetime.now()
         for x, widget in enumerate(sorted(self.findChildren(SpellWidget), key=lambda x: (x.end_time - now))):
-            self.layout().insertWidget(x + 1, widget)  # + 1 - skip target label
+            self._layout.insertWidget(x + 1, widget)  # + 1 - skip target label
 
 
 class SpellWidget(QFrame):
@@ -382,7 +384,7 @@ def get_spell_icon(icon_index):
     y = (file_row - 1) * 40
     icon_image = QPixmap(file_name)
     scaled_icon_image = icon_image.copy(QRect(x, y, 40, 40)).scaled(
-        15, 15, transformMode=Qt.SmoothTransformation)
+        15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
     label = QLabel()
     label.setPixmap(scaled_icon_image)
     label.setFixedSize(15, 15)
@@ -512,16 +514,13 @@ def get_spell_duration(spell, level):
         spell_ticks = 0
     if formula == 1:
         spell_ticks = int(math.ceil(level / float(2.0)))
-        if spell_ticks > duration:
-            spell_ticks = duration
+        spell_ticks = min(spell_ticks, duration)
     if formula == 2:
         spell_ticks = int(math.ceil(level / float(5.0) * 3))
-        if spell_ticks > duration:
-            spell_ticks = duration
+        spell_ticks = min(spell_ticks, duration)
     if formula == 3:
         spell_ticks = int(level * 30)
-        if spell_ticks > duration:
-            spell_ticks = duration
+        spell_ticks = min(spell_ticks, duration)
     if formula == 4:
         if duration == 0:
             spell_ticks = 50
@@ -533,24 +532,19 @@ def get_spell_duration(spell, level):
             spell_ticks = 3
     if formula == 6:
         spell_ticks = int(math.ceil(level / float(2.0)))
-        if spell_ticks > duration:
-            spell_ticks = duration
+        spell_ticks = min(spell_ticks, duration)
     if formula == 7:
         spell_ticks = level
-        if spell_ticks > duration:
-            spell_ticks = duration
+        spell_ticks = min(spell_ticks, duration)
     if formula == 8:
         spell_ticks = level + 10
-        if spell_ticks > duration:
-            spell_ticks = duration
+        spell_ticks = min(spell_ticks, duration)
     if formula == 9:
         spell_ticks = int((level * 2) + 10)
-        if spell_ticks > duration:
-            spell_ticks = duration
+        spell_ticks = min(spell_ticks, duration)
     if formula == 10:
         spell_ticks = int(level * 3 + 10)
-        if spell_ticks > duration:
-            spell_ticks = duration
+        spell_ticks = min(spell_ticks, duration)
     if formula == 11:
         spell_ticks = duration
     if formula == 12:
@@ -569,12 +563,12 @@ def get_spell_duration(spell, level):
 
 class CustomTrigger:
 
-    def __init__(self, name='', text='', time='', **kwargs):
+    def __init__(self, name='', text='', time='', **_):
         self.name, self.text, self.time = name, text, time
 
     def to_list(self):
         return [self.name, self.text, self.time]
-    
+
     def __str__(self):
         return '{},{},{}'.format(
             self.name, self.text, self.time

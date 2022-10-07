@@ -1,6 +1,9 @@
-import sys
-import os
+from datetime import datetime, timedelta
+import json
 import math
+import os
+import sys
+
 import requests
 import json
 
@@ -43,7 +46,7 @@ def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS  # pylint: disable=E1101
+        base_path = sys._MEIPASS  # pylint: disable=E1101,W0212
     except Exception:
         base_path = os.path.abspath(".")
 
@@ -57,7 +60,7 @@ def to_range(number, min_number, max_number):
 
 def within_range(number, min_number, max_number):
     """ Returns true/false if number is within min/max. """
-    return (number >= min_number and number <= max_number)
+    return min_number <= number <= max_number
 
 
 def to_real_xy(x, y):
@@ -86,8 +89,7 @@ def format_time(time_delta):
         time_string += '{}m'.format(minutes) if minutes else ''
         time_string += '{}s'.format(seconds) if seconds else ''
         return time_string
-    else:
-        return str(seconds)
+    return str(seconds)
 
 
 def text_time_to_seconds(text_time):

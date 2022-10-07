@@ -1,8 +1,9 @@
-pyqt5==5.15.4
-websockets==8.1
-websocket-client==0.58.0
+pyqt6
+websockets
+websocket-client
 requests
 colorhash
 pathvalidate
-PyQtWebEngine
 psutil
+PyQt6-WebEngine
+

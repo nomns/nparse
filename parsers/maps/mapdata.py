@@ -3,8 +3,8 @@ import math
 import pathlib
 from collections import Counter
 
-from PyQt5.QtGui import QColor, QPen, QPainterPath
-from PyQt5.QtWidgets import QGraphicsPathItem, QGraphicsItemGroup
+from PyQt6.QtGui import QColor, QPen, QPainterPath
+from PyQt6.QtWidgets import QGraphicsPathItem, QGraphicsItemGroup
 
 from helpers import config
 
@@ -163,7 +163,7 @@ class MapData(dict):
             temp_dict[lz]['paths'][lc].setPath(path)
 
         # Group QGraphicsPathItems into QGraphicsItemGroups and update self
-        for z in temp_dict.keys():
+        for z in temp_dict:
             item_group = QGraphicsItemGroup()
             for (_, path) in temp_dict[z]['paths'].items():
                 item_group.addToGroup(path)
@@ -236,8 +236,8 @@ class MapData(dict):
         lightness = color.lightness()
         if lightness == 0:
             return QColor(255, 255, 255)
-        elif (color.red == color.green == color.blue):
+        if color.red == color.green == color.blue:
             return QColor(255, 255, 255)
-        elif lightness < 150:
+        if lightness < 150:
             return color.lighter(150)
         return color

@@ -7,6 +7,7 @@ import socket
 import time
 
 import websockets
+from websockets import exceptions as ws_exc
 
 logging.basicConfig()
 LOG = logging.getLogger(__name__)
@@ -160,7 +161,7 @@ async def update_loc(websocket, path):
                 data = data['location']
                 await update_data_for_waypoint(websocket, data, group_key=group_key)
                 await notify_location(websocket, group_key)
-    except websockets.exceptions.ConnectionClosedError:
+    except ws_exc.ConnectionClosedError:
         logging.warning(
             "Player disconnected: %s" % websocket.remote_address[0])
     finally:

@@ -2,7 +2,7 @@ import os
 import datetime
 from glob import glob
 
-from PyQt5.QtCore import QFileSystemWatcher, pyqtSignal
+from PyQt6.QtCore import QFileSystemWatcher, pyqtSignal
 
 from helpers import config
 from helpers import location_service

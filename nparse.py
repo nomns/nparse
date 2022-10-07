@@ -3,9 +3,9 @@ import os
 import sys
 import webbrowser
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QCursor, QFontDatabase, QIcon
-from PyQt5.QtWidgets import (QApplication, QFileDialog, QMenu, QMessageBox,
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QCursor, QFontDatabase, QIcon
+from PyQt6.QtWidgets import (QApplication, QFileDialog, QMenu, QMessageBox,
                              QSystemTrayIcon)
 
 import parsers
@@ -28,7 +28,7 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = '0.6.5'
+CURRENT_VERSION = '0.6.6-rc1'
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
@@ -39,7 +39,6 @@ class NomnsParse(QApplication):
     """Application Control."""
 
     def __init__(self, *args):
-        self.setAttribute(Qt.AA_EnableHighDpiScaling)
         super().__init__(*args)
 
         # Updates
@@ -134,7 +133,7 @@ class NomnsParse(QApplication):
     def _menu(self, event):
         """Returns a new QMenu for system tray."""
         menu = QMenu()
-        menu.setAttribute(Qt.WA_DeleteOnClose)
+        menu.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         # check online for new version
         if self.new_version_available():
             new_version_text = "Update Available {}".format(ONLINE_VERSION)
@@ -159,7 +158,7 @@ class NomnsParse(QApplication):
         menu.addSeparator()
         quit_action = menu.addAction('Quit')
 
-        action = menu.exec_(QCursor.pos())
+        action = menu.exec(QCursor.pos())
 
         if action == check_version_action:
             webbrowser.open('https://github.com/nomns/nparse/releases')
@@ -174,7 +173,7 @@ class NomnsParse(QApplication):
 
         elif action == settings_action:
             self._settings._set_values()
-            if self._settings.exec_():
+            if self._settings.exec():
                 # Update required settings
                 for parser in self._parsers:
                     parser.set_flags()
@@ -204,6 +203,7 @@ class NomnsParse(QApplication):
                 config.save()
 
             self._system_tray.setVisible(False)
+            config.APP_EXIT = True
             self.quit()
 
         elif action in parser_toggles:
