@@ -1,23 +1,68 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel,
+from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QStyle,
                              QPushButton, QVBoxLayout, QWidget)
 
 from helpers import config
+from datetime import datetime
 
 
-class ParserWindow(QFrame):
+class Parser:
+
+    def __init__(self):
+        super().__init__()
+        self.name = 'Parser'
+        self._visible = False
+
+    def isVisible(self) -> bool:
+        return self._visible
+
+    def hide(self):
+        self._visible = False
+
+    def show(self):
+        self._visible = True
+
+    # main parsing logic here - derived classed should override this to perform their particular parsing tasks
+    def parse(self, timestamp: datetime, text: str) -> None:
+
+        # default behavior = simply print passed info
+        # this strftime mask will recreate the EQ log file timestamp format
+        line = f'[{timestamp.strftime("%a %b %d %H:%M:%S %Y")}] ' + text
+        print(f'[{self.name}]:{line}')
+
+    def toggle(self, _=None) -> None:
+        if self.isVisible():
+            self.hide()
+            config.data[self.name]['toggled'] = False
+        else:
+            self.set_flags()
+            self.show()
+            config.data[self.name]['toggled'] = True
+        config.save()
+
+    def shutdown(self) -> None:
+        pass
+
+    def set_flags(self) -> None:
+        pass
+
+    def settings_updated(self) -> None:
+        pass
+
+
+class ParserWindow(QFrame, Parser):
 
     def __init__(self):
         super().__init__()
         self.name = ''
         self.setObjectName('ParserWindow')
-        self.setWindowOpacity(config.data['general']['parser_opacity'] / 100)
         self.content = QVBoxLayout()
         self.content.setContentsMargins(0, 0, 0, 0)
         self.content.setSpacing(0)
         self.setLayout(self.content)
         self._menu = QWidget()
         self._menu_content = QHBoxLayout()
+        self._menu.setObjectName('ParserWindowMenuReal')
         self._menu.setLayout(self._menu_content)
         self._menu_content.setSpacing(5)
         self._menu_content.setContentsMargins(3, 0, 0, 0)
@@ -40,19 +85,55 @@ class ParserWindow(QFrame):
 
         button.clicked.connect(self._toggle_frame)
 
+    def update_background_color(self):
+        return
+        self.setStyleSheet("""
+#ParserWindow QFrame, #ParserWindowMenuReal, #ParserWindowMenuReal QPushButton
+{{
+    background-color: {0};
+}}
+#ParserWindowMenu QPushButton:hover {{
+    background: darkgreen;
+}}
+#ParserWindowMenu QPushButton:checked {{
+    color: white;
+}}
+#ParserWindowMenu QSpinBox {{
+    color:white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 3px;
+    border: none;
+    border-radius: 3px;
+    background-color: {0};
+}}
+""".format(config.data[self.name]['color']))
+
+    def update_window_opacity(self):
+        self.setWindowOpacity(config.data[self.name]['opacity'] / 100)
+
     def set_flags(self):
+        self.update_window_opacity()
+        self.update_background_color()
         self.setFocus()
-        self.setWindowFlags(
+        flags = (
             Qt.FramelessWindowHint |
             Qt.WindowStaysOnTopHint |
             Qt.WindowCloseButtonHint |
-            Qt.WindowMinMaxButtonsHint
-        )
-        self.show()
+            Qt.WindowMinMaxButtonsHint)
+        if config.data[self.name]['clickthrough']:
+            flags |= Qt.WindowTransparentForInput
+        self.setWindowFlags(flags)
+        if config.data[self.name]['toggled']:
+            self.show()
 
     def _toggle_frame(self):
         current_geometry = self.geometry()
+        window_flush = config.data['general']['window_flush']
+        titlebar_height = self.style().pixelMetric(QStyle.PM_TitleBarHeight)
         if bool(self.windowFlags() & Qt.FramelessWindowHint):
+            if window_flush:
+                current_geometry.setTop(current_geometry.top() + titlebar_height)
             self.setWindowFlags(
                 Qt.WindowCloseButtonHint |
                 Qt.WindowMinMaxButtonsHint
@@ -60,26 +141,17 @@ class ParserWindow(QFrame):
             self.setGeometry(current_geometry)
             self.show()
         else:
+            if window_flush:
+                current_geometry.setTop(current_geometry.top() - titlebar_height)
             self.setWindowFlags(
                 Qt.FramelessWindowHint |
                 Qt.WindowStaysOnTopHint
             )
             self.setGeometry(current_geometry)
             self.show()
-        g = self.geometry()
 
     def set_title(self, title):
         self._title.setText(title)
-
-    def toggle(self, _=None):
-        if self.isVisible():
-            self.hide()
-            config.data[self.name]['toggled'] = False
-        else:
-            self.set_flags()
-            self.show()
-            config.data[self.name]['toggled'] = True
-        config.save()
 
     def closeEvent(self, _):
         config.data[self.name]['toggled'] = False
@@ -92,6 +164,3 @@ class ParserWindow(QFrame):
     def leaveEvent(self, event):
         self._menu.setVisible(False)
         QFrame.leaveEvent(self, event)
-
-    def settings_updated(self):
-        pass

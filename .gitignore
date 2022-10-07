@@ -2,6 +2,7 @@
 
 .idea/
 .vscode/
+working/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -15,7 +16,9 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+.venv/
 env/
+venv/
 bin/
 build/
 develop-eggs/
@@ -27,6 +30,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+*.zip
 
 # Installer logs
 pip-log.txt
@@ -63,3 +67,4 @@ docs/_build/
 wiki/
 old/
 nparse.config.json
+
