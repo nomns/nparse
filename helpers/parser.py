@@ -10,7 +10,7 @@ class Parser:
 
     def __init__(self):
         super().__init__()
-        self.name = 'Parser'
+        self.name = 'Parser'    # could this be self.__class__.__name__ instead?
         self._visible = False
 
     def isVisible(self) -> bool:

@@ -1,12 +1,17 @@
 import os
 import datetime
 from glob import glob
+from typing import Optional
 
 from PyQt6.QtCore import QFileSystemWatcher, pyqtSignal
 
 from helpers import config
 from helpers import location_service
 from helpers import strip_timestamp
+import parsers
+
+# pointer to the LogEventParser object, so this code can update the character name when the logfile changes
+theLogEventParser: Optional[parsers.LogEventParser] = None
 
 
 class LogReader(QFileSystemWatcher):
@@ -46,6 +51,9 @@ class LogReader(QFileSystemWatcher):
         if changed_file != self._stats['log_file']:
             self._stats['log_file'] = changed_file
             config.char_name = os.path.basename(changed_file).split("_")[1]
+            # use the global pointer to update the charname
+            if theLogEventParser:
+                theLogEventParser.set_char_name(config.char_name)
             if not config.data['sharing']['player_name_override']:
                 config.data['sharing']['player_name'] = config.char_name
                 location_service.SIGNALS.config_updated.emit()

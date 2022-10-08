@@ -50,7 +50,7 @@ class MapData(dict):
                 for line in f.readlines():
                     line_type = line.lower()[0:1]
                     data = [value.strip() for value in line[1:].split(',')]
-                    if line_type == 'l':  # line
+                    if line_type == 'l':  # text
                         x1, y1, z1, x2, y2, z2 = list(map(float, data[0:6]))
                         self.raw['lines'].append(MapLine(
                             x1=x1,

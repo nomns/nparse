@@ -128,7 +128,7 @@ def starprint(line: str) -> None:
     utility function to print with leading and trailing ** indicators
 
     Args:
-        line: line to be printed
+        line: text to be printed
 
     Returns:
         None:

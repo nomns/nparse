@@ -71,10 +71,10 @@ class DeathLoopVaccine(Parser):
     # main parsing logic here
     def parse(self, timestamp: datetime, text: str) -> None:
         """
-        Parse a single line from the logfile
+        Parse a single text from the logfile
 
         Args:
-            timestamp: A datetime.datetime object, created from the timestamp text of the raw logfile line
+            timestamp: A datetime.datetime object, created from the timestamp text of the raw logfile text
             text: The text following the everquest timestamp
 
         Returns:
@@ -91,7 +91,7 @@ class DeathLoopVaccine(Parser):
         save the message for later processing
 
         Args:
-            timestamp: A datetime.datetime object, created from the timestamp text of the raw logfile line
+            timestamp: A datetime.datetime object, created from the timestamp text of the raw logfile text
             text: The text following the everquest timestamp
 
         Returns:
@@ -101,7 +101,7 @@ class DeathLoopVaccine(Parser):
         trunc_line = text
         line = f'[{timestamp.strftime("%a %b %d %H:%M:%S %Y")}] ' + text
 
-        # does this line contain a death message
+        # does this text contain a death message
         slain_regexp = r'^You have been slain'
         m = re.match(slain_regexp, trunc_line)
         if m:
@@ -122,7 +122,7 @@ class DeathLoopVaccine(Parser):
         # only do the list-purging if there are already some death messages in the list, else skip this
         if len(self._death_list) > 0:
 
-            # create a datetime object for this line, using the very capable datetime.strptime()
+            # create a datetime object for this text, using the very capable datetime.strptime()
             now = timestamp
 
             # now purge any death messages that are too old
@@ -151,7 +151,7 @@ class DeathLoopVaccine(Parser):
         check for "proof of life" indications the player is really not AFK
 
         Args:
-            timestamp: A datetime.datetime object, created from the timestamp text of the raw logfile line
+            timestamp: A datetime.datetime object, created from the timestamp text of the raw logfile text
             text: The text following the everquest timestamp
 
         Returns:
@@ -168,7 +168,7 @@ class DeathLoopVaccine(Parser):
             trunc_line = text
             line = f'[{timestamp.strftime("%a %b %d %H:%M:%S %Y")}] ' + text
 
-            # does this line contain a proof of life - casting
+            # does this text contain a proof of life - casting
             regexp = r'^You begin casting'
             m = re.match(regexp, trunc_line)
             if m:
@@ -176,7 +176,7 @@ class DeathLoopVaccine(Parser):
                 afk = False
                 starprint(f'DeathLoopVaccine:  Player Not AFK: {line}')
 
-            # does this line contain a proof of life - communication
+            # does this text contain a proof of life - communication
             # this captures tells, say, group, auction, and shout channels
             regexp = f'^(You told|You say|You tell|You auction|You shout|{config.char_name} ->)'
             m = re.match(regexp, trunc_line)
@@ -185,7 +185,7 @@ class DeathLoopVaccine(Parser):
                 afk = False
                 starprint(f'DeathLoopVaccine:  Player Not AFK: {line}')
 
-            # does this line contain a proof of life - melee
+            # does this text contain a proof of life - melee
             regexp = r'^You( try to)? (hit|slash|pierce|crush|claw|bite|sting|maul|gore|punch|kick|backstab|bash|slice)'
             m = re.match(regexp, trunc_line)
             if m:
@@ -230,7 +230,7 @@ class DeathLoopVaccine(Parser):
             for pid in pid_list:
                 starprint(f'Killing process [{pid}]')
 
-                # for testing the actual kill process using simulated player deaths, uncomment the following line
+                # for testing the actual kill process using simulated player deaths, uncomment the following text
                 # self._kill_armed = True
                 if self._kill_armed:
                     os.kill(pid, signal.SIGTERM)

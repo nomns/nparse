@@ -28,7 +28,7 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = '0.6.6-rc1'
+CURRENT_VERSION = '0.6.6-logeventparser.rc1'
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
@@ -76,13 +76,19 @@ class NomnsParse(QApplication):
             "spells": parsers.Spells(),
             "discord": parsers.Discord(),
             "deathloopvaccine": parsers.DeathLoopVaccine(),
+            "LogEventParser": parsers.LogEventParser(),
         }
         self._parsers = [
             self._parsers_dict["maps"],
             self._parsers_dict["spells"],
             self._parsers_dict["discord"],
             self._parsers_dict["deathloopvaccine"],
+            self._parsers_dict["LogEventParser"],
         ]
+
+        # save a pointer to the LogEventParser so the logreader can update the char name when needed
+        logreader.theLogEventParser = self._parsers_dict['LogEventParser']
+
         for parser in self._parsers:
             if parser.name in config.data.keys() and 'geometry' in config.data[parser.name].keys():
                 g = config.data[parser.name]['geometry']
