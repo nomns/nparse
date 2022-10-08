@@ -17,8 +17,9 @@ LOGEVENT_QUAKE: int = 9
 LOGEVENT_RANDOM: int = 10
 LOGEVENT_ABC: int = 11
 LOGEVENT_GRATSS: int = 12
-LOGEVENT_TOD: int = 13
+LOGEVENT_TODLO: int = 13
 LOGEVENT_GMOTD: int = 14
+LOGEVENT_TODHI: int = 15
 
 
 #########################################################################################################################
@@ -505,7 +506,7 @@ class Gratss_Event(LogEvent):
         ]
 
 
-class TOD_Event(LogEvent):
+class TOD_HighFidelity_Event(LogEvent):
     """
     Parser for tod messages
 
@@ -515,10 +516,9 @@ class TOD_Event(LogEvent):
 
     def __init__(self):
         super().__init__()
-        self.log_event_ID = LOGEVENT_TOD
-        self.short_description = 'Possible TOD sighting!'
+        self.log_event_ID = LOGEVENT_TODHI
+        self.short_description = 'TOD'
         self._search_list = [
-            ".*tod(?i)",
             '^(?P<target_name>[\\w ]+) has been slain',
         ]
 
@@ -616,7 +616,7 @@ class TOD_Event(LogEvent):
         if m:
             rv = True
             # reset the description in case it has been set to something else
-            self.short_description = 'Possible TOD sighting!'
+            self.short_description = 'TOD'
             if 'target_name' in m.groupdict().keys():
                 target_name = m.group('target_name')
                 if target_name in self.known_targets:
@@ -625,6 +625,24 @@ class TOD_Event(LogEvent):
                     self.short_description = f'TOD {target_name}'
 
         return rv
+
+
+class TOD_LowFidelity_Event(LogEvent):
+
+    """
+    Parser for tod messages
+
+    Low fidelity version:  if someone says 'tod' in one of the channels
+    High fidelity version: the phrase 'XXX has been slain', where XXX is one of the known targets of interest
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.log_event_ID = LOGEVENT_TODLO
+        self.short_description = 'Possible TOD sighting!'
+        self._search_list = [
+            ".*tod(?i)",
+        ]
 
 
 class GMOTD_Event(LogEvent):
