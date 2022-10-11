@@ -1,5 +1,6 @@
 import re
 import time
+import logging
 from datetime import datetime, timezone, timedelta
 
 
@@ -64,9 +65,12 @@ class LogEvent:
         """
 
         # boolean for whether a LogEvent class should be checked.
-        # todo - get this from config file rather than hardcoding to True
+        # controlled by the ini file setting
         self.parse = True
         # self.parse = config.config_data.getboolean('LogEventParser', self.__class__.__name__)
+
+        # list of logging.Logger objects
+        self.logger_list = []
 
         # modify these as necessary in child classes
         self.log_event_ID = LOGEVENT_BASE
@@ -79,7 +83,7 @@ class LogEvent:
             '^You have been slain by Generic Target Name'
         ]
 
-        # the actual text from the logfile
+        # the actual line from the logfile
         self._matching_line = None
 
         # timezone info
@@ -177,11 +181,11 @@ class LogEvent:
     #
     def report(self) -> str:
         """
-        Return a text of text with all relevant data for this event,
+        Return a line of text with all relevant data for this event,
         separated by the field_separation character
 
         Returns:
-            str: single text with all fields
+            str: single line with all fields
         """
         rv = f'{self.eqmarker}{self.field_separator}'
         rv += f'{self.parsing_player}{self.field_separator}'
@@ -191,6 +195,27 @@ class LogEvent:
         # rv += f'{self._local_datetime}{self.field_separator}'
         rv += f'{self._matching_line}'
         return rv
+
+    #
+    #
+    def add_logger(self, logger: logging.Logger) -> None:
+        """
+        Add logger to this object
+
+        Args:
+            logger: a logging.Logger object
+        """
+        self.logger_list.append(logger)
+
+    #
+    #
+    def log_report(self) -> None:
+        """
+        send the report for this event to every registered logger
+        """
+        report_str = self.report()
+        for logger in self.logger_list:
+            logger.info(report_str)
 
 
 #########################################################################################################################
@@ -402,6 +427,7 @@ class AnythingButComms_Event(LogEvent):
 
     def __init__(self):
         super().__init__()
+        self.parse = False
 
         # individual communication channel exclude flags,
         # just in case wish to customize this later for finer control, for whatever reason
