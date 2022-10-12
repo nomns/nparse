@@ -640,7 +640,6 @@ class TOD_HighFidelity_Event(LogEvent):
     def _custom_match_hook(self, m: re.Match, eq_datetime: datetime, text: str) -> bool:
         rv = False
         if m:
-            rv = True
             # reset the description in case it has been set to something else
             self.short_description = 'TOD'
             if 'target_name' in m.groupdict().keys():
@@ -648,7 +647,8 @@ class TOD_HighFidelity_Event(LogEvent):
                 if target_name in self.known_targets:
                     # since we saw the 'has been slain' message,
                     # change the short description to a more definitive TOD message
-                    self.short_description = f'TOD {target_name}'
+                    rv = True
+                    self.short_description = f'TOD, High Fidelity: {target_name}'
 
         return rv
 
