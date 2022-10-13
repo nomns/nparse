@@ -30,7 +30,6 @@ rsyslog_servers = {'server1': '192.168.1.127:514',
 # random_event = True, server1, server2, server3
 # anythingbutcomms_event = False, server3
 # gratss_event = True, server1, server2, server3
-# tod_event = True, server1, server2, server3
 # gmotd_event = True, server1, server2, server3
 # tod_lowfidelity_event = True, server1, server2, server3
 # tod_highfidelity_event = True, server1, server2, server3
@@ -101,7 +100,7 @@ class LogEventParser(Parser):
                 host = host_port_list[0]
                 # this will throw an exception if the port number isn't an integer
                 port = int(host_port_list[1])
-                print(f'{host}, {port}')
+                # print(f'{host}, {port}')
 
                 # create a handler for the rsyslog communications, with level INFO
                 # this will throw an exception if host:port are nonsensical
