@@ -103,7 +103,7 @@ class LogEvent:
 
         Args:
             eq_datetime: a datetime object constructed from the leading 26 characters of the line of text from the logfile
-            text: text of text from the logfile WITHOUT the EQ date-time stamp
+            text: the line of text from the logfile WITHOUT the EQ date-time stamp
 
         Returns:
             True/False
