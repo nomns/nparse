@@ -667,7 +667,7 @@ class TOD_LowFidelity_Event(LogEvent):
         self.log_event_ID = LOGEVENT_TODLO
         self.short_description = 'Possible TOD sighting!'
         self._search_list = [
-            ".*tod(?i)",
+            ".*tod(?i) |.* tod(?i)\\'$",
         ]
 
 

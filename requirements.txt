@@ -1,6 +1,6 @@
 pyqt6
 websockets
-websocket-client
+websocket-client==1.3.3
 requests
 colorhash
 pathvalidate
