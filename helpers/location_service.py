@@ -113,7 +113,10 @@ class LocationServiceConnection(QRunnable):
             if self.enabled:
                 print("Starting connection to sharing host...")
                 try:
-                    self._socket.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+                    sslopt = None
+                    if self.host.lower().startswith("wss:"):
+                        sslopt = {"cert_reqs": ssl.CERT_NONE}
+                    self._socket.run_forever(sslopt=sslopt)
                 except:
                     print("Socket connection broken, continuing...")
             if RUN.is_set():
