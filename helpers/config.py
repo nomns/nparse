@@ -5,8 +5,10 @@ import os
 from glob import glob
 import json
 
+# global data
 data = {}
-_filename = ''
+_filename: str = ''
+char_name: str = ''
 APP_EXIT = False
 
 
@@ -284,6 +286,30 @@ def verify_settings():
         data['discord'].get('clickthrough', False),
         False
     )
+
+    # deathloopvaccine
+    data['deathloopvaccine'] = data.get('deathloopvaccine', {})
+    data['deathloopvaccine']['toggled'] = get_setting(
+        data['deathloopvaccine'].get('toggled', True),
+        True
+        )
+    data['deathloopvaccine']['deaths'] = get_setting(
+        data['deathloopvaccine'].get('deaths', 4),
+        4
+        )
+    data['deathloopvaccine']['seconds'] = get_setting(
+        data['deathloopvaccine'].get('seconds', 120),
+        120
+        )
+
+    # logeventparser
+    # todo - replace this general LogEventParser.toggled setting, with one for each LogEvent type
+    section_name = 'LogEventParser'
+    data[section_name] = data.get(section_name, {})
+    data[section_name]['toggled'] = get_setting(
+        data[section_name].get('toggled', True),
+        True
+        )
 
 
 def get_setting(setting, default, func=None):

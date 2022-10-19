@@ -1,7 +1,8 @@
 # PyCharm
-
 .idea/
 .vscode/
+working/
+.vbump.ini
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -15,6 +16,8 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+.venv/
+.nparse.venv/
 env/
 venv/
 bin/
@@ -65,3 +68,4 @@ docs/_build/
 wiki/
 old/
 nparse.config.json
+

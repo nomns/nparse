@@ -577,7 +577,7 @@ class MapCanvas(QGraphicsView):
             except Exception as e:
                 print("Failed to write loc to pathfile: %s" % e)
 
-            # Also add line to the active map
+            # Also add text to the active map
             z_group = self._data.get_closest_z_group(loc[2])
             color = MapData.color_transform(QColor(255, 0, 0))
             map_line = QGraphicsPathItem()

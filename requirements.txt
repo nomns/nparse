@@ -4,4 +4,7 @@ websocket-client
 requests
 colorhash
 pathvalidate
+psutil
 PyQt6-WebEngine
+pyinstaller==5.3
+

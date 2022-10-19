@@ -3,9 +3,54 @@ from PyQt6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QStyle,
                              QPushButton, QVBoxLayout, QWidget)
 
 from helpers import config
+from datetime import datetime
 
 
-class ParserWindow(QFrame):
+class Parser:
+
+    def __init__(self):
+        super().__init__()
+        self.name = 'Parser'    # could this be self.__class__.__name__ instead?
+        self._visible = False
+
+    def isVisible(self) -> bool:
+        return self._visible
+
+    def hide(self):
+        self._visible = False
+
+    def show(self):
+        self._visible = True
+
+    # main parsing logic here - derived classed should override this to perform their particular parsing tasks
+    def parse(self, timestamp: datetime, text: str) -> None:
+
+        # default behavior = simply print passed info
+        # this strftime mask will recreate the EQ log file timestamp format
+        line = f'[{timestamp.strftime("%a %b %d %H:%M:%S %Y")}] ' + text
+        print(f'[{self.name}]:{line}')
+
+    def toggle(self, _=None) -> None:
+        if self.isVisible():
+            self.hide()
+            config.data[self.name]['toggled'] = False
+        else:
+            self.set_flags()
+            self.show()
+            config.data[self.name]['toggled'] = True
+        config.save()
+
+    def shutdown(self) -> None:
+        pass
+
+    def set_flags(self) -> None:
+        pass
+
+    def settings_updated(self) -> None:
+        pass
+
+
+class ParserWindow(QFrame, Parser):
 
     def __init__(self):
         super().__init__()
@@ -90,16 +135,6 @@ class ParserWindow(QFrame):
     def set_title(self, title):
         self._title.setText(title)
 
-    def toggle(self, _=None):
-        if self.isVisible():
-            self.hide()
-            config.data[self.name]['toggled'] = False
-        else:
-            self.set_flags()
-            self.show()
-            config.data[self.name]['toggled'] = True
-        config.save()
-
     def closeEvent(self, _):
         if config.APP_EXIT:
             return
@@ -124,9 +159,3 @@ class ParserWindow(QFrame):
     def leaveEvent(self, event):
         self._menu.setVisible(False)
         QFrame.leaveEvent(self, event)
-
-    def shutdown(self):
-        pass
-
-    def settings_updated(self):
-        pass
