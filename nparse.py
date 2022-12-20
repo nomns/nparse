@@ -7,6 +7,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QCursor, QFontDatabase, QIcon
 from PyQt6.QtWidgets import (QApplication, QFileDialog, QMenu, QMessageBox,
                              QSystemTrayIcon)
+import semver
 
 import parsers
 from helpers import config, logreader, resource_path, get_version, location_service
@@ -28,7 +29,12 @@ os.environ['QT_SCALE_FACTOR'] = str(
     config.data['general']['qt_scale_factor'] / 100)
 
 
-CURRENT_VERSION = '0.6.6-rc1'
+CURRENT_VERSION = semver.VersionInfo(
+    major=0,
+    minor=6,
+    patch=6,
+    build="rc2"
+)
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
 else:
@@ -62,8 +68,10 @@ class NomnsParse(QApplication):
 
         if self.new_version_available():
             self._system_tray.showMessage(
-                "nParse Update".format(ONLINE_VERSION),
-                "New version available!\ncurrent: {}\nonline: {}".format(
+                "nParse Update",
+                "New version available!\n"
+                "Current: {}\n"
+                "Online: {}".format(
                     CURRENT_VERSION,
                     ONLINE_VERSION
                 ),
@@ -134,9 +142,9 @@ class NomnsParse(QApplication):
         menu.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         # check online for new version
         if self.new_version_available():
-            new_version_text = "Update Available {}".format(ONLINE_VERSION)
+            new_version_text = "Update Available: {}".format(ONLINE_VERSION)
         else:
-            new_version_text = "Version {}".format(CURRENT_VERSION)
+            new_version_text = "Version: {}".format(CURRENT_VERSION)
 
         check_version_action = menu.addAction(new_version_text)
         menu.addSeparator()
@@ -209,11 +217,8 @@ class NomnsParse(QApplication):
             parser.toggle()
 
     def new_version_available(self):
-        # this will only work if numbers go up
         try:
-            for (o, c) in zip(ONLINE_VERSION.split('.'), CURRENT_VERSION.split('.')):
-                if int(o) > int(c):
-                    return True
+            return ONLINE_VERSION > CURRENT_VERSION
         except:
             return False
 

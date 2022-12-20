@@ -5,6 +5,7 @@ import os
 import sys
 
 import requests
+import semver
 
 from .parser import ParserWindow  # noqa: F401
 
@@ -13,7 +14,8 @@ def get_version():
     version = None
     try:
         r = requests.get('http://sheeplauncher.net/~adam/nparse_version.json')
-        version = json.loads(r.text)['version']
+        version_text = json.loads(r.text)['version']
+        version = semver.parse_version_info(version_text)
     except:
         pass
     return version
