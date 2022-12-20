@@ -19,18 +19,42 @@ function() {
     css.innerText='%(new_css)s';
 })()"""
 CSS_SMALLER_AVATARS = (
-    '.voice-container .voice-states .voice-state.small-avatar .avatar {'
+    'img[class*="Voice_smallAvatarAvatar_"] {'
     '    height: 20px !important;'
     '    width: 20px !important;'
+    '    margin-right: 2px !important;'
     '}'
-    '.voice-container .voice-states .voice-state.small-avatar .user {'
-    '    padding-top: 0px !important;'
+    'div[class*="Voice_smallAvatarUser_"] {'
+    '    padding-top: 3px !important;'
     '}'
-    '.voice-container .voice-states .voice-state .user {'
-    '    padding-top: 0px !important;'
-    '}'
-    '.voice-container .voice-states .voice-state.small-avatar {'
+    'li[class*="Voice_smallAvatar_"] {'
     '    height: 20px !important;'
+    '}'
+    'ul[class*="Voice_voiceStates_"] {'
+    '    padding-left: 4px !important;'
+    '}'
+)
+CSS_HIDE_HEADER = (
+    'div[class^="Config_header"] {'
+    '    display: none !important;'
+    '}'
+    'div[class^="Config_close"] {'
+    '    display: none !important;'
+    '}'
+    'div[class^="Config_content"] {'
+    '    top: 0px !important;'
+    '}'
+    'div[class^="Config_configLink"] {'
+    '    top: 0px !important;'
+    '}'
+    'div[class^="Config_configLink"] > div {'
+    '    display: none;'
+    '}'
+    'div[class^="Config_livePreview"] {'
+    '    display: block !important;'
+    '    height: 600px !important;'
+    '    background: url("https://sheeplauncher.net/~adam/discordBG.png")'
+    '       !important;'
     '}'
 )
 CSS_MENU = """
@@ -93,19 +117,20 @@ class Discord(ParserWindow):
             self._fix_background()
 
     def _fix_background(self):
-        bg_opacity = config.data[self.name]['bg_opacity'] / 100
-        hexcolor = config.data[self.name]['color']
-        intcolor = int(hexcolor.replace('#', '0x'), 16)
-        qcolor = QColor(intcolor)
-        bg_color_set = JS_ADD_CSS_TEMPLATE % {
-            'name': 'bgcolor',
-            'new_css': "body {{ background-color: rgba({red},{green},{blue},{alpha}) !important }}".format(
-                red=qcolor.red(),
-                green=qcolor.green(),
-                blue=qcolor.blue(),
-                alpha=bg_opacity
-            )}
-        self.overlay.page().runJavaScript(bg_color_set)
+        if self.overlay:
+            bg_opacity = config.data[self.name]['bg_opacity'] / 100
+            hexcolor = config.data[self.name]['color']
+            intcolor = int(hexcolor.replace('#', '0x'), 16)
+            qcolor = QColor(intcolor)
+            bg_color_set = JS_ADD_CSS_TEMPLATE % {
+                'name': 'bgcolor',
+                'new_css': "body {{ background-color: rgba({red},{green},{blue},{alpha}) !important }}".format(
+                    red=qcolor.red(),
+                    green=qcolor.green(),
+                    blue=qcolor.blue(),
+                    alpha=bg_opacity
+                )}
+            self.overlay.page().runJavaScript(bg_color_set)
 
     def update_background_color(self):
         self._fix_background()
@@ -180,14 +205,15 @@ class Discord(ParserWindow):
         self.settings_dialog.open()
 
     def _save_settings(self, webview, frame):
-        get_url = "document.getElementsByClassName('source-url')[0].value;"
+        get_url = ("document.querySelector('[class^=\"Config_configLink\"]')"
+                   ".getElementsByTagName('input')[0].value;")
         webview.page().runJavaScript(get_url, self._on_get_url)
         frame.close()
 
     def _on_get_url(self, url):
         self.url = url.replace("true", "True")
+        self.overlay.loadFinished.connect(self._applyTweaks)
         self.overlay.load(QtCore.QUrl(self.url))
-        self._applyTweaks()
         config.data['discord']['url'] = self.url
         config.save()
 
@@ -197,40 +223,25 @@ class Discord(ParserWindow):
             "for(i=0;i<buttons.length;i++){"
             "   if(buttons[i].innerHTML=='Install for OBS'){"
             "       buttons[i].click()}}")
-        resizeContents = (
-            "document.getElementsByClassName('content')[0]"
-            ".style.setProperty('top','0px');")
-        hideHeader = (
-            "document.getElementsByClassName('header')[0]"
-            ".style.setProperty('display','none');")
-        hidePreview = (
-            "document.getElementsByClassName('config-link')[0]"
-            ".style.setProperty('height','300px');"
-            "document.getElementsByClassName('config-link')[0]"
-            ".style.setProperty('overflow','hidden');")
-        hideClose = (
-            "document.getElementsByClassName('close')[0]"
-            ".style.setProperty('display','none');")
         chooseVoice = (
             "document.querySelectorAll('button[value=voice]')[0].click();")
         toggleSmallAvatars = (
             "labels = document.getElementsByTagName('label');"
             "for(i=0;i<labels.length;i++){"
             "   if(labels[i].innerHTML=='Small Avatars'){"
-            "       labels[i].parentElement.getElementsByClassName('switch')[0].click()}}")
+            "       labels[i].parentElement.getElementsByTagName('input')[0].click()}}")
         toggleSpeakingOnly = (
             "labels = document.getElementsByTagName('label');"
             "for(i=0;i<labels.length;i++){"
             "   if(labels[i].innerHTML=='Show Speaking Users Only'){"
-            "       labels[i].parentElement.getElementsByClassName('switch')[0].click()}}")
+            "       labels[i].parentElement.getElementsByTagName('input')[0].click()}}")
         webview.page().runJavaScript(skipIntro)
-        webview.page().runJavaScript(hideHeader)
-        webview.page().runJavaScript(resizeContents)
-        webview.page().runJavaScript(hidePreview)
-        webview.page().runJavaScript(hideClose)
         webview.page().runJavaScript(chooseVoice)
         webview.page().runJavaScript(toggleSmallAvatars)
         webview.page().runJavaScript(toggleSpeakingOnly)
+        hide_header = JS_ADD_CSS_TEMPLATE % {
+            'name': 'hideheader', 'new_css': CSS_HIDE_HEADER}
+        webview.page().runJavaScript(hide_header)
 
     def parse(self, timestamp, text):
         pass
