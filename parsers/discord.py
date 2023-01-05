@@ -181,7 +181,7 @@ class Discord(ParserWindow):
 
         self.settings_dialog = QDialog()
         self.settings_dialog.setWindowTitle('Configure Overlay')
-        self.settings_dialog.setMinimumSize(1024, 800)
+        self.settings_dialog.setMinimumSize(1024, 680)
         self.settings_dialog.setContentsMargins(0, 0, 0, 0)
         settings_layout = QGridLayout()
         settings_layout.setContentsMargins(0, 0, 0, 0)
