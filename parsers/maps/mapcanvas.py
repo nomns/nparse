@@ -42,8 +42,13 @@ class MapCanvas(QGraphicsView):
         self._path_file = None
         self._path_last_loc = None
 
-    def load_map(self, map_name):
+    def load_map(self, map_name, keep_loc=False):
+        old_player_data = None
         try:
+            try:
+                old_player_data = self._data.players['__you__']
+            except:
+                pass  # no old location for player
             map_data = MapData(str(map_name))
 
         except:
@@ -69,6 +74,10 @@ class MapCanvas(QGraphicsView):
             self._scene.addItem(self._mouse_location)
             config.data['maps']['last_zone'] = self._data.zone
             config.save()
+            if keep_loc and old_player_data:
+                self.add_player(
+                    '__you__', old_player_data.timestamp,
+                    old_player_data.location)
 
     def _draw(self):
         for z in self._data.keys():

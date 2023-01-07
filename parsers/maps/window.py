@@ -74,7 +74,7 @@ class Maps(ParserWindow):
             new_zone = ZONE_MATCHER.match(text).groupdict()['zone'].lower()
             new_zone = MapData.translate_who_zone(new_zone)
             if new_zone not in (self._map._data.zone.lower(), 'everquest'):
-                self._map.load_map(new_zone)
+                self._map.load_map(new_zone, keep_loc=True)
         elif text[:16] == 'Your Location is':
             x, y, z = [float(value) for value in text[17:].strip().split(',')]
             x, y = to_real_xy(x, y)
