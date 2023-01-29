@@ -33,7 +33,6 @@ CURRENT_VERSION = semver.VersionInfo(
     major=0,
     minor=6,
     patch=6,
-    build="rc4"
 )
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
