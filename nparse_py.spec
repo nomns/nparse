@@ -32,7 +32,7 @@ splash = Splash(
     text_size=12,
     text_color='black',
     minify_script=True,
-    always_on_top=True,
+    always_on_top=False,
 )
 
 exe = EXE(
