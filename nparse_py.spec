@@ -28,11 +28,12 @@ splash = Splash(
     'splash.png',
     binaries=a.binaries,
     datas=a.datas,
-    text_pos=(5, 20),
-    text_size=12,
-    text_color='black',
+    text_pos=(10, 388),
+    text_size=13,
+    text_color='#666666',
     minify_script=True,
     always_on_top=False,
+    max_img_size=(800, 400),
 )
 
 exe = EXE(
