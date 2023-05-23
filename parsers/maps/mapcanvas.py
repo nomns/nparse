@@ -463,7 +463,7 @@ class MapCanvas(QGraphicsView):
         clean_name = clean_name.replace(' ', '_')
         if relative:
             return clean_name
-        zone_key = MapData.get_zone_dict().get(self._data.zone)
+        zone_key = MapData.get_zone_dict().get(self._data.zone.strip().lower())
         filename = "{zone}_{recording}.txt".format(
             zone=zone_key,
             recording=clean_name)
