@@ -55,12 +55,44 @@ class NomnsParse(QApplication):
         self._load_parsers()
         self._settings = SettingsWindow()
 
+        # Menu
+        menu = QMenu()
+        menu.setAttribute(Qt.WA_DeleteOnClose)
+
+        if self.new_version_available():
+            new_version_text = "Update Available: {}".format(ONLINE_VERSION)
+        else:
+            new_version_text = "Version: {}".format(CURRENT_VERSION)
+
+        check_version_action = menu.addAction(new_version_text)
+        check_version_action.triggered.connect(self._do_check_version_action)
+        menu.addSeparator()
+        get_eq_dir_action = menu.addAction('Select EQ Logs Directory')
+        get_eq_dir_action.triggered.connect(self._do_get_eq_dir_action)
+        menu.addSeparator()
+
+        parser_toggles = set()
+        for parser in self._parsers:
+            toggle_action = menu.addAction(parser.name.title())
+            toggle_action.setCheckable(True)
+            toggle_action.setChecked(config.data[parser.name]['toggled'])
+            toggle_action.triggered.connect(parser.toggle)
+            parser_toggles.add(toggle_action)
+
+        menu.addSeparator()
+        settings_action = menu.addAction('Settings')
+        settings_action.triggered.connect(self._do_settings_action)
+        discord_conf_action = menu.addAction('Configure Discord')
+        discord_conf_action.triggered.connect(self._do_discord_conf_action)
+        menu.addSeparator()
+        quit_action = menu.addAction('Quit')
+        quit_action.triggered.connect(self._do_quit_action)
+
         # Tray Icon
         self._system_tray = QSystemTrayIcon()
         self._system_tray.setIcon(QIcon(resource_path('data/ui/icon.png')))
         self._system_tray.setToolTip("nParse")
-        # self._system_tray.setContextMenu(self._create_menu())
-        self._system_tray.activated.connect(self._menu)
+        self._system_tray.setContextMenu(menu)
         self._system_tray.show()
 
         # Turn On
@@ -136,84 +168,49 @@ class NomnsParse(QApplication):
                 elif config.data[parser.name]['toggled'] or parser.name == 'maps':
                     parser.parse(timestamp, text)
 
-    def _menu(self, event):
-        """Returns a new QMenu for system tray."""
-        menu = QMenu()
-        menu.setAttribute(Qt.WA_DeleteOnClose)
-        # check online for new version
-        if self.new_version_available():
-            new_version_text = "Update Available: {}".format(ONLINE_VERSION)
-        else:
-            new_version_text = "Version: {}".format(CURRENT_VERSION)
+    def _do_check_version_action(self):
+        webbrowser.open('https://github.com/nomns/nparse/releases')
 
-        check_version_action = menu.addAction(new_version_text)
-        menu.addSeparator()
-        get_eq_dir_action = menu.addAction('Select EQ Logs Directory')
-        menu.addSeparator()
+    def _do_get_eq_dir_action(self):
+        dir_path = str(QFileDialog.getExistingDirectory(
+            None, 'Select Everquest Logs Directory'))
+        if dir_path:
+            config.data['general']['eq_log_dir'] = dir_path
+            config.save()
+            self._toggle()
 
-        parser_toggles = set()
+    def _do_settings_action(self):
+        self._settings._set_values()
+        if self._settings.exec_():
+            # Update required settings
+            for parser in self._parsers:
+                parser.set_flags()
+                parser.settings_updated()
+        # some settings are saved within other settings automatically
+        # force update
         for parser in self._parsers:
-            toggle = menu.addAction(parser.name.title())
-            toggle.setCheckable(True)
-            toggle.setChecked(config.data[parser.name]['toggled'])
-            parser_toggles.add(toggle)
+            if parser.name == "spells":
+                parser.load_custom_timers()
 
-        menu.addSeparator()
-        settings_action = menu.addAction('Settings')
-        discord_conf_action = menu.addAction('Configure Discord')
-        menu.addSeparator()
-        quit_action = menu.addAction('Quit')
+    def _do_discord_conf_action(self):
+        self._parsers_dict["discord"].show_settings()
 
-        action = menu.exec_(QCursor.pos())
+    def _do_quit_action(self):
+        if self._toggled:
+            self._toggle()
+        else:
+            location_service.stop_location_service()
 
-        if action == check_version_action:
-            webbrowser.open('https://github.com/nomns/nparse/releases')
+        # save parser geometry
+        for parser in self._parsers:
+            g = parser.geometry()
+            config.data[parser.name]['geometry'] = [
+                g.x(), g.y(), g.width(), g.height()
+            ]
+            config.save()
 
-        elif action == get_eq_dir_action:
-            dir_path = str(QFileDialog.getExistingDirectory(
-                None, 'Select Everquest Logs Directory'))
-            if dir_path:
-                config.data['general']['eq_log_dir'] = dir_path
-                config.save()
-                self._toggle()
-
-        elif action == settings_action:
-            self._settings._set_values()
-            if self._settings.exec_():
-                # Update required settings
-                for parser in self._parsers:
-                    parser.set_flags()
-                    parser.settings_updated()
-            # some settings are saved within other settings automatically
-            # force update
-            for parser in self._parsers:
-                if parser.name == "spells":
-                    parser.load_custom_timers()
-
-        elif action == discord_conf_action:
-            self._parsers_dict["discord"].show_settings()
-
-        elif action == quit_action:
-            if self._toggled:
-                self._toggle()
-            else:
-                location_service.stop_location_service()
-
-            # save parser geometry
-            for parser in self._parsers:
-                g = parser.geometry()
-                config.data[parser.name]['geometry'] = [
-                    g.x(), g.y(), g.width(), g.height()
-                ]
-                config.save()
-
-            self._system_tray.setVisible(False)
-            self.quit()
-
-        elif action in parser_toggles:
-            parser = [
-                parser for parser in self._parsers if parser.name == action.text().lower()][0]
-            parser.toggle()
+        self._system_tray.setVisible(False)
+        self.quit()
 
     def new_version_available(self):
         try:
