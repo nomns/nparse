@@ -127,7 +127,7 @@ class Maps(ParserWindow):
                 continue
             # Add players in the zone
             for player in locations[zone]:
-                if player == config.data['sharing']['player_name']:
+                if player.lower() == config.data['sharing']['player_name'].lower():
                     print(f"player found: {player} (self)")
                     continue
                 print(f"player found: {player}")
