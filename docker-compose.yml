@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  nparse-locserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8424:8424"
