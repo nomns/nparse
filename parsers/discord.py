@@ -178,11 +178,8 @@ class Discord(ParserWindow):
         self.content.addWidget(scroll_area, 1)
 
     def show_settings(self):
-        if self.settings_dialog:
-            self.settings_dialog.show()
-            return
-
         self.settings_dialog = QDialog()
+        self.settings_dialog.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose)
         self.settings_dialog.setWindowTitle('Configure Overlay')
         self.settings_dialog.setMinimumSize(1024, 680)
         self.settings_dialog.setContentsMargins(0, 0, 0, 0)
