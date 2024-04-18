@@ -2,12 +2,20 @@
 
 block_cipher = None
 
+from glob import glob
+import os
+data = [(filename, os.path.dirname(filename)) for filename in glob('data\\fonts\\*')]
+data += [('data\\ui\\_.css', 'data\\ui\\')]
+data += [('data\\ui\\icon.png', 'data\\ui\\')]
+
+from PyInstaller.utils.hooks import copy_metadata
+data += copy_metadata('colorhash')
 
 a = Analysis(
     ['nparse.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=data,
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -18,10 +26,7 @@ a = Analysis(
     noarchive=False,
 )
 
-from glob import glob
-a.datas += [(filename, filename, '.') for filename in glob('data/fonts/*')]
-a.datas += [('data/ui/_.css', 'data/ui/_.css', '.')]
-a.datas += [('data/ui/icon.png', 'data/ui/icon.png', '.')]
+
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 splash = Splash(

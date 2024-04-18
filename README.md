@@ -10,10 +10,10 @@ Please see the [Wiki](https://github.com/nomns/nparse/wiki) for more information
 Building
 ========
 
-Install Python 3.10.x and install requirements with `pip install -r requirements.txt`
+Install Python 3.12.x and install requirements with `pip install -r requirements.txt`
 
 Note: Currently it seems problematic to build PyQt6 on 32-bit Python.
 
-Install `pyinstaller==5.3`
+Install `pyinstaller==6.6.0`
 
 Run: `pyinstaller nparse_py.spec`

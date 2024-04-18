@@ -232,12 +232,12 @@ if __name__ == "__main__":
         pass
 
     APP = NomnsParse(sys.argv)
-    APP.setStyleSheet(open(resource_path('data/ui/_.css')).read())
-    APP.setWindowIcon(QIcon(resource_path('data/ui/icon.png')))
+    APP.setStyleSheet(open(resource_path(os.path.join('data', 'ui', '_.css'))).read())
+    APP.setWindowIcon(QIcon(resource_path(os.path.join('data', 'ui', 'icon.png'))))
     APP.setQuitOnLastWindowClosed(False)
     QFontDatabase.addApplicationFont(
-        resource_path('data/fonts/NotoSans-Regular.ttf'))
+        resource_path(os.path.join('data', 'fonts', 'NotoSans-Regular.ttf')))
     QFontDatabase.addApplicationFont(
-        resource_path('data/fonts/NotoSans-Bold.ttf'))
+        resource_path(os.path.join('data', 'fonts', 'NotoSans-Bold.ttf')))
 
     sys.exit(APP.exec())
