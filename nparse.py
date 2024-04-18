@@ -32,8 +32,8 @@ os.environ['QT_SCALE_FACTOR'] = str(
 CURRENT_VERSION = semver.VersionInfo(
     major=0,
     minor=6,
-    patch=6,
-    build="rc2"
+    patch=8,
+    build="qt6-1"
 )
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
