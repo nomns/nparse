@@ -327,7 +327,7 @@ class SpellWidget(QFrame):
             string.capwords(self.spell.name), self.progress)
         self._name_label.setObjectName('SpellWidgetNameLabel')
         progress_layout.addWidget(self._name_label)
-        progress_layout.insertStretch(2, 1)
+        progress_layout.insertStretch(1, 1)
         self._time_label = QLabel('', self.progress)
         self._time_label.setObjectName('SpellWidgetTimeLabel')
         progress_layout.addWidget(self._time_label)
