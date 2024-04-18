@@ -211,11 +211,14 @@ class Discord(ParserWindow):
         frame.close()
 
     def _on_get_url(self, url):
-        self.url = url.replace("true", "True")
-        self.overlay.loadFinished.connect(self._applyTweaks)
-        self.overlay.load(QtCore.QUrl(self.url))
-        config.data['discord']['url'] = self.url
-        config.save()
+        try:
+            self.url = url.replace("true", "True")
+            self.overlay.loadFinished.connect(self._applyTweaks)
+            self.overlay.load(QtCore.QUrl(self.url))
+            config.data['discord']['url'] = self.url
+            config.save()
+        except AttributeError:
+            pass
 
     def _skip_stream_button(self, webview):
         skipIntro = (
