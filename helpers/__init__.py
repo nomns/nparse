@@ -1,10 +1,9 @@
 from datetime import datetime, timedelta
-import json
 import math
 import os
 import sys
+import urllib3
 
-import requests
 import semver
 
 from .parser import ParserWindow  # noqa: F401
@@ -13,11 +12,11 @@ from .parser import ParserWindow  # noqa: F401
 def get_version():
     version = None
     try:
-        r = requests.get('http://sheeplauncher.net/~adam/nparse_version.json')
-        version_text = json.loads(r.text)['version']
+        r = urllib3.request('GET', "https://api.github.com/repos/nomns/nparse/releases/latest")
+        version_text = r.json().get('tag_name')
         version = semver.parse_version_info(version_text)
-    except:
-        pass
+    except Exception as e:
+        print(e)
     return version
 
 

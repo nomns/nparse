@@ -1,7 +1,6 @@
 pyqt6
 websockets
 websocket-client
-requests
 colorhash
 pathvalidate
 PyQt6-WebEngine
