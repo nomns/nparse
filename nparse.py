@@ -5,8 +5,7 @@ import webbrowser
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QCursor, QFontDatabase, QIcon
-from PyQt6.QtWidgets import (QApplication, QFileDialog, QMenu, QMessageBox,
-                             QSystemTrayIcon)
+from PyQt6.QtWidgets import QApplication, QFileDialog, QMenu, QSystemTrayIcon
 import semver
 
 import parsers
@@ -24,10 +23,6 @@ except:  # noqa
 config.load('nparse.config.json')
 # validate settings file
 config.verify_settings()
-
-os.environ['QT_SCALE_FACTOR'] = str(
-    config.data['general']['qt_scale_factor'] / 100)
-
 
 CURRENT_VERSION = semver.VersionInfo(
     major=0,
