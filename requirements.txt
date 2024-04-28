@@ -5,3 +5,4 @@ colorhash
 pathvalidate
 PyQt6-WebEngine
 semver
+urllib3
