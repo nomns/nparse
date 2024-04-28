@@ -25,10 +25,6 @@ config.load('nparse.config.json')
 # validate settings file
 config.verify_settings()
 
-os.environ['QT_SCALE_FACTOR'] = str(
-    config.data['general']['qt_scale_factor'] / 100)
-
-
 CURRENT_VERSION = semver.VersionInfo(
     major=0,
     minor=6,
