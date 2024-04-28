@@ -1,8 +1,6 @@
 pyqt6
-websockets
 websocket-client
 colorhash
 pathvalidate
 PyQt6-WebEngine
 semver
-urllib3
