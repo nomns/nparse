@@ -51,11 +51,6 @@ def verify_settings():
         data['general'].get('window_flush', True),
         True
     )
-    data['general']['qt_scale_factor'] = get_setting(
-        data['general'].get('qt_scale_factor', 100),
-        100,
-        lambda x: (100 <= x <= 300)
-        )
     data['general']['update_check'] = get_setting(
         data['general'].get('update_check', True),
         True
