@@ -1,166 +1,240 @@
-import json
-import ssl
-import threading
-import time
+from json import dumps, loads
+from datetime import datetime
 
-from PyQt6.QtCore import QObject, QRunnable, pyqtSignal, pyqtSlot
-from PyQt6.QtCore import QThreadPool
-import websocket
+from PyQt6.QtCore import QObject, QUrl, pyqtSignal
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWebSockets import QWebSocket
 
-from helpers import config
+from helpers import config, to_real_xy
+from parsers.maps.mapclasses import MapPoint
 
+class LocationSharingSignals(QObject):
+    textMessageReceived = pyqtSignal (str)
 
-class LocationSignals(QObject):
-    locs_recieved = pyqtSignal(dict, dict)
-    send_loc = pyqtSignal(dict)
-    death = pyqtSignal(dict)
-    config_updated = pyqtSignal()
-
-
-RUN = threading.Event()
-RUN.set()
-SIGNALS = LocationSignals()
-THREADPOOL = QThreadPool()
-_LSC = None
-
-
-def get_location_service_connection():
-    global _LSC
-    if _LSC is None:
-        _LSC = LocationServiceConnection()
-    return _LSC
-
-
-def start_location_service(update_func):
-    try:
-        SIGNALS.locs_recieved.disconnect()
-    except TypeError:
-        pass
-    SIGNALS.locs_recieved.connect(update_func)
-    SIGNALS.config_updated.connect(config_updated)
-    config_updated()
-    lsc = get_location_service_connection()
-    THREADPOOL.start(lsc)
-
-
-def stop_location_service():
-    RUN.clear()
-    print("Stopping location service.")
-    lsc = get_location_service_connection()
-    lsc.enabled = False
-    lsc.configure_socket()
-
-
-def config_updated():
-    lsc = get_location_service_connection()
-    lsc.enabled = config.data.get('sharing', {}).get('enabled', False)
-    lsc.host = config.data.get('sharing', {}).get('url')
-    lsc.reconnect_delay = config.data.get('sharing', {}).get('reconnect_delay', 5)
-    lsc.configure_socket()
-
-
-class LocationServiceConnection(QRunnable):
-    _socket = None
-    enabled = False
+class LocationSharingService(QObject):
+    character_name = None
+    group_key = None
     host = None
-    reconnect_delay = 5
+    running = False
+    websocket = None
+    zone_name = None
+    x = 0
+    y = 0
+    z = 0
 
     def __init__(self):
         super().__init__()
-        try:
-            SIGNALS.send_loc.disconnect()
-        except TypeError:
-            pass
-        try:
-            SIGNALS.death.disconnect()
-        except TypeError:
-            pass
-        SIGNALS.send_loc.connect(self.send_loc)
-        SIGNALS.death.connect(self.player_death)
 
-    def configure_socket(self):
-        if self._socket:
-            print("Resetting socket, killing any open connection...")
-            try:
-                self._socket.close()
-            except AttributeError:
-                pass
-            self._socket = None
-        if self.host and self.enabled:
-            print("Host set and sharing enabled, connecting...")
-            self._socket = websocket.WebSocketApp(
-                self.host, on_message=self._on_message,
-                on_error=self._on_error, on_close=self._on_close,
-                on_open=self._on_open)
+        # Connect self.config_updated to the settings signals
+        QApplication.instance()._signals["settings"].config_updated.connect(self.config_updated)
+
+        # Set self.character_name from config
+        self.character_name = config.data["sharing"]["player_name"]
+
+        # Set self.group_key - Handle settings changes and account for discord override
+        if config.data["sharing"]["discord_channel"]:
+            key = config.data["discord"]["url"].split("?")[0].split("/")[-1]
+            if key != "" and self.group_key != key:
+                self.group_key = key
         else:
-            print("Sharing disabled.")
+            if self.group_key != config.data["sharing"]["group_key"]:
+                self.group_key = config.data["sharing"]["group_key"]
+        
+        # Set self.host from config
+        self.host = config.data["sharing"]["url"]
 
-    @pyqtSlot()
-    def run(self):
-        while RUN.is_set():
-            try:
-                self.configure_socket()
-            except:
-                print("Failed to configure socket!")
-            if self.enabled:
-                print("Starting connection to sharing host...")
-                try:
-                    sslopt = None
-                    if self.host.lower().startswith("wss:"):
-                        sslopt = {"cert_reqs": ssl.CERT_NONE}
-                    self._socket.run_forever(sslopt=sslopt)
-                except:
-                    print("Socket connection broken, continuing...")
-            if RUN.is_set():
-                time.sleep(self.reconnect_delay)
+        # Set self.zone_name from config
+        self.zone_name = config.data["maps"]["last_zone"]
 
-    @property
-    def group_key(self):
-        key = config.data['sharing']['group_key']
-        if config.data['sharing']['discord_channel']:
-            try:
-                key = config.data['discord']['url'].split('?')[0].split('/')[-1]
-            except:
-                print("Failed to parse discord channel ID, falling back to "
-                      "configured group_key.")
-        return key
+        # Start the service from init if sharing is enabled in the config
+        if config.data.get("sharing", {}).get("enabled", False):
+            self.start()
 
-    def send_loc(self, loc):
-        if not self.enabled:
-            return
+    # Used to start the websocket service and connect signals
+    def start(self):
+        # Setup Websocket
+        self.websocket = QWebSocket()
+        self.websocket.connected.connect(self.connected)
+        self.websocket.error.connect(self.error)
+        self.websocket.disconnected.connect(self.disconnected)
+        self.websocket.textMessageReceived.connect(self.message)
+        self.websocket.open(QUrl(self.host))
 
-        message = {'type': "location",
-                   'group_key': self.group_key,
-                   'location': loc}
-        try:
-            self._socket.send(json.dumps(message))
-        except:
-            print("Unable to send location to server.")
+        # Setup signals
+        QApplication.instance().aboutToQuit.connect(self.stop)
+        QApplication.instance()._signals["logreader"].character_updated.connect(self.character_updated)
+        QApplication.instance()._signals["maps"].new_zone.connect(self.zone_updated)
+        QApplication.instance()._signals["maps"].location.connect(self.share_location)
+        QApplication.instance()._signals["maps"].death.connect(self.share_death)
+        QApplication.instance()._signals["locationsharing"].textMessageReceived.connect(self.parse)
 
-    def player_death(self, loc):
-        if not self.enabled:
-            return
+        # Set self.running to true
+        self.running = True
 
-        message = {'type': "waypoint",
-                   'group_key': self.group_key,
-                   'location': loc}
-        try:
-            self._socket.send(json.dumps(message))
-        except:
-            print("Unable to send location to server.")
+    # Used to stop the websocket service and disconnect signals
+    def stop(self):
+        # Shutdown the websocket if it exists
+        if self.websocket:
+            self.websocket.close()
+            self.websocket = None
 
-    def _on_message(self, ws, message):
-        message = json.loads(message)
-        if message['type'] == "state":
-            print("Message received: %s" % message)
-            SIGNALS.locs_recieved.emit(message['locations'],
-                                       message.get('waypoints', {}))
+        # Disconnect signals
+        QApplication.instance().aboutToQuit.disconnect(self.stop)
+        QApplication.instance()._signals["logreader"].character_updated.disconnect(self.character_updated)
+        QApplication.instance()._signals["maps"].new_zone.disconnect(self.zone_updated)
+        QApplication.instance()._signals["maps"].location.disconnect(self.share_location)
+        QApplication.instance()._signals["maps"].death.disconnect(self.share_death)
+        QApplication.instance()._signals["locationsharing"].textMessageReceived.disconnect(self.parse)
 
-    def _on_error(self, ws, error):
-        print("Connection error: %s" % error)
+        # Set self.running to false
+        self.running = False
 
-    def _on_open(self, ws):
-        print("Connection opened.")
+    def config_updated(self):
+        # Handle performing character name override when saving a new name from settings
+        if config.data["sharing"]["enabled"] and config.data["sharing"]["player_name_override"] and config.data["sharing"]["player_name"] != self.character_name:
+            self.character_name = config.data["sharing"]["player_name"]
 
-    def _on_close(self, ws, status_code, close_message):
-        print(f"Connection closed: ({status_code}) {close_message}")
+        # Handle setting groupkey from settings changes and account for discord override
+        if config.data["sharing"]["discord_channel"]:
+            key = config.data["discord"]["url"].split("?")[0].split("/")[-1]
+            if key != "" and self.group_key != key:
+                self.group_key = key
+        else:
+            if self.group_key != config.data["sharing"]["group_key"]:
+                self.group_key = config.data["sharing"]["group_key"]
+
+        # Start the sharing service if it is not already running
+        if config.data["sharing"]["enabled"] == True and self.running == False:
+            self.start()
+
+        # Stop the sharing srevice if it is currently running
+        if config.data["sharing"]["enabled"] == False and self.running == True:
+            self.stop()
+
+    # Handle character updates from the log reader signal
+    def character_updated(self, character_name):
+        # Only update the character_name if player_name_override is not true in config sharing
+        if not config.data["sharing"]["player_name_override"]:
+            self.character_name = character_name
+
+    def zone_updated(self, zone_name):
+        self.zone_name = zone_name
+
+    # Websocket Connected - This can be useful for delaying a send until the connection is actually connected.
+    def connected(self):
+        self.websocket.ping()
+
+    # Websocket Error
+    def error(self, message):
+        pass
+    
+    # Websocket Discconected
+    def disconnected(self):
+        pass
+
+    # Websocket message handler - handles any incoming messages from the websocket server
+    def message(self, message):
+        QApplication.instance()._signals["locationsharing"].textMessageReceived.emit(message)
+
+    # Parses messages from the websocket server
+    def parse(self, websocket_message):
+        message = loads(websocket_message)
+        if message["type"] == "state":
+            # Only process locations if there is data for our location
+            if message.get("locations", False).get(self.zone_name.lower(), False):
+                # Interate through players in the zone
+                for player in message["locations"][self.zone_name.lower()]:
+                    #Process any players that are not us
+                    if player.lower() != self.character_name.lower():
+                        p_data = message["locations"][self.zone_name.lower()][player]
+                        p_timestamp = datetime.fromisoformat(str(p_data["timestamp"]))
+                        p_point = MapPoint(x=int(p_data["x"]), y=int(p_data["y"]), z=int(p_data["z"]))
+                        #Add the player map point to the map
+                        QApplication.instance()._parsers_dict["maps"]._map.add_player(player, p_timestamp, p_point)
+
+                # Remove players that aren't in the zone
+                players_to_remove = []
+                # Check players in the currently loaded QT map
+                for player in QApplication.instance()._parsers_dict["maps"]._map._data.players:
+                    # if the player is no longre in the zone and not ourselves, append them to be removed
+                    if player not in message["locations"][self.zone_name.lower()] and player != "__you__":
+                        players_to_remove.append(player)
+                for player in players_to_remove:
+                    QApplication.instance()._parsers_dict["maps"]._map.remove_player(player)
+
+            # Only process waypoints if there is data for our location
+            if message.get("waypoints", False).get(self.zone_name.lower(), False):
+                # Iterate through the waypoints in the zone
+                for waypoint in message["waypoints"][self.zone_name.lower()]:
+                    w_data = message["waypoints"][self.zone_name.lower()][waypoint]
+                    w_point = MapPoint(x=int(w_data["x"]), y=int(w_data["y"]), z=int(w_data["z"]))
+                    w_icon = w_data.get("icon", "corpse")
+                    QApplication.instance()._parsers_dict["maps"]._map.add_waypoint(waypoint, w_point, w_icon)
+
+            # Remove waypoints that aren't in the zone
+            waypoints_to_remove = []
+            for waypoint in QApplication.instance()._parsers_dict["maps"]._map._data.waypoints:
+                if waypoint not in message["waypoints"][self.zone_name.lower()]:
+                    waypoints_to_remove.append(waypoint)
+            for waypoint in waypoints_to_remove:
+                QApplication.instance()._parsers_dict["maps"]._map.remove_waypoint(waypoint)
+
+    # Shares player location with the websocket server
+    def share_location(self, timestamp_string, xyz_string):
+        # Update self x y z
+        self.x, self.y, self.z = [float(value) for value in xyz_string.strip().split(",")]
+
+        # Convert x y values
+        x, y = to_real_xy(self.x, self.y)
+
+        # Construct the payload
+        share_payload = {
+            "x": x,
+            "y": y,
+            "z": self.z,
+            "zone": self.zone_name,
+            "player": self.character_name,
+            "timestamp": timestamp_string
+        }
+
+        # Construct the message frame
+        message = {"type": "location",
+                "group_key": self.group_key,
+                "location": share_payload}
+
+        # Send the message
+        self.websocket.sendTextMessage(dumps(message))
+
+        # Below is an example of sending a fake message to verify both adding and removing entries works in field of bone at the cab gates
+        # fakemessage = {}
+        # fakemessage["type"] = "state"
+        # fakemessage["locations"] = {'field of bone': {'ConfigureYou': {'x': -3535.0, 'y': 2735.0, 'z': 7.85, 'timestamp': datetime.now().isoformat(), 'icon': 'corpse'}}}
+        # fakemessage["waypoints"] = {'field of bone': {'ConfigureYou': {'x': -3530.0, 'y': 2735.0, 'z': 7.85, 'timestamp': datetime.now().isoformat(), 'icon': 'corpse'}}}
+        # self.message(dumps(fakemessage))
+
+    # Shares player death with the websocket server
+    def share_death(self, timestamp_string, log_string):
+        # Convert x y values
+        x, y = to_real_xy(self.x, self.y)
+
+        # If the current player is in the zone construct and send the death message to the websocket server
+        if "__you__" in QApplication.instance()._parsers_dict["maps"]._map._data.players:
+            # Construct the payload
+            share_payload = {
+                "x": x,
+                "y": y,
+                "z": self.z,
+                "zone": self.zone_name,
+                "player": self.character_name,
+                "timestamp": timestamp_string,
+                "timeout": 60,
+                "icon": "corpse"
+            }
+
+            # Construct the message frame
+            message = {"type": "waypoint",
+                "group_key": self.group_key,
+                "location": share_payload}
+
+            # Send the message
+            self.websocket.sendTextMessage(dumps(message))
