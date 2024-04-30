@@ -1,5 +1,5 @@
-from json import dumps, loads
 from datetime import datetime
+import json
 
 from PyQt6.QtCore import QObject, QUrl, pyqtSignal
 from PyQt6.QtWidgets import QApplication
@@ -37,8 +37,7 @@ class LocationSharingService(QObject):
             if key != "" and self.group_key != key:
                 self.group_key = key
         else:
-            if self.group_key != config.data["sharing"]["group_key"]:
-                self.group_key = config.data["sharing"]["group_key"]
+            self.group_key = config.data["sharing"]["group_key"]
         
         # Set self.host from config
         self.host = config.data["sharing"]["url"]
@@ -138,7 +137,7 @@ class LocationSharingService(QObject):
 
     # Parses messages from the websocket server
     def parse(self, websocket_message):
-        message = loads(websocket_message)
+        message = json.loads(websocket_message)
         if message["type"] == "state":
             # Only process locations if there is data for our location
             if message.get("locations", False).get(self.zone_name.lower(), False):
@@ -163,7 +162,7 @@ class LocationSharingService(QObject):
                     QApplication.instance()._parsers_dict["maps"]._map.remove_player(player)
 
             # Only process waypoints if there is data for our location
-            if message.get("waypoints", False).get(self.zone_name.lower(), False):
+            if message.get("waypoints", {}).get(self.zone_name.lower(), False):
                 # Iterate through the waypoints in the zone
                 for waypoint in message["waypoints"][self.zone_name.lower()]:
                     w_data = message["waypoints"][self.zone_name.lower()][waypoint]
@@ -203,14 +202,14 @@ class LocationSharingService(QObject):
                 "location": share_payload}
 
         # Send the message
-        self.websocket.sendTextMessage(dumps(message))
+        self.websocket.sendTextMessage(json.dumps(message))
 
         # Below is an example of sending a fake message to verify both adding and removing entries works in field of bone at the cab gates
         # fakemessage = {}
         # fakemessage["type"] = "state"
         # fakemessage["locations"] = {'field of bone': {'ConfigureYou': {'x': -3535.0, 'y': 2735.0, 'z': 7.85, 'timestamp': datetime.now().isoformat(), 'icon': 'corpse'}}}
         # fakemessage["waypoints"] = {'field of bone': {'ConfigureYou': {'x': -3530.0, 'y': 2735.0, 'z': 7.85, 'timestamp': datetime.now().isoformat(), 'icon': 'corpse'}}}
-        # self.message(dumps(fakemessage))
+        # self.message(json.dumps(fakemessage))
 
     # Shares player death with the websocket server
     def share_death(self, timestamp_string, log_string):
@@ -237,4 +236,4 @@ class LocationSharingService(QObject):
                 "location": share_payload}
 
             # Send the message
-            self.websocket.sendTextMessage(dumps(message))
+            self.websocket.sendTextMessage(json.dumps(message))

@@ -5,7 +5,6 @@ from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QHBoxLayout, QPushButton, QApplication
 
 from helpers import config, to_real_xy, ParserWindow
-
 from .mapcanvas import MapCanvas
 from .mapclasses import MapPoint
 from .mapdata import MapData

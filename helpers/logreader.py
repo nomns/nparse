@@ -1,6 +1,6 @@
-import os
 from datetime import datetime
 from glob import glob
+import os
 
 from PyQt6.QtCore import QFileSystemWatcher, pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication

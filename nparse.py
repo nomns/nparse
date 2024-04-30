@@ -2,18 +2,18 @@
 import os
 import sys
 import webbrowser
-import semver
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QCursor, QFontDatabase, QIcon
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMenu, QSystemTrayIcon
+import semver
 
-import parsers
-from parsers.maps.window import MapsSignals
 from helpers import config, logreader, resource_path, get_version
 from helpers.settings import SettingsWindow, SettingsSignals
 from helpers.logreader import LogReaderSignals
 from helpers.location_service import LocationSharingService, LocationSharingSignals
+import parsers
+from parsers.maps.window import MapsSignals
 
 try:
     import pyi_splash  # noqa

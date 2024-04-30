@@ -1,12 +1,12 @@
 import functools
 
+from PyQt6.QtCore import Qt, QObject, pyqtSignal
+from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import (QCheckBox, QDialog, QFormLayout, QFrame,
                              QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
                              QSpinBox, QStackedWidget, QPushButton,
                              QVBoxLayout, QWidget, QComboBox, QLineEdit,
                              QMessageBox, QColorDialog, QApplication)
-from PyQt6.QtCore import Qt, QObject, pyqtSignal
-from PyQt6.QtGui import QColor
 
 from helpers import config, text_time_to_seconds
 from parsers.spells import CustomTrigger
