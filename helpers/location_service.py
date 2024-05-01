@@ -53,10 +53,10 @@ class LocationSharingService(QObject):
     def start(self):
         # Setup Websocket
         self.websocket = QWebSocket()
-        self.websocket.connected.connect(self.connected)
-        self.websocket.error.connect(self.error)
-        self.websocket.disconnected.connect(self.disconnected)
-        self.websocket.textMessageReceived.connect(self.message)
+        self.websocket.connected.connect(self.websocket_connected)
+        self.websocket.error.connect(self.websocket_error)
+        self.websocket.disconnected.connect(self.websocket_disconnected)
+        self.websocket.textMessageReceived.connect(self.websocket_message)
         self.websocket.open(QUrl(self.host))
 
         # Setup signals
@@ -120,19 +120,19 @@ class LocationSharingService(QObject):
         self.zone_name = zone_name
 
     # Websocket Connected - This can be useful for delaying a send until the connection is actually connected.
-    def connected(self):
+    def websocket_connected(self):
         self.websocket.ping()
 
     # Websocket Error
-    def error(self, message):
+    def websocket_error(self, message):
         pass
     
     # Websocket Discconected
-    def disconnected(self):
+    def websocket_disconnected(self):
         pass
 
     # Websocket message handler - handles any incoming messages from the websocket server
-    def message(self, message):
+    def websocket_message(self, message):
         QApplication.instance()._signals["locationsharing"].textMessageReceived.emit(message)
 
     # Parses messages from the websocket server
@@ -209,7 +209,7 @@ class LocationSharingService(QObject):
         # fakemessage["type"] = "state"
         # fakemessage["locations"] = {'field of bone': {'ConfigureYou': {'x': -3535.0, 'y': 2735.0, 'z': 7.85, 'timestamp': datetime.now().isoformat(), 'icon': 'corpse'}}}
         # fakemessage["waypoints"] = {'field of bone': {'ConfigureYou': {'x': -3530.0, 'y': 2735.0, 'z': 7.85, 'timestamp': datetime.now().isoformat(), 'icon': 'corpse'}}}
-        # self.message(json.dumps(fakemessage))
+        # self.websocket_message(json.dumps(fakemessage))
 
     # Shares player death with the websocket server
     def share_death(self, timestamp_string, log_string):
