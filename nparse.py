@@ -5,13 +5,15 @@ import webbrowser
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QCursor, QFontDatabase, QIcon
-from PyQt6.QtWidgets import (QApplication, QFileDialog, QMenu, QMessageBox,
-                             QSystemTrayIcon)
+from PyQt6.QtWidgets import QApplication, QFileDialog, QMenu, QSystemTrayIcon
 import semver
 
+from helpers import config, logreader, resource_path, get_version
+from helpers.settings import SettingsWindow, SettingsSignals
+from helpers.logreader import LogReaderSignals
+from helpers.location_service import LocationSharingService, LocationSharingSignals
 import parsers
-from helpers import config, logreader, resource_path, get_version, location_service
-from helpers.settings import SettingsWindow
+from parsers.maps.window import MapsSignals
 
 try:
     import pyi_splash  # noqa
@@ -46,6 +48,17 @@ class NomnsParse(QApplication):
         # Updates
         self._toggled = False
         self._log_reader = None
+
+        # Load Signals
+        self._signals = {}
+        self._signals["logreader"] = LogReaderSignals()
+        self._signals["settings"] = SettingsSignals()
+        self._signals["maps"] = MapsSignals()
+        self._signals["locationsharing"] = LocationSharingSignals()
+
+        # Load Services
+        self._services = {}
+        self._services["locationsharing"] = LocationSharingService()
 
         # Load Parsers
         self._load_parsers()
@@ -103,13 +116,12 @@ class NomnsParse(QApplication):
             else:
                 self._log_reader = logreader.LogReader(
                     config.data['general']['eq_log_dir'])
-                self._log_reader.new_line.connect(self._parse)
+                QApplication.instance()._signals["logreader"].new_line.connect(self._parse)
                 self._toggled = True
         else:
             if self._log_reader:
                 self._log_reader.deleteLater()
                 self._log_reader = None
-            location_service.stop_location_service()
             for parser in self._parsers:
                 try:
                     parser.shutdown()
@@ -192,8 +204,6 @@ class NomnsParse(QApplication):
         elif action == quit_action:
             if self._toggled:
                 self._toggle()
-            else:
-                location_service.stop_location_service()
 
             # save parser geometry
             for parser in self._parsers:

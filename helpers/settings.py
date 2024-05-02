@@ -1,17 +1,20 @@
 import functools
 
+from PyQt6.QtCore import Qt, QObject, pyqtSignal
+from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import (QCheckBox, QDialog, QFormLayout, QFrame,
                              QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
                              QSpinBox, QStackedWidget, QPushButton,
                              QVBoxLayout, QWidget, QComboBox, QLineEdit,
-                             QMessageBox, QColorDialog)
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor
+                             QMessageBox, QColorDialog, QApplication)
 
 from helpers import config, text_time_to_seconds
-from helpers import location_service
 from parsers.spells import CustomTrigger
 
+class SettingsSignals(QObject):
+    config_updated = pyqtSignal()
+    def __init__(self):
+        super().__init__()
 
 WHATS_THIS_CASTING_WINDOW = """The Casting Window is a range of time in which the spell you are casting will land.
 nParse limits parsing successful casts for the spell to only within that window.  This disables nParse from using other's
@@ -121,11 +124,8 @@ class SettingsWindow(QDialog):
                 hexcolor = hex(widget.currentColor().rgb()).replace('0xff', '#')
                 config.data[key1][key2] = hexcolor
         config.save()
-        self._config_update_triggers()
+        QApplication.instance()._signals["settings"].config_updated.emit()
         self.accept()
-
-    def _config_update_triggers(self):
-        location_service.SIGNALS.config_updated.emit()
 
     def _cancelled(self):
         self._set_values()
