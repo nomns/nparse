@@ -98,12 +98,6 @@ class NomnsParse(QApplication):
             self._parsers_dict["spells"],
             self._parsers_dict["discord"],
         ]
-        for parser in self._parsers:
-            if parser.name in config.data.keys() and 'geometry' in config.data[parser.name].keys():
-                g = config.data[parser.name]['geometry']
-                parser.setGeometry(g[0], g[1], g[2], g[3])
-            if config.data[parser.name]['toggled']:
-                parser.toggle()
 
     def _toggle(self):
         if not self._toggled:
@@ -187,16 +181,7 @@ class NomnsParse(QApplication):
 
         elif action == settings_action:
             self._settings._set_values()
-            if self._settings.exec():
-                # Update required settings
-                for parser in self._parsers:
-                    parser.set_flags()
-                    parser.settings_updated()
-            # some settings are saved within other settings automatically
-            # force update
-            for parser in self._parsers:
-                if parser.name == "spells":
-                    parser.load_custom_timers()
+            self._settings.exec()
 
         elif action == discord_conf_action:
             self._parsers_dict["discord"].show_settings()

@@ -13,6 +13,8 @@ from parsers.spells import CustomTrigger
 
 class SettingsSignals(QObject):
     config_updated = pyqtSignal()
+    spell_triggers_updated = pyqtSignal()
+
     def __init__(self):
         super().__init__()
 
@@ -502,6 +504,7 @@ class CustomTriggerSettings(QDialog):
                 if x.name != ""
             ]
         config.save()
+        QApplication.instance()._signals['settings'].spell_triggers_updated.emit()
 
     def _add_trigger(self):
         self._triggers.addItem('')
