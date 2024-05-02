@@ -3,7 +3,7 @@ import functools
 from PyQt6 import QtCore
 from PyQt6.QtGui import QColor
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtWidgets import QScrollArea, QPushButton, QDialog, QGridLayout
+from PyQt6.QtWidgets import QApplication, QScrollArea, QPushButton, QDialog, QGridLayout
 
 from helpers import ParserWindow, config
 
@@ -88,8 +88,13 @@ Hover this window and click the gear icon to configure your Discord overlay.
 class Discord(ParserWindow):
     """Tracks spell casting, duration, and targets by name."""
 
+    _window_opacity = 80
+    _color = ''
+    _bg_opacity = 25
+
     def __init__(self):
         super().__init__()
+        QApplication.instance()._signals['settings'].config_updated.connect(self.config_updated)
         self.name = 'discord'
         self.setWindowTitle(self.name.title())
         self.set_title(self.name.title())
@@ -100,6 +105,35 @@ class Discord(ParserWindow):
         self.settings_dialog = None
         self.url = config.data['discord']['url']
         self._setup_webview()
+
+        if self._window_opacity != config.data.get(self.name, {}).get('opacity', 80):
+            self._window_opacity = config.data.get(self.name, {}).get('opacity', 80)
+        self.setWindowOpacity(self._window_opacity / 100)
+
+        self._color = config.data.get(self.name, {}).get('color', '#000000')
+        self._bg_opacity = config.data.get(self.name, {}).get('bg_opacity', '25')
+
+        self.update_background_color()
+        self.set_flags()
+        if self.name in config.data.keys() and 'geometry' in config.data[self.name].keys():
+            g = config.data[self.name]['geometry']
+            self.setGeometry(g[0], g[1], g[2], g[3])
+        if config.data[self.name]['toggled']:
+            self.show()
+
+    def config_updated(self):
+        if self._window_opacity != config.data.get(self.name, {}).get('opacity', 80):
+            self._window_opacity = config.data.get(self.name, {}).get('opacity', 80)
+            self.setWindowOpacity(self._window_opacity / 100)
+        
+        if self._color != config.data.get(self.name, {}).get('color', '#000000'):
+            self._color = config.data.get(self.name, {}).get('color', '#000000')
+            self._fix_background()
+            self.update_background_color()
+
+        if self._bg_opacity != config.data.get(self.name, {}).get('bg_opacity', 25):
+            self._bg_opacity = config.data.get(self.name, {}).get('bg_opacity', 25)
+            self._fix_background()
 
     def shutdown(self):
         if self.settings_dialog:
@@ -119,9 +153,7 @@ class Discord(ParserWindow):
 
     def _fix_background(self):
         if self.overlay:
-            bg_opacity = config.data[self.name]['bg_opacity'] / 100
-            hexcolor = config.data[self.name]['color']
-            intcolor = int(hexcolor.replace('#', '0x'), 16)
+            intcolor = int(self._color.replace('#', '0x'), 16)
             qcolor = QColor(intcolor)
             bg_color_set = JS_ADD_CSS_TEMPLATE % {
                 'name': 'bgcolor',
@@ -129,22 +161,19 @@ class Discord(ParserWindow):
                     red=qcolor.red(),
                     green=qcolor.green(),
                     blue=qcolor.blue(),
-                    alpha=bg_opacity
+                    alpha=self._bg_opacity / 100
                 )}
             self.overlay.page().runJavaScript(bg_color_set)
 
     def update_background_color(self):
-        self._fix_background()
-        opacity = config.data[self.name]['opacity'] / 100
-        hexcolor = config.data[self.name]['color']
-        intcolor = int(hexcolor.replace('#', '0x'), 16)
+        intcolor = int(self._color.replace('#', '0x'), 16)
         qcolor = QColor(intcolor)
         self._menu.setStyleSheet(
             CSS_MENU.format(
                 red=qcolor.red(),
                 green=qcolor.green(),
                 blue=qcolor.blue(),
-                alpha=opacity
+                alpha=self._window_opacity / 100
             ))
 
     def update_window_opacity(self):

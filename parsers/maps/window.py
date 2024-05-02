@@ -22,8 +22,11 @@ class MapsSignals(QObject):
 
 class Maps(ParserWindow):
 
+    _window_opacity = 80
+
     def __init__(self):
         super().__init__()
+        QApplication.instance()._signals['settings'].config_updated.connect(self.config_updated)
         self.name = 'maps'
         self.setWindowTitle(self.name.title())
         self.set_title(self.name.title())
@@ -70,6 +73,21 @@ class Maps(ParserWindow):
             self._map.load_map(config.data['maps']['last_zone'])
         else:
             self._map.load_map('west freeport')
+
+        if self._window_opacity != config.data.get(self.name, {}).get('opacity', 80):
+            self._window_opacity = config.data.get(self.name, {}).get('opacity', 80)
+        self.setWindowOpacity(self._window_opacity / 100)
+        self.set_flags()
+        if self.name in config.data.keys() and 'geometry' in config.data[self.name].keys():
+            g = config.data[self.name]['geometry']
+            self.setGeometry(g[0], g[1], g[2], g[3])
+        if config.data[self.name]['toggled']:
+            self.show()
+
+    def config_updated(self):
+        if self._window_opacity != config.data.get(self.name, {}).get('opacity', 80):
+            self._window_opacity = config.data.get(self.name, {}).get('opacity', 80)
+            self.setWindowOpacity(self._window_opacity / 100)
 
     def parse(self, timestamp, text):
         if text[:23] == 'LOADING, PLEASE WAIT...':
