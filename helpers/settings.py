@@ -373,6 +373,14 @@ class SettingsWindow(QDialog):
             enable_clickthrough.setWhatsThis(WHATS_THIS_CLICKTHROUGH)
             appear_sl.addRow('Enable Click-through', enable_clickthrough)
 
+            auto_hide_menu = QCheckBox()
+            auto_hide_menu.setObjectName('%s:auto_hide_menu' % window)
+            appear_sl.addRow('Auto Hide Menus', auto_hide_menu)
+
+            always_on_top = QCheckBox()
+            always_on_top.setObjectName('%s:always_on_top' % window)
+            appear_sl.addRow('Always On Top', always_on_top)
+
         appearance_settings.setLayout(appear_sl)
         stacked_widgets.append(('Appearance', appearance_settings))
 

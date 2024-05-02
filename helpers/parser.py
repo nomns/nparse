@@ -6,6 +6,8 @@ from helpers import config
 
 
 class ParserWindow(QFrame):
+    autohide = True
+    always_on_top = True
 
     def __init__(self):
         super().__init__()
@@ -48,9 +50,10 @@ class ParserWindow(QFrame):
 
     def set_flags(self):
         flags = Qt.WindowType.FramelessWindowHint
-        flags |= Qt.WindowType.WindowStaysOnTopHint
         flags |= Qt.WindowType.WindowCloseButtonHint
         flags |= Qt.WindowType.WindowMinMaxButtonsHint
+        if config.data[self.name]['always_on_top']:
+            flags |= Qt.WindowType.WindowStaysOnTopHint
         if config.data[self.name]['clickthrough']:
             flags |= Qt.WindowType.WindowTransparentForInput
         self.setWindowFlags(flags)
@@ -73,7 +76,8 @@ class ParserWindow(QFrame):
             if window_flush:
                 current_geometry.setTop(current_geometry.top() - tb_total_height)
             flags = Qt.WindowType.FramelessWindowHint
-            flags |= Qt.WindowType.WindowStaysOnTopHint
+            if config.data[self.name]['always_on_top']:
+                flags |= Qt.WindowType.WindowStaysOnTopHint
             self.setWindowFlags(flags)
             self.setGeometry(current_geometry)
             self.show()
@@ -113,12 +117,14 @@ class ParserWindow(QFrame):
         config.save()
 
     def enterEvent(self, event):
-        self._menu.setVisible(True)
-        QFrame.enterEvent(self, event)
+        if config.data.get(self.name, ()).get('auto_hide_menu', False):
+            self._menu.setVisible(True)
+            QFrame.enterEvent(self, event)
 
     def leaveEvent(self, event):
-        self._menu.setVisible(False)
-        QFrame.leaveEvent(self, event)
+        if config.data.get(self.name, ()).get('auto_hide_menu', False):
+            self._menu.setVisible(False)
+            QFrame.leaveEvent(self, event)
 
     def shutdown(self):
         pass
