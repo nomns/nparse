@@ -106,8 +106,7 @@ class Discord(ParserWindow):
         self.url = config.data['discord']['url']
         self._setup_webview()
 
-        if self._window_opacity != config.data.get(self.name, {}).get('opacity', 80):
-            self._window_opacity = config.data.get(self.name, {}).get('opacity', 80)
+        self._window_opacity = config.data.get(self.name, {}).get('opacity', 80)
         self.setWindowOpacity(self._window_opacity / 100)
 
         self._color = config.data.get(self.name, {}).get('color', '#000000')

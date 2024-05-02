@@ -74,8 +74,7 @@ class Maps(ParserWindow):
         else:
             self._map.load_map('west freeport')
 
-        if self._window_opacity != config.data.get(self.name, {}).get('opacity', 80):
-            self._window_opacity = config.data.get(self.name, {}).get('opacity', 80)
+        self._window_opacity = config.data.get(self.name, {}).get('opacity', 80)
         self.setWindowOpacity(self._window_opacity / 100)
         self.set_flags()
         if self.name in config.data.keys() and 'geometry' in config.data[self.name].keys():
