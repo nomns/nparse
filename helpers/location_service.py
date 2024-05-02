@@ -90,8 +90,7 @@ class LocationSharingService(QObject):
 
     def config_updated(self):
         # Handle performing character name override when saving a new name from settings
-        if config.data["sharing"]["enabled"] and config.data["sharing"]["player_name_override"] and config.data["sharing"]["player_name"] != self.character_name:
-            self.character_name = config.data["sharing"]["player_name"]
+        self.character_name = config.data["sharing"]["player_name"]
 
         # Handle setting groupkey from settings changes and account for discord override
         if config.data["sharing"]["discord_channel"]:
@@ -140,7 +139,7 @@ class LocationSharingService(QObject):
         message = json.loads(websocket_message)
         if message["type"] == "state":
             # Only process locations if there is data for our location
-            if message.get("locations", False).get(self.zone_name.lower(), False):
+            if message.get("locations", {}).get(self.zone_name.lower(), False):
                 # Interate through players in the zone
                 for player in message["locations"][self.zone_name.lower()]:
                     #Process any players that are not us
