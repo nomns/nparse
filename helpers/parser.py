@@ -6,7 +6,7 @@ from helpers import config
 
 
 class ParserWindow(QFrame):
-    autohide = True
+    auto_hide_menu = True
     always_on_top = True
 
     def __init__(self):
