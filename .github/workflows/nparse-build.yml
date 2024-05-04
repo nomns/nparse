@@ -1,0 +1,46 @@
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# https://docs.github.com/en/actions/using-workflows/about-workflows
+
+name: nParse Build
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    # Set the target Platform
+    runs-on: windows-latest
+
+    steps:
+    # Checkout the code (See Syntax: https://github.com/actions/checkout)
+    - uses: actions/checkout@v4
+    # Setup Python (See Syntax: https://github.com/actions/setup-python)
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    # Update pip and install requirements
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt pyinstaller
+    # Build the exe with PyInstaller
+    - name: Build the application with PyInstaller
+      run: |
+        PyInstaller nparse_py.spec
+    # Prepair assets for packaging
+    - name: Prepair assets for packaging
+      run: |
+        move data dist
+        Compress-Archive -Path .\dist\* -Destination nparse_${{ github.ref_name }}.zip
+    # Create Release (See Syntax: https://github.com/softprops/action-gh-release)
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        generate_release_notes: True # This auto generates release notes. (See Syntax: https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes)
+        files: nparse_${{ github.ref_name }}.zip
