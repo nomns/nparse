@@ -47,8 +47,6 @@ class ParserWindow(QFrame):
         self.setWindowOpacity(config.data[self.name]['opacity'] / 100)
 
     def set_flags(self):
-        self.update_window_opacity()
-        self.update_background_color()
         flags = Qt.WindowType.FramelessWindowHint
         flags |= Qt.WindowType.WindowStaysOnTopHint
         flags |= Qt.WindowType.WindowCloseButtonHint
@@ -56,8 +54,6 @@ class ParserWindow(QFrame):
         if config.data[self.name]['clickthrough']:
             flags |= Qt.WindowType.WindowTransparentForInput
         self.setWindowFlags(flags)
-        if config.data[self.name]['toggled']:
-            self.show()
 
     def _toggle_frame(self):
         current_geometry = self.geometry()
@@ -95,7 +91,6 @@ class ParserWindow(QFrame):
             self.hide()
             config.data[self.name]['toggled'] = False
         else:
-            self.set_flags()
             self.show()
             config.data[self.name]['toggled'] = True
         config.save()

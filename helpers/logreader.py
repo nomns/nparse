@@ -1,17 +1,22 @@
-import os
-import datetime
+from datetime import datetime
 from glob import glob
+import os
 
-from PyQt6.QtCore import QFileSystemWatcher, pyqtSignal
+from PyQt6.QtCore import QFileSystemWatcher, pyqtSignal, QObject
+from PyQt6.QtWidgets import QApplication
 
-from helpers import config
-from helpers import location_service
 from helpers import strip_timestamp
 
+class LogReaderSignals(QObject):
+    new_line = pyqtSignal(object)
+    character_updated = pyqtSignal(str)
+    server_updated = pyqtSignal(str)
+    def __init__(self):
+        super().__init__()
 
 class LogReader(QFileSystemWatcher):
-
-    new_line = pyqtSignal(object)
+    character_name = None
+    server_name = None
 
     def __init__(self, eq_directory):
         super().__init__()
@@ -46,9 +51,13 @@ class LogReader(QFileSystemWatcher):
         if changed_file != self._stats['log_file']:
             self._stats['log_file'] = changed_file
             char_name = os.path.basename(changed_file).split("_")[1]
-            if not config.data['sharing']['player_name_override']:
-                config.data['sharing']['player_name'] = char_name
-                location_service.SIGNALS.config_updated.emit()
+            server_name = os.path.basename(changed_file).split("_")[2][:-4]
+            if server_name != self.server_name:
+                self.server_name = server_name
+                QApplication.instance()._signals["logreader"].server_updated.emit(server_name)
+            if char_name != self.character_name:
+                self.character_name = char_name
+                QApplication.instance()._signals["logreader"].character_updated.emit(char_name)
             with open(self._stats['log_file'], 'rb') as log:
                 log.seek(0, os.SEEK_END)
                 current_end = log.tell()
@@ -64,8 +73,8 @@ class LogReader(QFileSystemWatcher):
                 lines = log.readlines()
                 self._stats['last_read'] = log.tell()
                 for line in lines:
-                    self.new_line.emit((
-                        datetime.datetime.now(),
+                    QApplication.instance()._signals["logreader"].new_line.emit((
+                        datetime.now(),
                         strip_timestamp(line)
                         ))
             except Exception:  # do not read lines if they cause errors
