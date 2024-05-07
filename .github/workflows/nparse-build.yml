@@ -34,7 +34,7 @@ jobs:
       run: |
         PyInstaller nparse_py.spec
     # Prepare assets for packaging
-    - name: Prepair assets for packaging
+    - name: Prepare assets for packaging
       run: |
         move data dist
         Compress-Archive -Path .\dist\* -Destination nparse_${{ github.ref_name }}.zip
