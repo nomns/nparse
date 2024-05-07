@@ -1,12 +1,11 @@
 import asyncio
 import datetime
 import json
-import ipaddress
 import logging
-import socket
 import time
 
 import websockets
+import websockets.server
 from websockets import exceptions as ws_exc
 
 logging.basicConfig()
@@ -80,7 +79,7 @@ async def notify_location(websocket, group_key):
             # if user != websocket and
             if PLAYERS[user][1] == group_key]
         if keyed_players:
-            await asyncio.wait([user.send(message) for user in keyed_players])
+            websockets.broadcast(keyed_players, message)
 
 
 async def notify_users(websocket):
@@ -108,12 +107,22 @@ async def unregister(websocket):
 async def update_data_for_player(websocket, data, group_key):
     zone_name = data.pop('zone', 'unknown').lower()
     player_name = data.pop('player', 'unknown').capitalize()
+
+    old_player_name = PLAYERS[websocket][0]
+    old_group_key = PLAYERS[websocket][1]
+    # If the player name or group key changed, we need to clear out the old player from all zones
+    # Otherwise, remove the player from all zones besides the current one
+    if old_player_name != player_name or old_group_key != group_key:
+        await remove_player_from_zones(old_player_name, group_key=old_group_key)
+    else:
+        await remove_player_from_zones(player_name, group_key=group_key,
+                                       except_zone=zone_name)
+
     if group_key not in PLAYER_LOCS:
         PLAYER_LOCS[group_key] = {}
     if zone_name not in PLAYER_LOCS[group_key]:
         PLAYER_LOCS[group_key][zone_name] = {}
-    await remove_player_from_zones(player_name, group_key=group_key,
-                                   except_zone=zone_name)
+
     PLAYERS[websocket] = (player_name, group_key)
     PLAYER_LOCS[group_key][zone_name][player_name] = data
 
@@ -135,7 +144,7 @@ async def update_data_for_waypoint(websocket, data, group_key):
 
 
 async def remove_player_from_zones(name, group_key, except_zone=None):
-    for zone in list(PLAYER_LOCS[group_key]):
+    for zone in list(PLAYER_LOCS.get(group_key, {})):
         if zone == except_zone:
             continue
         if name in PLAYER_LOCS[group_key][zone]:
@@ -146,7 +155,7 @@ async def remove_player_from_zones(name, group_key, except_zone=None):
                     PLAYER_LOCS.pop(group_key)
 
 
-async def update_loc(websocket, path):
+async def update_loc(websocket: websockets.WebSocketServerProtocol):
     await register(websocket)
     try:
         # await notify_location(websocket)
@@ -168,14 +177,10 @@ async def update_loc(websocket, path):
         await unregister(websocket)
 
 
+async def main():
+    async with websockets.server.serve(update_loc, BIND_HOST, BIND_PORT):
+        await asyncio.Future()  # run forever
+
+
 if __name__ == "__main__":
-    sock_family = socket.AF_INET6
-    if ipaddress.ip_address(BIND_HOST).version == 4:
-        sock_family = socket.AF_INET
-    sock = socket.socket(sock_family, socket.SOCK_STREAM)
-    sock.bind((BIND_HOST, BIND_PORT))
-
-    start_server = websockets.serve(update_loc, sock=sock)
-
-    asyncio.get_event_loop().run_until_complete(start_server)
-    asyncio.get_event_loop().run_forever()
+    asyncio.run(main())
