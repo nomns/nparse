@@ -97,7 +97,7 @@ class LocationSharingService(QObject):
         ):
             self.character_name = config.data["sharing"]["player_name"]
         # Use the name from the logreader if available
-        elif QApplication.instance()._log_reader.character_name:
+        elif QApplication.instance()._log_reader and QApplication.instance()._log_reader.character_name:
             self.character_name = QApplication.instance()._log_reader.character_name
             # Update config so if the user starts up and has not zoned, we use the correct name
             if config.data["sharing"]["player_name"] != self.character_name:
