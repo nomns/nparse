@@ -74,6 +74,10 @@ class Maps(ParserWindow):
         else:
             self._map.load_map('west freeport')
 
+        if config.data.get(self.name, ()).get('auto_hide_menu', True) == False:
+            self.auto_hide_menu = False
+            self._menu.setVisible(True)
+        self.always_on_top = config.data.get(self.name, ()).get('always_on_top', True)
         self._window_opacity = config.data.get(self.name, {}).get('opacity', 80)
         self.setWindowOpacity(self._window_opacity / 100)
         self.set_flags()
@@ -87,6 +91,16 @@ class Maps(ParserWindow):
         if self._window_opacity != config.data.get(self.name, {}).get('opacity', 80):
             self._window_opacity = config.data.get(self.name, {}).get('opacity', 80)
             self.setWindowOpacity(self._window_opacity / 100)
+
+        if self.always_on_top != config.data.get(self.name, ()).get('always_on_top', False):
+            self.always_on_top = config.data.get(self.name, ()).get('always_on_top', False)
+            self.set_flags()
+
+        if config.data.get(self.name, ()).get('auto_hide_menu', True) == False:
+            self.auto_hide_menu = False
+            self._menu.setVisible(True)
+        else:
+            self._menu.setVisible(False)
 
     def parse(self, timestamp, text):
         if text[:23] == 'LOADING, PLEASE WAIT...':

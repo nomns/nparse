@@ -113,10 +113,15 @@ class Discord(ParserWindow):
         self._bg_opacity = config.data.get(self.name, {}).get('bg_opacity', '25')
 
         self.update_background_color()
+        if config.data.get(self.name, ()).get('auto_hide_menu', True) == False:
+            self.auto_hide_menu = False
+            self._menu.setVisible(True)
+        self.always_on_top = config.data.get(self.name, ()).get('always_on_top', True)
         self.set_flags()
         if self.name in config.data.keys() and 'geometry' in config.data[self.name].keys():
             g = config.data[self.name]['geometry']
             self.setGeometry(g[0], g[1], g[2], g[3])
+
         if config.data[self.name]['toggled']:
             self.show()
 
@@ -124,7 +129,17 @@ class Discord(ParserWindow):
         if self._window_opacity != config.data.get(self.name, {}).get('opacity', 80):
             self._window_opacity = config.data.get(self.name, {}).get('opacity', 80)
             self.setWindowOpacity(self._window_opacity / 100)
-        
+
+        if self.always_on_top != config.data.get(self.name, ()).get('always_on_top', False):
+            self.always_on_top = config.data.get(self.name, ()).get('always_on_top', False)
+            self.set_flags()
+
+        if config.data.get(self.name, ()).get('auto_hide_menu', True) == False:
+            self.auto_hide_menu = False
+            self._menu.setVisible(True)
+        else:
+            self._menu.setVisible(False)
+
         if self._color != config.data.get(self.name, {}).get('color', '#000000'):
             self._color = config.data.get(self.name, {}).get('color', '#000000')
             self._fix_background()

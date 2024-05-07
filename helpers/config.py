@@ -169,6 +169,14 @@ def verify_settings():
         data['maps'].get('clickthrough', False),
         False
     )
+    data['maps']['auto_hide_menu'] = get_setting(
+        data['maps'].get('auto_hide_menu', True),
+        True
+        )
+    data['maps']['always_on_top'] = get_setting(
+        data['maps'].get('always_on_top', True),
+        True
+        )
 
     # spells
     data['spells'] = data.get('spells', {})
@@ -242,6 +250,14 @@ def verify_settings():
         data['spells'].get('clickthrough', False),
         False
     )
+    data['spells']['auto_hide_menu'] = get_setting(
+        data['spells'].get('auto_hide_menu', True),
+        True
+        )
+    data['spells']['always_on_top'] = get_setting(
+        data['spells'].get('always_on_top', True),
+        True
+        )
 
     # discord
     data['discord'] = data.get('discord', {})
@@ -279,7 +295,14 @@ def verify_settings():
         data['discord'].get('clickthrough', False),
         False
     )
-
+    data['discord']['auto_hide_menu'] = get_setting(
+        data['discord'].get('auto_hide_menu', True),
+        True
+        )
+    data['discord']['always_on_top'] = get_setting(
+        data['discord'].get('always_on_top', True),
+        True
+        )
 
 def get_setting(setting, default, func=None):
     try:
