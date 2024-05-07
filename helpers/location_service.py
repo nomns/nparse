@@ -90,7 +90,22 @@ class LocationSharingService(QObject):
 
     def config_updated(self):
         # Handle performing character name override when saving a new name from settings
-        self.character_name = config.data["sharing"]["player_name"]
+        # Use Override Name if sharing is anabled
+        if (
+            config.data["sharing"]["enabled"]
+            and config.data["sharing"]["player_name_override"]
+        ):
+            self.character_name = config.data["sharing"]["player_name"]
+        # Use the name from the logreader if available
+        elif QApplication.instance()._log_reader.character_name:
+            self.character_name = QApplication.instance()._log_reader.character_name
+            # Update config so if the user starts up and has not zoned, we use the correct name
+            if config.data["sharing"]["player_name"] != self.character_name:
+                config.data["sharing"]["player_name"] = self.character_name
+                config.save()
+        # Set the name to the last used name in player sharing if all else fails
+        else:
+            self.character_name = config.data["sharing"]["player_name"]
 
         # Handle setting groupkey from settings changes and account for discord override
         if config.data["sharing"]["discord_channel"]:
@@ -114,6 +129,9 @@ class LocationSharingService(QObject):
         # Only update the character_name if player_name_override is not true in config sharing
         if not config.data["sharing"]["player_name_override"]:
             self.character_name = character_name
+            if config.data["sharing"]["player_name"] != self.character_name:
+                config.data["sharing"]["player_name"] = self.character_name
+                config.save()
 
     def zone_updated(self, zone_name):
         self.zone_name = zone_name
