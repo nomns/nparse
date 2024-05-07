@@ -33,7 +33,7 @@ jobs:
     - name: Build the application with PyInstaller
       run: |
         PyInstaller nparse_py.spec
-    # Prepair assets for packaging
+    # Prepare assets for packaging
     - name: Prepair assets for packaging
       run: |
         move data dist
