@@ -64,7 +64,7 @@ def clean_old_waypoints():
 
 async def notify_location(websocket, group_key):
     now = time.time()
-    if now < LAST_SENT.get(group_key, 0) + 0.5:
+    if now < LAST_SENT.get(group_key, 0) + 1:
         # print("Sending too fast.")
         return
     LAST_SENT[group_key] = now
