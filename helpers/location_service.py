@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 
-from PyQt6.QtCore import QObject, QUrl, pyqtSignal
+from PyQt6.QtCore import QObject, QUrl, pyqtSignal, QTimer
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWebSockets import QWebSocket
 
@@ -146,7 +146,14 @@ class LocationSharingService(QObject):
     
     # Websocket Discconected
     def websocket_disconnected(self):
-        pass
+        if config.data.get("sharing", {}).get("enabled", False):
+            reconnect_delay  = int(config.data.get("sharing", {}).get("reconnect_delay", 5) * 1000)
+            _ = QTimer().singleShot(reconnect_delay , self.websocket_reconnect )
+
+    # Websocket reconnect logic
+    def websocket_reconnect(self):
+        if config.data.get("sharing", {}).get("enabled", False):
+            self.websocket.open(QUrl(self.host))
 
     # Websocket message handler - handles any incoming messages from the websocket server
     def websocket_message(self, message):
