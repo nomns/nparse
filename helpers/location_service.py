@@ -147,8 +147,8 @@ class LocationSharingService(QObject):
     # Websocket Discconected
     def websocket_disconnected(self):
         if config.data.get("sharing", {}).get("enabled", False):
-            timeout = int(config.data.get("sharing", {}).get("reconnect_delay", 5) * 1000)
-            _ = QTimer().singleShot(timeout, self.websocket_reconnect )
+            reconnect_delay  = int(config.data.get("sharing", {}).get("reconnect_delay", 5) * 1000)
+            _ = QTimer().singleShot(reconnect_delay , self.websocket_reconnect )
 
     # Websocket reconnect logic
     def websocket_reconnect(self):
