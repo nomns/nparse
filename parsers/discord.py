@@ -133,6 +133,8 @@ class Discord(ParserWindow):
         if self.always_on_top != config.data.get(self.name, ()).get('always_on_top', False):
             self.always_on_top = config.data.get(self.name, ()).get('always_on_top', False)
             self.set_flags()
+            if config.data.get(self.name, {}).get('toggled', True):
+                self.show()
 
         if config.data.get(self.name, ()).get('auto_hide_menu', True) == False:
             self.auto_hide_menu = False
