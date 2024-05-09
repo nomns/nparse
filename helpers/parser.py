@@ -1,96 +1,176 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QStyle,
+from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QStyle,
                              QPushButton, QVBoxLayout, QWidget)
 
 from helpers import config
 
 
-class ParserWindow(QFrame):
-    auto_hide_menu = True
-    always_on_top = True
+class ParserWindow(QWidget):
+    content = None
+    menu_area = None
+    name = ""
 
-    def __init__(self):
+    _always_on_top = True
+    _auto_hide_menu = True
+    _button = None
+    _clickthrough = False
+    _frameless = True
+    _geometry = None
+    _menu = None
+    _menu_content = None
+    _parser_menu_area = None
+    _title = None
+    _window_flush = None
+    _window_opacity = 80
+
+    def __init__(self, name):
         super().__init__()
-        self.name = ''
-        self.setObjectName('ParserWindow')
+        # Set Vars from init
+        self.name = name
+
+        # Set vars from config
+        self._always_on_top = config.data.get(self.name, ()).get("always_on_top", True)
+        self._auto_hide_menu = config.data.get(self.name, ()).get("auto_hide_menu", True)
+        self._clickthrough = config.data.get(self.name, ()).get("clickthrough", True)
+        self._frameless = config.data.get(self.name, ()).get("frameless", True)
+        self._geometry = config.data.get(self.name, {}).get("geometry", [0,0,200,400])
+        self._window_flush = config.data.get("general", {}).get("window_flush", True)
+        self._window_opacity = config.data.get(self.name, {}).get("opacity", 80)
+
+        # Setup UI
+        self._button = QPushButton("\u2637")
+        self._button.setObjectName("ParserWindowMoveButton")
+        self._button.clicked.connect(self._toggle_frame)
+
+        self._title = QLabel()
+        self._title.setText(self.name.title())
+        self._title.setObjectName("ParserWindowTitle")
+
+        self.menu_area = QHBoxLayout()
+
+        self._parser_menu_area = QWidget()
+        self._parser_menu_area.setObjectName("ParserWindowMenu")
+        self._parser_menu_area.setLayout(self.menu_area)
+
+        self._menu_content = QHBoxLayout()
+        self._menu_content.setSpacing(5)
+        self._menu_content.setContentsMargins(3, 0, 0, 0)
+        self._menu_content.addWidget(self._button, 0)
+        self._menu_content.addWidget(self._title, 1)
+        self._menu_content.addWidget(self._parser_menu_area, 0)
+
+        self._menu = QWidget()
+        self._menu.setObjectName("ParserWindowMenuReal")
+        self._menu.setLayout(self._menu_content)
+        self._menu.setVisible(False)
+
         self.content = QVBoxLayout()
         self.content.setContentsMargins(0, 0, 0, 0)
         self.content.setSpacing(0)
-        self.setLayout(self.content)
-        self._menu = QWidget()
-        self._menu_content = QHBoxLayout()
-        self._menu.setObjectName('ParserWindowMenuReal')
-        self._menu.setLayout(self._menu_content)
-        self._menu_content.setSpacing(5)
-        self._menu_content.setContentsMargins(3, 0, 0, 0)
         self.content.addWidget(self._menu, 0)
 
-        self._title = QLabel()
-        self._title.setObjectName('ParserWindowTitle')
+        if self._auto_hide_menu == False:
+            self._menu.setVisible(True)
 
-        button = QPushButton('\u2637')
-        button.setObjectName('ParserWindowMoveButton')
-        self._menu_content.addWidget(button, 0)
-        self._menu_content.addWidget(self._title, 1)
+        self.setGeometry(self._geometry[0], self._geometry[1], self._geometry[2], self._geometry[3])
+        self.setLayout(self.content)
+        self.setObjectName("ParserWindow")
+        self.setWindowOpacity(self._window_opacity / 100)
+        self.setWindowTitle(self.name.title())
 
-        menu_area = QWidget()
-        menu_area.setObjectName('ParserWindowMenu')
-        self.menu_area = QHBoxLayout()
-        menu_area.setLayout(self.menu_area)
-        self._menu_content.addWidget(menu_area, 0)
-        self._menu.setVisible(False)
+        self._set_flags()
 
-        button.clicked.connect(self._toggle_frame)
+        QApplication.instance()._signals["settings"].config_updated.connect(
+            self._parser_settings_config_update_watcher
+        )
+        QApplication.instance().aboutToQuit.connect(self._save_geometry)
 
-    def update_background_color(self):
-        pass
+    def _parser_settings_config_update_watcher(self):
+        requies_redraw = False
 
-    def update_window_opacity(self):
-        self.setWindowOpacity(config.data[self.name]['opacity'] / 100)
+        settings_always_on_top = config.data.get(self.name, ()).get("always_on_top", True)
+        settings_auto_hide_menu = config.data.get(self.name, ()).get("auto_hide_menu", True)
+        settings_clickthrough = config.data.get(self.name, ()).get("clickthrough", True)
+        settings_window_flush = config.data.get("general", {}).get("window_flush", True)
+        settings_window_opacity = config.data.get(self.name, {}).get("opacity", 80)
 
-    def set_flags(self):
-        flags = Qt.WindowType.FramelessWindowHint
-        flags |= Qt.WindowType.WindowCloseButtonHint
-        flags |= Qt.WindowType.WindowMinMaxButtonsHint
-        if config.data[self.name]['always_on_top']:
+        self._window_flush = settings_window_flush
+
+        if self._clickthrough != settings_clickthrough:
+            if self.isVisible():
+                requies_redraw = True
+            self._clickthrough = settings_clickthrough
+            self._set_flags()
+
+        if self._window_opacity != settings_window_opacity:
+            self._window_opacity = settings_window_opacity
+            self.setWindowOpacity(self._window_opacity / 100)
+
+        if self._always_on_top != settings_always_on_top:
+            if self.isVisible():
+                requies_redraw = True
+            self._always_on_top = settings_always_on_top
+            self._set_flags()
+
+        if self._auto_hide_menu != settings_auto_hide_menu:
+            self._auto_hide_menu = settings_auto_hide_menu
+            self._menu.setVisible(not settings_auto_hide_menu)
+
+        if requies_redraw:
+            self.show()
+
+    def _save_geometry(self):
+        config.data[self.name]['geometry'] = [
+            self.geometry().x(), self.geometry().y(),
+            self.geometry().width(), self.geometry().height()
+        ]
+        config.save()
+
+    def _set_flags(self):
+        if self._frameless:
+            flags = Qt.WindowType.FramelessWindowHint
+        else:
+            flags = Qt.WindowType.WindowCloseButtonHint
+            flags |= Qt.WindowType.WindowMinMaxButtonsHint
+        if self._always_on_top:
             flags |= Qt.WindowType.WindowStaysOnTopHint
-        if config.data[self.name]['clickthrough']:
+        if self._clickthrough:
             flags |= Qt.WindowType.WindowTransparentForInput
         self.setWindowFlags(flags)
 
     def _toggle_frame(self):
         current_geometry = self.geometry()
-        window_flush = config.data['general']['window_flush']
         titlebar_height = self.style().pixelMetric(QStyle.PixelMetric.PM_TitleBarHeight)
         titlebar_margin = self.style().pixelMetric(QStyle.PixelMetric.PM_DockWidgetTitleMargin)
         tb_total_height = titlebar_height + titlebar_margin
-        if bool(self.windowFlags() & Qt.WindowType.FramelessWindowHint):
-            if window_flush:
+        if self._frameless:
+            if self._window_flush:
                 current_geometry.setTop(current_geometry.top() + tb_total_height)
-            flags = Qt.WindowType.WindowCloseButtonHint
-            flags |= Qt.WindowType.WindowMinMaxButtonsHint
-            self.setWindowFlags(flags)
             self.setGeometry(current_geometry)
+            self._frameless = False
+            self._set_flags()
             self.show()
+            config.data[self.name]["frameless"] = False
+            config.data[self.name]['geometry'] = [
+                current_geometry.x(), current_geometry.y(),
+                current_geometry.width(), current_geometry.height()
+            ]
+            config.save()
         else:
-            if window_flush:
+            if self._window_flush:
                 current_geometry.setTop(current_geometry.top() - tb_total_height)
-            flags = Qt.WindowType.FramelessWindowHint
-            if config.data[self.name]['always_on_top']:
-                flags |= Qt.WindowType.WindowStaysOnTopHint
-            self.setWindowFlags(flags)
             self.setGeometry(current_geometry)
+            self._frameless = True
+            self._set_flags()
             self.show()
+            config.data[self.name]["frameless"] = True
             config.data[self.name]['geometry'] = [
                 current_geometry.x(), current_geometry.y(),
                 current_geometry.width(), current_geometry.height()
             ]
             config.save()
 
-    def set_title(self, title):
-        self._title.setText(title)
-
-    def toggle(self, _=None):
+    def toggle(self):
         if self.isVisible():
             self.hide()
             config.data[self.name]['toggled'] = False
@@ -99,35 +179,20 @@ class ParserWindow(QFrame):
             config.data[self.name]['toggled'] = True
         config.save()
 
+    # Overrides QWidget to handle this event
     def closeEvent(self, _):
         if config.APP_EXIT:
             return
-        if not bool(self.windowFlags() & Qt.WindowType.FramelessWindowHint):
-            # Preserve correct position/height when closing
-            titlebar_height = self.style().pixelMetric(QStyle.PixelMetric.PM_TitleBarHeight)
-            titlebar_margin = self.style().pixelMetric(QStyle.PixelMetric.PM_DockWidgetTitleMargin)
-            tb_total_height = titlebar_height + titlebar_margin
-            current_geometry = self.geometry()
-            current_geometry.setTop(max(current_geometry.top() - tb_total_height, 0))
-            config.data[self.name]['geometry'] = [
-                current_geometry.x(), current_geometry.y(),
-                current_geometry.width(), current_geometry.height()]
-            self.setGeometry(current_geometry)
+        # This is triggered if the user closes from the taskbar or from the X if the window is framed
         config.data[self.name]['toggled'] = False
         config.save()
 
-    def enterEvent(self, event):
-        if config.data.get(self.name, ()).get('auto_hide_menu', False):
+    # Overrides QWidget to handle this event
+    def enterEvent(self, _):
+        if self._auto_hide_menu:
             self._menu.setVisible(True)
-            QFrame.enterEvent(self, event)
 
-    def leaveEvent(self, event):
-        if config.data.get(self.name, ()).get('auto_hide_menu', False):
+    # Overrides QWidget to handle this event
+    def leaveEvent(self, _):
+        if self._auto_hide_menu:
             self._menu.setVisible(False)
-            QFrame.leaveEvent(self, event)
-
-    def shutdown(self):
-        pass
-
-    def settings_updated(self):
-        pass

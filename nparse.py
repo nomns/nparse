@@ -89,9 +89,9 @@ class NomnsParse(QApplication):
 
     def _load_parsers(self):
         self._parsers_dict = {
-            "maps": parsers.Maps(),
-            "spells": parsers.Spells(),
-            "discord": parsers.Discord(),
+            "maps": parsers.Maps("maps"),
+            "spells": parsers.Spells("spells"),
+            "discord": parsers.Discord("discord"),
         }
         self._parsers = [
             self._parsers_dict["maps"],
@@ -116,11 +116,6 @@ class NomnsParse(QApplication):
             if self._log_reader:
                 self._log_reader.deleteLater()
                 self._log_reader = None
-            for parser in self._parsers:
-                try:
-                    parser.shutdown()
-                except:
-                    print("Failed to shutdown parser: %s" % parser.name)
             self._toggled = False
 
     def _parse(self, new_line):
@@ -132,7 +127,7 @@ class NomnsParse(QApplication):
                     config.data[parser.name]['clickthrough'] = (
                         not config.data[parser.name]['clickthrough'])
                     config.save()
-                    parser.set_flags()
+                    parser._set_flags()
                 elif text.startswith('toggle_%s' % parser.name):
                     parser.toggle()
                 elif config.data[parser.name]['toggled'] or parser.name == 'maps':
@@ -189,14 +184,6 @@ class NomnsParse(QApplication):
         elif action == quit_action:
             if self._toggled:
                 self._toggle()
-
-            # save parser geometry
-            for parser in self._parsers:
-                g = parser.geometry()
-                config.data[parser.name]['geometry'] = [
-                    g.x(), g.y(), g.width(), g.height()
-                ]
-            config.save()
 
             self._system_tray.setVisible(False)
             config.APP_EXIT = True

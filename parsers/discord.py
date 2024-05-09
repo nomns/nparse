@@ -92,12 +92,9 @@ class Discord(ParserWindow):
     _color = ''
     _bg_opacity = 25
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name):
+        super().__init__(name)
         QApplication.instance()._signals['settings'].config_updated.connect(self.config_updated)
-        self.name = 'discord'
-        self.setWindowTitle(self.name.title())
-        self.set_title(self.name.title())
         self.setAttribute(
             QtCore.Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setMinimumWidth(125)
@@ -106,42 +103,14 @@ class Discord(ParserWindow):
         self.url = config.data['discord']['url']
         self._setup_webview()
 
-        self._window_opacity = config.data.get(self.name, {}).get('opacity', 80)
-        self.setWindowOpacity(self._window_opacity / 100)
-
         self._color = config.data.get(self.name, {}).get('color', '#000000')
         self._bg_opacity = config.data.get(self.name, {}).get('bg_opacity', '25')
 
         self.update_background_color()
-        if config.data.get(self.name, ()).get('auto_hide_menu', True) == False:
-            self.auto_hide_menu = False
-            self._menu.setVisible(True)
-        self.always_on_top = config.data.get(self.name, ()).get('always_on_top', True)
-        self.set_flags()
-        if self.name in config.data.keys() and 'geometry' in config.data[self.name].keys():
-            g = config.data[self.name]['geometry']
-            self.setGeometry(g[0], g[1], g[2], g[3])
-
         if config.data[self.name]['toggled']:
             self.show()
 
     def config_updated(self):
-        if self._window_opacity != config.data.get(self.name, {}).get('opacity', 80):
-            self._window_opacity = config.data.get(self.name, {}).get('opacity', 80)
-            self.setWindowOpacity(self._window_opacity / 100)
-
-        if self.always_on_top != config.data.get(self.name, ()).get('always_on_top', False):
-            self.always_on_top = config.data.get(self.name, ()).get('always_on_top', False)
-            self.set_flags()
-            if config.data.get(self.name, {}).get('toggled', True):
-                self.show()
-
-        if config.data.get(self.name, ()).get('auto_hide_menu', True) == False:
-            self.auto_hide_menu = False
-            self._menu.setVisible(True)
-        else:
-            self._menu.setVisible(False)
-
         if self._color != config.data.get(self.name, {}).get('color', '#000000'):
             self._color = config.data.get(self.name, {}).get('color', '#000000')
             self._fix_background()
@@ -150,12 +119,6 @@ class Discord(ParserWindow):
         if self._bg_opacity != config.data.get(self.name, {}).get('bg_opacity', 25):
             self._bg_opacity = config.data.get(self.name, {}).get('bg_opacity', 25)
             self._fix_background()
-
-    def shutdown(self):
-        if self.settings_dialog:
-            self.settings_dialog.destroy()
-        if self.overlay:
-            self.overlay.destroy()
 
     def _applyTweaks(self):
         if self.overlay:
@@ -191,10 +154,6 @@ class Discord(ParserWindow):
                 blue=qcolor.blue(),
                 alpha=self._window_opacity / 100
             ))
-
-    def update_window_opacity(self):
-        # This is special-cased as part of update_background_color for discord
-        return
 
     def _setup_webview(self):
         setup_button = QPushButton('\u2699')

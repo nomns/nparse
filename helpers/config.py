@@ -177,6 +177,10 @@ def verify_settings():
         data['maps'].get('always_on_top', True),
         True
         )
+    data['maps']['frameless'] = get_setting(
+        data['maps'].get('frameless', True),
+        True
+        )
 
     # spells
     data['spells'] = data.get('spells', {})
@@ -258,6 +262,10 @@ def verify_settings():
         data['spells'].get('always_on_top', True),
         True
         )
+    data['spells']['frameless'] = get_setting(
+        data['spells'].get('frameless', True),
+        True
+        )
 
     # discord
     data['discord'] = data.get('discord', {})
@@ -301,6 +309,10 @@ def verify_settings():
         )
     data['discord']['always_on_top'] = get_setting(
         data['discord'].get('always_on_top', True),
+        True
+        )
+    data['discord']['frameless'] = get_setting(
+        data['discord'].get('frameless', True),
         True
         )
 
