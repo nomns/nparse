@@ -29,10 +29,10 @@ class ParserWindow(QWidget):
         self.name = name
 
         # Set vars from config
-        self._always_on_top = config.data.get(self.name, ()).get("always_on_top", True)
-        self._auto_hide_menu = config.data.get(self.name, ()).get("auto_hide_menu", True)
-        self._clickthrough = config.data.get(self.name, ()).get("clickthrough", True)
-        self._frameless = config.data.get(self.name, ()).get("frameless", True)
+        self._always_on_top = config.data.get(self.name, {}).get("always_on_top", True)
+        self._auto_hide_menu = config.data.get(self.name, {}).get("auto_hide_menu", True)
+        self._clickthrough = config.data.get(self.name, {}).get("clickthrough", True)
+        self._frameless = config.data.get(self.name, {}).get("frameless", True)
         self._geometry = config.data.get(self.name, {}).get("geometry", [0,0,200,400])
         self._window_flush = config.data.get("general", {}).get("window_flush", True)
         self._window_opacity = config.data.get(self.name, {}).get("opacity", 80)
@@ -88,9 +88,9 @@ class ParserWindow(QWidget):
     def _parser_settings_config_update_watcher(self):
         requies_redraw = False
 
-        settings_always_on_top = config.data.get(self.name, ()).get("always_on_top", True)
-        settings_auto_hide_menu = config.data.get(self.name, ()).get("auto_hide_menu", True)
-        settings_clickthrough = config.data.get(self.name, ()).get("clickthrough", True)
+        settings_always_on_top = config.data.get(self.name, {}).get("always_on_top", True)
+        settings_auto_hide_menu = config.data.get(self.name, {}).get("auto_hide_menu", True)
+        settings_clickthrough = config.data.get(self.name, {}).get("clickthrough", True)
         settings_window_flush = config.data.get("general", {}).get("window_flush", True)
         settings_window_opacity = config.data.get(self.name, {}).get("opacity", 80)
 
