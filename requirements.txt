@@ -1,6 +1,5 @@
-pyqt6
+PySide6
 websockets
 colorhash
 pathvalidate
-PyQt6-WebEngine
 semver

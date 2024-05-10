@@ -1,15 +1,15 @@
 from datetime import datetime
 import json
 
-from PyQt6.QtCore import QObject, QUrl, pyqtSignal, QTimer
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtWebSockets import QWebSocket
+from PySide6.QtCore import QObject, QUrl, Signal, QTimer
+from PySide6.QtWidgets import QApplication
+from PySide6.QtWebSockets import QWebSocket
 
 from helpers import config, to_real_xy
 from parsers.maps.mapclasses import MapPoint
 
 class LocationSharingSignals(QObject):
-    textMessageReceived = pyqtSignal (str)
+    textMessageReceived = Signal(str)
 
 class LocationSharingService(QObject):
     character_name = None
