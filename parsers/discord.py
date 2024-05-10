@@ -92,8 +92,9 @@ class Discord(ParserWindow):
     _color = ''
     _bg_opacity = 25
 
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self):
+        self.name = "discord"
+        super().__init__()
         QApplication.instance()._signals['settings'].config_updated.connect(self.config_updated)
         self.setAttribute(
             QtCore.Qt.WidgetAttribute.WA_TranslucentBackground, True)

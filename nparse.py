@@ -89,9 +89,9 @@ class NomnsParse(QApplication):
 
     def _load_parsers(self):
         self._parsers_dict = {
-            "maps": parsers.Maps("maps"),
-            "spells": parsers.Spells("spells"),
-            "discord": parsers.Discord("discord"),
+            "maps": parsers.Maps(),
+            "spells": parsers.Spells(),
+            "discord": parsers.Discord(),
         }
         self._parsers = [
             self._parsers_dict["maps"],

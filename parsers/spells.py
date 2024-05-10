@@ -14,8 +14,9 @@ from helpers import ParserWindow, config, format_time, text_time_to_seconds
 class Spells(ParserWindow):
     """Tracks spell casting, duration, and targets by name."""
 
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self):
+        self.name = "spells"
+        super().__init__()
         QApplication.instance()._signals['settings'].spell_triggers_updated.connect(self.load_custom_timers)
         self._setup_ui()
         self.spell_book, self.text_you, self.text_other = create_spell_book()

@@ -22,8 +22,9 @@ class MapsSignals(QObject):
 
 class Maps(ParserWindow):
 
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self):
+        self.name = "maps"
+        super().__init__()
         # interface
         self._map = MapCanvas()
         self.content.addWidget(self._map, 1)

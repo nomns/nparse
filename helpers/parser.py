@@ -23,10 +23,8 @@ class ParserWindow(QWidget):
     _window_flush = None
     _window_opacity = 80
 
-    def __init__(self, name):
+    def __init__(self):
         super().__init__()
-        # Set Vars from init
-        self.name = name
 
         # Set vars from config
         self._always_on_top = config.data.get(self.name, {}).get("always_on_top", True)
