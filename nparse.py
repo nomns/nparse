@@ -109,7 +109,7 @@ class NomnsParse(QApplication):
 
             else:
                 self._log_reader = logreader.LogReader(
-                    config.data['general']['eq_log_dir'])
+                    os.path.abspath(config.data['general']['eq_log_dir']))
                 QApplication.instance()._signals["logreader"].new_line.connect(self._parse)
                 self._toggled = True
         else:
