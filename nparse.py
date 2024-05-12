@@ -3,9 +3,9 @@ import os
 import sys
 import webbrowser
 
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QCursor, QFontDatabase, QIcon
-from PyQt6.QtWidgets import QApplication, QFileDialog, QMenu, QSystemTrayIcon
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QCursor, QFontDatabase, QIcon
+from PySide6.QtWidgets import QApplication, QFileDialog, QMenu, QSystemTrayIcon
 import semver
 
 from helpers import config, logreader, resource_path, get_version
@@ -109,7 +109,7 @@ class NomnsParse(QApplication):
 
             else:
                 self._log_reader = logreader.LogReader(
-                    config.data['general']['eq_log_dir'])
+                    os.path.abspath(config.data['general']['eq_log_dir']))
                 QApplication.instance()._signals["logreader"].new_line.connect(self._parse)
                 self._toggled = True
         else:

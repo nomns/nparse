@@ -55,11 +55,15 @@ def users_event():
 
 def clean_old_waypoints():
     now = datetime.datetime.now().timestamp()
-    for group_key in WAYPOINT_LOCS:
-        for zone in WAYPOINT_LOCS[group_key]:
+    for group_key in list(WAYPOINT_LOCS):
+        for zone in list(WAYPOINT_LOCS[group_key]):
             for waypoint in list(WAYPOINT_LOCS[group_key][zone]):
                 if now > waypoint[1]:
                     WAYPOINT_LOCS[group_key][zone].pop(waypoint)
+                    if not WAYPOINT_LOCS[group_key][zone]:
+                        WAYPOINT_LOCS[group_key].pop(zone)
+        if not WAYPOINT_LOCS[group_key]:
+            WAYPOINT_LOCS.pop(group_key)
 
 
 async def notify_location(websocket, group_key):
@@ -98,7 +102,7 @@ async def register(websocket, player_name=None, group_key=None):
 
 async def unregister(websocket):
     player_name, group_key = PLAYERS.pop(websocket)
-    if player_name:
+    if player_name or player_name == "":
         await remove_player_from_zones(player_name, group_key)
     logging.warning("Deregistering player: %s" % websocket.remote_address[0])
     # await notify_users(websocket)
@@ -149,9 +153,9 @@ async def remove_player_from_zones(name, group_key, except_zone=None):
             continue
         if name in PLAYER_LOCS[group_key][zone]:
             PLAYER_LOCS[group_key][zone].pop(name)
-            if len(PLAYER_LOCS[group_key][zone]) == 0:
+            if not PLAYER_LOCS[group_key][zone]:
                 PLAYER_LOCS[group_key].pop(zone)
-                if len(PLAYER_LOCS[group_key]) == 0:
+                if not PLAYER_LOCS[group_key]:
                     PLAYER_LOCS.pop(group_key)
 
 

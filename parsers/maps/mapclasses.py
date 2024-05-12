@@ -1,9 +1,9 @@
 import datetime
 
 import colorhash
-from PyQt6.QtCore import Qt, QTimer, QPointF
-from PyQt6.QtGui import QPixmap, QPen
-from PyQt6.QtWidgets import (QGraphicsItemGroup, QGraphicsLineItem,
+from PySide6.QtCore import Qt, QTimer, QPointF
+from PySide6.QtGui import QPixmap, QPen
+from PySide6.QtWidgets import (QGraphicsItemGroup, QGraphicsLineItem,
                              QGraphicsPixmapItem, QGraphicsTextItem)
 
 from helpers import format_time, get_degrees_from_line, to_eq_xy

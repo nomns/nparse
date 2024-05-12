@@ -2,15 +2,15 @@ from datetime import datetime
 from glob import glob
 import os
 
-from PyQt6.QtCore import QFileSystemWatcher, pyqtSignal, QObject
-from PyQt6.QtWidgets import QApplication
+from PySide6.QtCore import QFileSystemWatcher, Signal, QObject
+from PySide6.QtWidgets import QApplication
 
 from helpers import strip_timestamp
 
 class LogReaderSignals(QObject):
-    new_line = pyqtSignal(object)
-    character_updated = pyqtSignal(str)
-    server_updated = pyqtSignal(str)
+    new_line = Signal(object)
+    character_updated = Signal(str)
+    server_updated = Signal(str)
     def __init__(self):
         super().__init__()
 
