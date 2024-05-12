@@ -60,9 +60,9 @@ def clean_old_waypoints():
             for waypoint in list(WAYPOINT_LOCS[group_key][zone]):
                 if now > waypoint[1]:
                     WAYPOINT_LOCS[group_key][zone].pop(waypoint)
-                    if len(WAYPOINT_LOCS[group_key][zone]) == 0:
+                    if not WAYPOINT_LOCS[group_key][zone]:
                         WAYPOINT_LOCS[group_key].pop(zone)
-        if len(WAYPOINT_LOCS[group_key]) == 0:
+        if not WAYPOINT_LOCS[group_key]:
             WAYPOINT_LOCS.pop(group_key)
 
 
@@ -153,9 +153,9 @@ async def remove_player_from_zones(name, group_key, except_zone=None):
             continue
         if name in PLAYER_LOCS[group_key][zone]:
             PLAYER_LOCS[group_key][zone].pop(name)
-            if len(PLAYER_LOCS[group_key][zone]) == 0:
+            if not PLAYER_LOCS[group_key][zone]:
                 PLAYER_LOCS[group_key].pop(zone)
-                if len(PLAYER_LOCS[group_key]) == 0:
+                if not PLAYER_LOCS[group_key]:
                     PLAYER_LOCS.pop(group_key)
 
 
