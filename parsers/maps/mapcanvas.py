@@ -4,9 +4,9 @@ import traceback
 import os
 
 import pathvalidate
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPainter, QTransform, QColor, QPen, QAction
-from PyQt6.QtWidgets import (QGraphicsScene, QGraphicsView, QInputDialog,
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPainter, QTransform, QColor, QPen, QAction
+from PySide6.QtWidgets import (QGraphicsScene, QGraphicsView, QInputDialog,
                              QMenu, QLineEdit, QGraphicsPathItem)
 
 from helpers import config, to_range, text_time_to_seconds

@@ -3,9 +3,9 @@ import os
 import sys
 import webbrowser
 
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QCursor, QFontDatabase, QIcon
-from PyQt6.QtWidgets import QApplication, QFileDialog, QMenu, QSystemTrayIcon
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QCursor, QFontDatabase, QIcon
+from PySide6.QtWidgets import QApplication, QFileDialog, QMenu, QSystemTrayIcon
 import semver
 
 from helpers import config, logreader, resource_path, get_version

@@ -12,8 +12,6 @@ Building
 
 Install Python 3.12.x and install requirements with `pip install -r requirements.txt`
 
-Note: Currently it seems problematic to build PyQt6 on 32-bit Python.
-
 Install `pyinstaller==6.6.0`
 
 Run: `pyinstaller nparse_py.spec`

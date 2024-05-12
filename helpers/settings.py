@@ -1,8 +1,8 @@
 import functools
 
-from PyQt6.QtCore import Qt, QObject, pyqtSignal
-from PyQt6.QtGui import QColor
-from PyQt6.QtWidgets import (QCheckBox, QDialog, QFormLayout, QFrame,
+from PySide6.QtCore import Qt, QObject, Signal
+from PySide6.QtGui import QColor
+from PySide6.QtWidgets import (QCheckBox, QDialog, QFormLayout, QFrame,
                              QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
                              QSpinBox, QStackedWidget, QPushButton,
                              QVBoxLayout, QWidget, QComboBox, QLineEdit,
@@ -12,8 +12,8 @@ from helpers import config, text_time_to_seconds
 from parsers.spells import CustomTrigger
 
 class SettingsSignals(QObject):
-    config_updated = pyqtSignal()
-    spell_triggers_updated = pyqtSignal()
+    config_updated = Signal()
+    spell_triggers_updated = Signal()
 
     def __init__(self):
         super().__init__()
