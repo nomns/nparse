@@ -1,6 +1,7 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QStyle,
-                             QPushButton, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (
+    QApplication, QHBoxLayout, QLabel, QStyle,
+    QPushButton, QVBoxLayout, QWidget)
 
 from helpers import config
 
