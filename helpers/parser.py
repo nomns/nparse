@@ -9,7 +9,7 @@ from helpers import config
 class ParserWindow(QWidget):
     content = None
     menu_area = None
-    name = ""
+    name = None
 
     _always_on_top = True
     _auto_hide_menu = True
