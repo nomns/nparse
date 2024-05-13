@@ -21,6 +21,7 @@ class ParserWindow(QWidget):
     _menu_content = None
     _parser_menu_area = None
     _title = None
+    _toggled = False
     _window_flush = None
     _window_opacity = 80
 
@@ -39,6 +40,7 @@ class ParserWindow(QWidget):
         self._clickthrough = config.data.get(self.name, {}).get("clickthrough", True)
         self._frameless = config.data.get(self.name, {}).get("frameless", True)
         self._geometry = config.data.get(self.name, {}).get("geometry", [0,0,200,400])
+        self._toggled = config.data.get(self.name, {}).get("toggled", True)
         self._window_flush = config.data.get("general", {}).get("window_flush", True)
         self._window_opacity = config.data.get(self.name, {}).get("opacity", 80)
 
@@ -89,6 +91,8 @@ class ParserWindow(QWidget):
             self._parser_settings_config_update_watcher
         )
         QApplication.instance().aboutToQuit.connect(self._save_geometry)
+        if self._toggled:
+            self.show()
 
     def _parser_settings_config_update_watcher(self):
         requies_redraw = False

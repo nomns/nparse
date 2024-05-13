@@ -108,8 +108,6 @@ class Discord(ParserWindow):
         self._bg_opacity = config.data.get(self.name, {}).get('bg_opacity', '25')
 
         self.update_background_color()
-        if config.data[self.name]['toggled']:
-            self.show()
 
     def config_updated(self):
         if self._color != config.data.get(self.name, {}).get('color', '#000000'):

@@ -67,8 +67,6 @@ class Maps(ParserWindow):
             self._map.load_map(config.data['maps']['last_zone'])
         else:
             self._map.load_map('west freeport')
-        if config.data[self.name]['toggled']:
-            self.show()
 
     def parse(self, timestamp, text):
         if text[:23] == 'LOADING, PLEASE WAIT...':
