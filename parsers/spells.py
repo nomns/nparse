@@ -26,8 +26,6 @@ class Spells(ParserWindow):
         self._zoning = None  # holds time of zone or None
         self._spell_triggers = []  # need a queue because of landing windows
         self._spell_trigger = None
-        if config.data[self.name]['toggled']:
-            self.show()
 
     def _setup_ui(self):
         self.setMinimumWidth(150)
