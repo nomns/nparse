@@ -3,8 +3,8 @@ import math
 import pathlib
 from collections import Counter
 
-from PyQt6.QtGui import QColor, QPen, QPainterPath
-from PyQt6.QtWidgets import QGraphicsPathItem, QGraphicsItemGroup
+from PySide6.QtGui import QColor, QPen, QPainterPath
+from PySide6.QtWidgets import QGraphicsPathItem, QGraphicsItemGroup
 
 from helpers import config
 

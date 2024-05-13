@@ -1,8 +1,8 @@
 """Map parser for nparse."""
 import re
 
-from PyQt6.QtCore import pyqtSignal, QObject
-from PyQt6.QtWidgets import QHBoxLayout, QPushButton, QApplication
+from PySide6.QtCore import Signal, QObject
+from PySide6.QtWidgets import QHBoxLayout, QPushButton, QApplication
 
 from helpers import config, to_real_xy, ParserWindow
 from .mapcanvas import MapCanvas
@@ -12,13 +12,13 @@ from .mapdata import MapData
 ZONE_MATCHER = re.compile(r"There (is|are) \d+ players? in (?P<zone>.+)\.")
 
 class MapsSignals(QObject):
-    zoning = pyqtSignal()
-    new_zone = pyqtSignal(str)
-    location = pyqtSignal(str, str)
-    death = pyqtSignal(str, str)
-    start_recording = pyqtSignal(str)
-    rename_recording = pyqtSignal(str)
-    stop_recording = pyqtSignal()
+    zoning = Signal()
+    new_zone = Signal(str)
+    location = Signal(str, str)
+    death = Signal(str, str)
+    start_recording = Signal(str)
+    rename_recording = Signal(str)
+    stop_recording = Signal()
 
 class Maps(ParserWindow):
 

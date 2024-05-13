@@ -3,9 +3,9 @@ import math
 import string
 import re
 
-from PyQt6.QtCore import QEvent, QObject, QRect, Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel, QProgressBar,
+from PySide6.QtCore import QEvent, QObject, QRect, Qt, QTimer, Signal
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel, QProgressBar,
                              QScrollArea, QSpinBox, QVBoxLayout, QPushButton)
 
 from helpers import ParserWindow, config, format_time, text_time_to_seconds
@@ -383,7 +383,7 @@ def get_spell_icon(icon_index):
     y = (file_row - 1) * 40
     icon_image = QPixmap(file_name)
     scaled_icon_image = icon_image.copy(QRect(x, y, 40, 40)).scaled(
-        15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
+        15, 15, mode=Qt.TransformationMode.SmoothTransformation)
     label = QLabel()
     label.setPixmap(scaled_icon_image)
     label.setFixedSize(15, 15)
@@ -413,7 +413,7 @@ class Spell:
 
 class SpellTrigger(QObject):
 
-    spell_triggered = pyqtSignal()
+    spell_triggered = Signal()
 
     def __init__(self, **kwargs):
         super().__init__()

@@ -1,9 +1,9 @@
 import functools
 
-from PyQt6 import QtCore
-from PyQt6.QtGui import QColor
-from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtWidgets import QApplication, QScrollArea, QPushButton, QDialog, QGridLayout
+from PySide6 import QtCore
+from PySide6.QtGui import QColor
+from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtWidgets import QApplication, QScrollArea, QPushButton, QDialog, QGridLayout
 
 from helpers import ParserWindow, config
 
