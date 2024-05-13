@@ -23,7 +23,13 @@ class ParserWindow(QWidget):
     _window_flush = None
     _window_opacity = 80
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        if not self.name:
+            self.name = kwargs.get("name", None)
+            if not self.name:
+                raise AttributeError(
+                    "'name' is a required attribute that must be set via **kwargs or in the partent class."
+                )
         super().__init__()
 
         # Set vars from config
