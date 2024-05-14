@@ -1,2 +1,2 @@
-from .window import Maps
-from .mapdata import MapData
+from nParse.parsers.maps.window import Maps
+from nParse.parsers.maps.mapdata import MapData

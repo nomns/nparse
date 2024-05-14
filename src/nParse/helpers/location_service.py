@@ -5,8 +5,8 @@ from PySide6.QtCore import QObject, QUrl, Signal, QTimer
 from PySide6.QtWidgets import QApplication
 from PySide6.QtWebSockets import QWebSocket
 
-from helpers import config, to_real_xy
-from parsers.maps.mapclasses import MapPoint
+from nParse.helpers import config, to_real_xy
+from nParse.parsers.maps.mapclasses import MapPoint
 
 class LocationSharingSignals(QObject):
     textMessageReceived = Signal(str)

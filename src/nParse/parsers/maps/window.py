@@ -4,11 +4,11 @@ import re
 from PySide6.QtCore import Signal, QObject
 from PySide6.QtWidgets import QHBoxLayout, QPushButton, QApplication
 
-from helpers.parser import ParserWindow
-from helpers import config, to_real_xy
-from .mapcanvas import MapCanvas
-from .mapclasses import MapPoint
-from .mapdata import MapData
+from nParse.helpers.parser import ParserWindow
+from nParse.helpers import config, to_real_xy
+from nParse.parsers.maps.mapcanvas import MapCanvas
+from nParse.parsers.maps.mapclasses import MapPoint
+from nParse.parsers.maps.mapdata import MapData
 
 ZONE_MATCHER = re.compile(r"There (is|are) \d+ players? in (?P<zone>.+)\.")
 

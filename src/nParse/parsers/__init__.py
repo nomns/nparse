@@ -1,4 +1,4 @@
 
-from .maps import Maps
-from .spells import Spells
-from .discord import Discord
+from nParse.parsers.maps import Maps
+from nParse.parsers.spells import Spells
+from nParse.parsers.discord import Discord

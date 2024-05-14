@@ -4,8 +4,8 @@ import sys
 
 from PySide6.QtGui import QFontDatabase, QIcon
 
-from helpers import resource_path
-from helpers.application import NomnsParse
+from nParse.helpers import resource_path
+from nParse.helpers.application import NomnsParse
 
 if __name__ == "__main__":
     try:
