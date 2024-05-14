@@ -8,8 +8,8 @@ from PySide6.QtWidgets import (QCheckBox, QDialog, QFormLayout, QFrame,
                              QVBoxLayout, QWidget, QComboBox, QLineEdit,
                              QMessageBox, QColorDialog, QApplication)
 
-from helpers import config, text_time_to_seconds
-from parsers.spells import CustomTrigger
+from nParse.helpers import config, text_time_to_seconds
+from nParse.parsers.spells import CustomTrigger
 
 class SettingsSignals(QObject):
     config_updated = Signal()

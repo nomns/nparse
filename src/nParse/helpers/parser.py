@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QApplication, QHBoxLayout, QLabel, QStyle,
     QPushButton, QVBoxLayout, QWidget)
 
-from helpers import config
+from nParse.helpers import config
 
 
 class ParserWindow(QWidget):

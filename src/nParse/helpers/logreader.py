@@ -5,7 +5,7 @@ import os
 from PySide6.QtCore import QFileSystemWatcher, Signal, QObject
 from PySide6.QtWidgets import QApplication
 
-from helpers import strip_timestamp
+from nParse.helpers import strip_timestamp
 
 class LogReaderSignals(QObject):
     new_line = Signal(object)

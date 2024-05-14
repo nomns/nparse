@@ -6,7 +6,7 @@ from PySide6.QtGui import QPixmap, QPen
 from PySide6.QtWidgets import (QGraphicsItemGroup, QGraphicsLineItem,
                              QGraphicsPixmapItem, QGraphicsTextItem)
 
-from helpers import format_time, get_degrees_from_line, to_eq_xy
+from nParse.helpers import format_time, get_degrees_from_line, to_eq_xy
 
 
 class MouseLocation(QGraphicsTextItem):

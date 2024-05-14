@@ -6,9 +6,8 @@ from collections import Counter
 from PySide6.QtGui import QColor, QPen, QPainterPath
 from PySide6.QtWidgets import QGraphicsPathItem, QGraphicsItemGroup
 
-from helpers import config
-
-from .mapclasses import MapPoint, MapGeometry, MapLine, PointOfInterest
+from nParse.helpers import config
+from nParse.parsers.maps.mapclasses import MapPoint, MapGeometry, MapLine, PointOfInterest
 
 MAP_KEY_FILE = 'data/maps/map_keys.ini'
 MAP_KEY_FILE_WHO = 'data/maps/map_keys_who.ini'

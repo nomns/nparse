@@ -9,11 +9,10 @@ from PySide6.QtGui import QPainter, QTransform, QColor, QPen, QAction
 from PySide6.QtWidgets import (QGraphicsScene, QGraphicsView, QInputDialog,
                              QMenu, QLineEdit, QGraphicsPathItem)
 
-from helpers import config, to_range, text_time_to_seconds
-
-from .mapclasses import (MapPoint, WayPoint, Player, SpawnPoint, MouseLocation,
+from nParse.helpers import config, to_range, text_time_to_seconds
+from nParse.parsers.maps.mapclasses import (MapPoint, WayPoint, Player, SpawnPoint, MouseLocation,
                          PointOfInterest, UserWaypoint)
-from .mapdata import MapData, MAP_FILES_PATHLIB, ICON_MAP
+from nParse.parsers.maps.mapdata import MapData, MAP_FILES_PATHLIB, ICON_MAP
 
 
 class MapCanvas(QGraphicsView):

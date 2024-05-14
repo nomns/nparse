@@ -6,12 +6,14 @@ from PySide6.QtGui import QCursor, QIcon
 from PySide6.QtWidgets import QApplication, QFileDialog, QMenu, QSystemTrayIcon
 import semver
 
-from helpers import config, logreader, resource_path, get_version
-from helpers.settings import SettingsWindow, SettingsSignals
-from helpers.logreader import LogReaderSignals
-from helpers.location_service import LocationSharingService, LocationSharingSignals
-import parsers
-from parsers.maps.window import MapsSignals
+from nParse.helpers import config, logreader, resource_path, get_version
+from nParse.helpers.settings import SettingsWindow, SettingsSignals
+from nParse.helpers.logreader import LogReaderSignals
+from nParse.helpers.location_service import LocationSharingService, LocationSharingSignals
+from nParse.parsers.discord import Discord
+from nParse.parsers.maps import Maps
+from nParse.parsers.maps.window import MapsSignals
+from nParse.parsers.spells import Spells
 
 config.load('nparse.config.json')
 # validate settings file
@@ -19,9 +21,9 @@ config.verify_settings()
 
 CURRENT_VERSION = semver.VersionInfo(
     major=0,
-    minor=6,
-    patch=8,
-    build="qt6-1"
+    minor=7,
+    patch=0,
+    build=""
 )
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
@@ -79,9 +81,9 @@ class NomnsParse(QApplication):
 
     def _load_parsers(self):
         self._parsers_dict = {
-            "maps": parsers.Maps(),
-            "spells": parsers.Spells(),
-            "discord": parsers.Discord(),
+            "maps": Maps(),
+            "spells": Spells(),
+            "discord": Discord(),
         }
         self._parsers = [
             self._parsers_dict["maps"],
