@@ -4,27 +4,19 @@
 
 The location server runs on port: `8424`
 
-Set your nParse `Setttings -> Sharing -> Sharing Hostname` to: `ws://localhost:8424` (You can replace `locahost` with your ip or domain name)
+Set your nParse `Settings -> Sharing -> Sharing Hostname` to: `ws://localhost:8424` (You can replace `locahost` with your ip or domain name)
 
 Running
 ========
 
-Setup:
-
-1. Create the directory where you would like nParse to be cloned to and then `cd` into the directory.
-2. Clone the repository: `git clone https://github.com/nomns/nparse.git .`
-3. Create a virtual environment: `python -m venv .venv`
-4. Activate the virtual environment: 
-    - Windows: `.\venv\scripts\activate.bat`
-    - Linux: `source .venv/bin/activate`
-5. Install pip requirements: `pip install -r requirements.txt`
-
 Usage:
 
-1. Activate the virtual environment: 
-    - Windows: `.\venv\scripts\activate.bat`
-    - Linux: `source .venv/bin/activate`
-2. Run nParse: `python location_server.py`
+1. Install docker (Linux) or Docker Desktop (Windows/OSX).
+2. To build and run in Docker, use one of these commands:
+   1. docker-compose: `docker-compose up -d`
+   2. docker:
+      1. `docker build -q .`
+      2. `docker run --rm  -d -p 8424:8424 --name nparse-locserver <image_sha>` (replacing `<image_sha>` with the output of the first command)
 
 Development
 ========
