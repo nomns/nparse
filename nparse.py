@@ -14,7 +14,13 @@ if __name__ == "__main__":
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APPID)
     except:
         pass
+    try:
+        import pyi_splash  # noqa
 
+        pyi_splash.update_text('Done!')
+        pyi_splash.close()
+    except:  # noqa
+        pass
     APP = NomnsParse(sys.argv)
     APP.setStyleSheet(open(resource_path(os.path.join('data', 'ui', '_.css'))).read())
     APP.setWindowIcon(QIcon(resource_path(os.path.join('data', 'ui', 'icon.png'))))

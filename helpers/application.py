@@ -13,14 +13,6 @@ from helpers.location_service import LocationSharingService, LocationSharingSign
 import parsers
 from parsers.maps.window import MapsSignals
 
-try:
-    import pyi_splash  # noqa
-
-    pyi_splash.update_text('Done!')
-    pyi_splash.close()
-except:  # noqa
-    pass
-
 config.load('nparse.config.json')
 # validate settings file
 config.verify_settings()
