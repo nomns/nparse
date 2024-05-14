@@ -8,7 +8,8 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel, QProgressBar,
                              QScrollArea, QSpinBox, QVBoxLayout, QPushButton)
 
-from helpers import ParserWindow, config, format_time, text_time_to_seconds
+from helpers.parser import ParserWindow
+from helpers import config, format_time, text_time_to_seconds
 
 
 class Spells(ParserWindow):

@@ -5,7 +5,8 @@ from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QApplication, QScrollArea, QPushButton, QDialog, QGridLayout
 
-from helpers import ParserWindow, config
+from helpers.parser import ParserWindow
+from helpers import config
 
 
 JS_ADD_CSS_TEMPLATE = """(

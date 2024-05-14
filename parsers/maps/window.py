@@ -4,7 +4,8 @@ import re
 from PySide6.QtCore import Signal, QObject
 from PySide6.QtWidgets import QHBoxLayout, QPushButton, QApplication
 
-from helpers import config, to_real_xy, ParserWindow
+from helpers.parser import ParserWindow
+from helpers import config, to_real_xy
 from .mapcanvas import MapCanvas
 from .mapclasses import MapPoint
 from .mapdata import MapData
