@@ -1,2 +1,2 @@
-from .window import Maps  # noqa: F401
-from .mapdata import MapData  # noqa: F401
+from .window import Maps
+from .mapdata import MapData

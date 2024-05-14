@@ -7,9 +7,6 @@ import json
 
 import semver
 
-from .parser import ParserWindow  # noqa: F401
-
-
 def get_version():
     version = None
     try:
