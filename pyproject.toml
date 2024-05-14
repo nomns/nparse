@@ -17,6 +17,13 @@ classifiers = [
 Homepage = "https://github.com/nomns/nparse"
 Issues = "https://github.com/nomns/nparse/issues"
 
+[project.optional-dependencies]
+build = [
+  'pyinstaller==6.6.0',
+]
+tests = [
+  'pytest-cov',
+]
 
 [tool.pytest.ini_options]
 addopts = [
