@@ -1,5 +1,4 @@
 PySide6
-websockets
 colorhash
 pathvalidate
 semver
