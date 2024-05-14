@@ -21,9 +21,9 @@ config.verify_settings()
 
 CURRENT_VERSION = semver.VersionInfo(
     major=0,
-    minor=6,
-    patch=8,
-    build="qt6-1"
+    minor=7,
+    patch=0,
+    build=""
 )
 if config.data['general']['update_check']:
     ONLINE_VERSION = get_version()
