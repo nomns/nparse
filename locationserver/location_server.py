@@ -35,17 +35,21 @@ class PlayerLocation(dict):
         self.timestamp = timestamp
 
 
-def location_event(group_key):
+def location_event(group_key, zone_name):
     waypoints = {}
     for zone in WAYPOINT_LOCS.get(group_key, {}):
+        # temporarily short-circuit and only send waypoints for the current zone
+        if zone != zone_name:
+            continue
         if zone not in waypoints:
             waypoints[zone] = {}
         for key, data in WAYPOINT_LOCS[group_key][zone].items():
             waypoints[zone][f"{key[0]}:{key[1]}"] = data
 
+    print(zone_name, PLAYER_LOCS.get(group_key, {}))
     return json.dumps(
         {"type": "state",
-         "locations": PLAYER_LOCS.get(group_key, {}),
+         "locations": PLAYER_LOCS.get(group_key, {}).get(zone_name, {}),
          "waypoints": waypoints})
 
 
@@ -66,7 +70,7 @@ def clean_old_waypoints():
             WAYPOINT_LOCS.pop(group_key)
 
 
-async def notify_location(websocket, group_key):
+async def notify_location(websocket, group_key, zone_name):
     now = time.time()
     if now < LAST_SENT.get(group_key, 0) + 1:
         # print("Sending too fast.")
@@ -75,7 +79,7 @@ async def notify_location(websocket, group_key):
 
     clean_old_waypoints()
 
-    message = location_event(group_key)
+    message = location_event(group_key, zone_name)
     logging.warning("Notifying locations for %s: %s" % (group_key, message))
     if PLAYERS:
         keyed_players = [
@@ -162,18 +166,19 @@ async def remove_player_from_zones(name, group_key, except_zone=None):
 async def update_loc(websocket: websockets.WebSocketServerProtocol):
     await register(websocket)
     try:
-        # await notify_location(websocket)
         async for message in websocket:
             data = json.loads(message)
             group_key = data.pop('group_key', 'public')
             if data['type'] == "location":
                 data = data['location']
+                zone_name = data.get('zone', 'unknown').lower()
                 await update_data_for_player(websocket, data, group_key=group_key)
-                await notify_location(websocket, group_key)
+                await notify_location(websocket, group_key, zone_name)
             elif data['type'] == "waypoint":
                 data = data['location']
+                zone_name = data.get('zone', 'unknown').lower()
                 await update_data_for_waypoint(websocket, data, group_key=group_key)
-                await notify_location(websocket, group_key)
+                await notify_location(websocket, group_key, zone_name)
     except ws_exc.ConnectionClosedError:
         logging.warning(
             "Player disconnected: %s" % websocket.remote_address[0])
