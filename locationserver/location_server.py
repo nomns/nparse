@@ -8,12 +8,12 @@ import websockets
 import websockets.server
 from websockets import exceptions as ws_exc
 
+# Update this variable to change the listening port
+BIND_PORT = 8424
+
+# DO NOT EDIT BEYOND THIS LINE
 logging.basicConfig()
 LOG = logging.getLogger(__name__)
-
-# Update these variables to change the listening interface/port.
-BIND_HOST = "::"
-BIND_PORT = 8424
 
 PLAYERS = {}
 PLAYER_LOCS = {}
@@ -186,7 +186,8 @@ async def update_loc(websocket: websockets.WebSocketServerProtocol):
 
 
 async def main():
-    async with websockets.server.serve(update_loc, BIND_HOST, BIND_PORT):
+    logging.warning("Starting asyncio loop...")
+    async with websockets.server.serve(update_loc, port=BIND_PORT):
         await asyncio.Future()  # run forever
 
 
