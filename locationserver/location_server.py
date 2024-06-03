@@ -46,7 +46,6 @@ def location_event(group_key, zone_name):
         for key, data in WAYPOINT_LOCS[group_key][zone].items():
             waypoints[zone][f"{key[0]}:{key[1]}"] = data
 
-    print(zone_name, PLAYER_LOCS.get(group_key, {}))
     return json.dumps(
         {"type": "state",
          "locations": PLAYER_LOCS.get(group_key, {}).get(zone_name, {}),

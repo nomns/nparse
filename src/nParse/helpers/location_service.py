@@ -139,6 +139,7 @@ class LocationSharingService(QObject):
     # Websocket Connected - This can be useful for delaying a send until the connection is actually connected.
     def websocket_connected(self):
         self.websocket.ping()
+        print("Connected")
 
     # Websocket Error
     def websocket_error(self, message):
@@ -158,6 +159,7 @@ class LocationSharingService(QObject):
     # Websocket message handler - handles any incoming messages from the websocket server
     def websocket_message(self, message):
         QApplication.instance()._signals["locationsharing"].textMessageReceived.emit(message)
+        print(message)
 
     # Parses messages from the websocket server
     def parse(self, websocket_message):
@@ -226,6 +228,7 @@ class LocationSharingService(QObject):
                 "location": share_payload}
 
         # Send the message
+        print("Sending: %s" % message)
         self.websocket.sendTextMessage(json.dumps(message))
 
         # Below is an example of sending a fake message to verify both adding and removing entries works in field of bone at the cab gates
