@@ -7,3 +7,9 @@ services:
     restart: always
     ports:
       - "8424:8424"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+        compress: "true"
