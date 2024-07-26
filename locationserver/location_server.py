@@ -46,9 +46,9 @@ def location_event(group_key, zone_name):
         for key, data in WAYPOINT_LOCS[group_key][zone].items():
             waypoints[zone][f"{key[0]}:{key[1]}"] = data
 
-    return json.dumps(
+    return (
         {"type": "state",
-         "locations": PLAYER_LOCS.get(group_key, {}).get(zone_name, {}),
+         "locations": {zone_name: PLAYER_LOCS.get(group_key, {}).get(zone_name, {})},
          "waypoints": waypoints})
 
 
@@ -70,16 +70,19 @@ def clean_old_waypoints():
 
 
 async def notify_location(websocket, group_key, zone_name):
+    if group_key not in LAST_SENT:
+        LAST_SENT[group_key] = {}
     now = time.time()
-    if now < LAST_SENT.get(group_key, 0) + 1:
+    if now < LAST_SENT[group_key].get(zone_name, 0) + 1:
         # print("Sending too fast.")
         return
-    LAST_SENT[group_key] = now
+    LAST_SENT[group_key][zone_name] = now
 
     clean_old_waypoints()
 
-    message = location_event(group_key, zone_name)
-    logging.warning("Notifying locations for %s: %s" % (group_key, message))
+    loc_event = location_event(group_key, zone_name)
+    message = json.dumps(loc_event)
+    logging.warning("Notifying locations for %s (%s): %s" % (group_key, zone_name, message))
     if PLAYERS:
         keyed_players = [
             user for user in PLAYERS
