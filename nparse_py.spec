@@ -4,9 +4,9 @@ block_cipher = None
 
 from glob import glob
 import os
-data = [(filename, os.path.dirname(filename)) for filename in glob('data\\fonts\\*')]
-data += [('data\\ui\\_.css', 'data\\ui\\')]
-data += [('data\\ui\\icon.png', 'data\\ui\\')]
+data = [(filename, os.path.dirname(filename)) for filename in glob(os.path.join('data', 'fonts', '*'))]
+data += [(os.path.join('data', 'ui', '_.css'), os.path.join('data', 'ui'))]
+data += [(os.path.join('data', 'ui', 'icon.png'), os.path.join('data', 'ui'))]
 
 from PyInstaller.utils.hooks import copy_metadata
 data += copy_metadata('colorhash')
