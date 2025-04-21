@@ -59,20 +59,23 @@ Building
 
 Setup:
 
-1. Create the directory where you would like nParse to be cloned to and then `cd` into the directory.
+1. Create the directory where you would like nParse to be cloned to and then cd into the directory.
 2. Clone the repository: `git clone https://github.com/nomns/nparse.git .`
-3. Create a virtual environment: `python -m venv .venv`
-4. Activate the virtual environment: 
-    - Windows: `.\venv\Scripts\activate.bat`
-    - Linux: `source .venv/bin/activate`
-5. Install pip requirements: `pip install -r requirements-build.txt`
-6. Install nParse: `pip install .`
+3. Create a virtual environment:
+   - Windows: `python -m venv .venv`
+   - Linux: `python3 -m venv .venv`
+4. Activate the virtual environment:
+   - Windows: `.\venv\Scripts\activate.bat`
+   - Linux: `source .venv/bin/activate`
+5. Install pip requirements: `pip install -r requirements.txt`
+6. Install build dependencies: `pip install pyinstaller`
+7. Install nParse: `pip install .`
 
 Usage:
 
 1. Build nParse: `pyinstaller nparse_py.spec`
 2. The compiled nParse executable will be in:
     - Windows: `builds\dist\nparse.exe`
-    - Linux: `builds/dist/nparse`
-
+    - Linux: `dist/nparse`
+    
 ----
